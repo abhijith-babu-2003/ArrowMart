@@ -1,6 +1,8 @@
 const User= require('../../models/userSchema')
 const nodemailer=require("nodemailer")
 const env=require("dotenv").config()
+const bcrypt=require("bcrypt");
+const { use } = require('../../routes/userRouter');
 
 
 
@@ -13,10 +15,12 @@ function generateotp() {
   return otp; 
 }
 
+
 //send verification email
 async function sendVerificationEmail(email, otp) {
   try {
-    console.log("Creating email transporter...");
+
+    // console.log("Creating email transporter...");
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -24,20 +28,20 @@ async function sendVerificationEmail(email, otp) {
         pass: process.env.NODEMAILER_PASSWORD,
       },
     });
-
-    console.log("Sending email to:", email);
+    // console.log("Sending email to:", email);
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
       subject: "Verify your account",
       text: `Your OTP is ${otp}`,
-      html: `<b>Your OTP: ${otp}</b>`,
+      html: `<p>Your OTP: ${otp}</p>`,
     });
-
-    console.log("Email sent successfully:", info);
+    // console.log("Email sent successfully:", info);
     return info.accepted.length > 0;
   } catch (error) {
+
     console.error("Error sending email:", error);
+
     return false;
   }
 }
@@ -45,46 +49,71 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
   try {
-    const { username, email, password, cpassword } = req.body;
+    const { username, phone, email, password, cpassword } = req.body;
 
-    // Password match check
+    // Check if passwords match
     if (password !== cpassword) {
-      console.log("Passwords do not match");
+      
       return res.render("signup", { message: "Passwords don't match" });
     }
-
     // Check if the user already exists
     const findUser = await User.findOne({ email });
     if (findUser) {
+
       console.log("Email already exists");
       return res.render("signup", { message: "Email already exists" });
     }
-
     // Generate OTP
-    console.log("Generating OTP...");
-    const otp = generateotp();
-    console.log("Generated OTP:", otp);
+    let otp;
+    try {
 
+      otp = generateotp(); // Ensure `generateotp` is reliable
+      // console.log("Generated OTP:", otp);
+    } catch (err) {
+
+      console.error("Error generating OTP:", err);
+      return res.render("signup", { message: "Error generating OTP" });
+    }
     // Send OTP via email
-    console.log("Sending OTP to email:", email);
     const emailSent = await sendVerificationEmail(email, otp);
-
     if (!emailSent) {
-      console.error("Error sending email");
-      return res.render("signup", { message: "Error sending verification email" });
+
+      console.error("Error sending verification email");
+      // return res.render("signup", { message: "Error sending verification email" });
+      return res.json("email.error")
     }
 
-    // Save OTP and user data in session
+    // Save OTP and user data in session before rendering
     req.session.userOtp = otp;
-    req.session.userData = { username, email, password };
-
-    console.log("OTP sent successfully and user data stored in session.");
-    return res.json({ message: "User registered successfully!" });
+    req.session.userData = { username, phone, email, password };
+    
+    
+    // Redirect to OTP verification page
+    return res.status(200).json({message:'otp generated successfully'})
+    // return res.render("verifyOtp");
   } catch (error) {
+
     console.error("Signup error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.redirect("/pageNotFound");
+
   }
 };
+
+
+//otp page loading
+
+const  loadingOtp=async(req,res)=>{
+  try {
+
+    return res.render('verifyOtp')
+
+  } catch (error) {
+
+    console.log('error is',error)
+  }
+}
+
+
 
 
 const loadSignup=async (req,res)=>{
@@ -99,6 +128,62 @@ const loadSignup=async (req,res)=>{
     
   }
 }
+
+
+// secure passsword
+
+const securePassword=async(password)=>{
+  try {
+    const passwordHash= await bcrypt.hash(password,10)
+    return passwordHash
+
+  } catch (error) {
+      console.log(error.message);
+      
+  }
+}
+
+
+// otp verification
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ success: false, message: "OTP is required" });
+    }
+
+    if (otp.toString() === req.session.userOtp?.toString()) {
+      const user = req.session.userData;
+
+      // Secure password hashing
+      const passwordHash = await securePassword(user.password);
+
+      // Save user data
+      const saveUserData = new User({
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        password: passwordHash,
+      });
+
+      await saveUserData.save();
+
+      // Update session
+      req.session.user = saveUserData._id;
+    
+      return res.json({ success: true, redirectUrl: "/" });
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+    }
+  } catch (error) {
+    console.error("Error during OTP verification:", error);
+    res.status(500).json({ success: false, message: "An error occurred" });
+  }
+};
+
+
 
 //error page 
 const pageNotFound =async (req,res)=>{
@@ -131,5 +216,7 @@ module.exports={
     loadHomePage,
     pageNotFound,
     loadSignup,
-    signup
+    signup,
+    verifyOtp,
+    loadingOtp
 }

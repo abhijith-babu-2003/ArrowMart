@@ -9,6 +9,8 @@ user_Router.post('/signup',userController.signup)
 user_Router.get("/pageNotFound",userController.pageNotFound)
 user_Router.get("/",userController.loadHomePage)
 
+user_Router.get('/verifyOtp',userController. loadingOtp)
+user_Router.post("/verifyOtp",userController.verifyOtp)
 
 
 
