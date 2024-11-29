@@ -9,6 +9,7 @@ const userSchema= new Schema ({
     email:{
         type:String,
         required:true,
+        
     },
     phone:{
         type:String,
@@ -19,7 +20,7 @@ const userSchema= new Schema ({
     },
     password:{
         type: String,
-
+        required:false
     },
     isBlocked:{
         type:Boolean,
@@ -28,6 +29,10 @@ const userSchema= new Schema ({
     isAdmin:{
         type:Boolean,
         default:false
+    },
+    googleId:{
+        type:String,
+        unique:true,
     },
     cart:[{
         type:Schema.Types.ObjectId,

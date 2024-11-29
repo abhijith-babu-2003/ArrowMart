@@ -1,9 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <title>OTP Verification</title>
     <style>
         body {
@@ -15,6 +18,7 @@
             margin: 0;
             background-color: #f0f0f0;
         }
+
         .container {
             background-color: white;
             padding: 2rem;
@@ -22,20 +26,24 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         h1 {
             color: #333;
             margin-bottom: 1rem;
         }
+
         p {
             color: #666;
             margin-bottom: 2rem;
         }
+
         .otp-inputs {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
             margin-bottom: 2rem;
         }
+
         .otp-inputs input {
             width: 3rem;
             height: 3rem;
@@ -46,9 +54,11 @@
             outline: none;
             transition: border-color 0.3s;
         }
+
         .otp-inputs input:focus {
             border-color: #007bff;
         }
+
         button {
             background-color: #007bff;
             color: white;
@@ -59,11 +69,13 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>OTP Verification</h1>
@@ -78,22 +90,25 @@
                 <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
             </div>
             <button type="submit">Verify</button>
+
+            <button id="resend-otp" disabled>Resend OTP</button>
+            <p id="timer">You can resend OTP in <span id="countdown">60</span> seconds.</p>
         </form>
     </div>
     <script>
         document.querySelector('form').addEventListener('submit', async (event) => {
             event.preventDefault();
-    
+
             // Collect the OTP from all input fields
             const otpInputs = document.querySelectorAll('.otp-inputs input');
             const otp = Array.from(otpInputs).map(input => input.value).join('');
-            console.log('otp is ',otp)
+            console.log('otp is ', otp)
             // Ensure OTP is 6 digits
             if (otp.length !== 6) {
-                alert('Please enter a 6-digit OTP.');
+                Swal.fire('Please enter a 6-digit OTP.');
                 return;
             }
-    
+
             try {
                 const response = await fetch('/verifyOtp', {
                     method: 'POST',
@@ -102,18 +117,23 @@
                     },
                     body: JSON.stringify({ otp }),
                 });
-    
+
                 const result = await response.json();
                 if (result.success) {
                     // Redirect on success
-                    window.location.href = result.redirectUrl;
+                    Swal.fire('otp is successfully')
+                    setTimeout(() => {
+                        window.location.href = result.redirectUrl;
+                    }, 2000)
+
+
                 } else {
                     // Show error message
-                    alert(result.message || 'OTP verification failed.');
+                    Swal.fire(result.message || 'OTP verification failed.');
                 }
             } catch (error) {
                 console.error('Error during OTP verification:', error);
-                alert('An unexpected error occurred. Please try again.');
+                Swal.fire('An unexpected error occurred. Please try again.');
             }
         });
     </script>
@@ -125,12 +145,12 @@
                 if (value.length > 1) {
                     event.target.value = value.charAt(0);
                 }
-    
+
                 if (value && index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
             });
-    
+
             input.addEventListener('keydown', (event) => {
                 if (event.key === 'Backspace' && !event.target.value && index > 0) {
                     inputs[index - 1].focus();
@@ -138,6 +158,78 @@
             });
         });
     </script>
-    
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resendButton = document.getElementById('resend-otp')
+            const countDownPlay = document.getElementById('countdown')
+            const timeText = document.getElementById("timer")
+            let countdown
+
+
+            function startTimer() {
+                let timeLeft = 60
+                countDownPlay.textContent = timeLeft
+                resendButton.disabled = true
+                timeText.style.display = 'block'
+
+                countdown = setInterval(() => {
+                    timeLeft -= 1
+                    countDownPlay.textContent = timeLeft
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown)
+                        resendButton.disabled = false;
+                        timeText.style.display = "none"
+                    }
+
+                }, 1000)
+
+            }
+            startTimer()
+
+            resendButton.addEventListener("click", async () => {
+
+
+                startTimer()
+                try {
+                    const response = await fetch('/resend-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'OTP has been resent successfully.',
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: result.message || 'Failed to resend OTP. Please try again.',
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        text: 'Could not connect to the server. Please try again later.',
+                    });
+                    console.error('Error resending OTP:', error);
+                }
+
+
+
+            })
+
+        })
+    </script>
+
 </body>
+
 </html>
