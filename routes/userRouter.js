@@ -8,7 +8,7 @@ user_Router.get('/signup',userController.loadSignup)
 user_Router.post('/signup',userController.signup)
 
 user_Router.get("/pageNotFound",userController.pageNotFound)
-user_Router.get("/",userController.loadHomePage)
+
 
 user_Router.get('/verifyOtp',userController. loadingOtp)
 user_Router.post("/verifyOtp",userController.verifyOtp)
@@ -22,6 +22,7 @@ user_Router.get("/auth/google/callback",passport.authenticate("google",{failureR
 user_Router.get("/login",userController.loadLogin)
 user_Router.post("/login",userController.login)
 
-
+user_Router.get("/",userController.loadHomePage)
+user_Router.get("/logout",userController.logout)
 
 module.exports=user_Router

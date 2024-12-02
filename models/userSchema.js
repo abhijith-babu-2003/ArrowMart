@@ -33,6 +33,7 @@ const userSchema= new Schema ({
     googleId:{
         type:String,
         unique:true,
+     
     },
     cart:[{
         type:Schema.Types.ObjectId,
