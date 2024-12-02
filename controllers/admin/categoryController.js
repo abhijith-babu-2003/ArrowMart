@@ -13,7 +13,7 @@ const categoryinfo=async(req,res)=>{
     .limit(limit)
 
      const totalCategories=await category.countDocuments()
-     const totalPages=Math.cell(totalCategories/limit)
+     const totalPages=Math.ceil(totalCategories/limit)
      res.render("category"),{
       cat:categoryData,
       currentPage:page,
