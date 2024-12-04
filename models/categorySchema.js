@@ -2,12 +2,16 @@ const mongoose=require("mongoose")
 const {Schema}=mongoose
 
 const categorySchema= new mongoose.Schema({
-    name:{
+    categoryName:{
         type:String,
         required:true,
         unique:true
     },
     description:{
+        type:String,
+        required:true
+    },
+    image:{
         type:String,
         required:true
     },
@@ -25,5 +29,5 @@ const categorySchema= new mongoose.Schema({
     }
 })
 
-const category=mongoose.model("category",categorySchema)
+const category=mongoose.model("Category",categorySchema)
 module.exports=category

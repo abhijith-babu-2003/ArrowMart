@@ -21,27 +21,28 @@ const login =async (req,res)=>{
    try {
       
       const {email,password}=req.body
+
       const admin=await User.findOne({email, isAdmin:true})
-      if(admin){
-         const passwordMatch=bcrypt.compare(password, admin.password)
-         if(passwordMatch){
-            req.session.admin=true
-            return res.render("dashboard")
-         }else{
-            return res.render("adminLogin",{message:"invalid password"})
-         }
-      }else{
+      if(!admin){
+
          return res.render("adminLogin",{message:"admin not found"})
       }
-   } catch (error) {
-       console.log("login error",error);
-       return res.redirect("/pageError") 
+         const passwordMatch=bcrypt.compare(password, admin.password)
+         if(!passwordMatch){
+           return res.render("adminLogin",{message:"invalid password"})
+      }
+
+      req.session.admin=true
+      return res.redirect("/admin/dashboard")
+   }catch{
+         console.log("login error:",error.message);
+         return res.redirect("/pageError")
+         
    }
 }
-
-
 const dashboard=async(req,res)=>{
-   console.log(req.session)
+
+  
   if(req.session.admin){
    try {
       res.render("dashboard")
@@ -59,12 +60,9 @@ const dashboard=async(req,res)=>{
 
  const adminLogout=async(req,res)=>{
    try {
-      req.session.destroy(err=>{
-         if(err){
-            console.log("Error destroy session",error);
-            return res.redirect("/pageError")
-         }
+      req.session.destroy(()=>{
          res.redirect("/admin")
+         
       })
    } catch (error) {
       console.log("error during logout",error);

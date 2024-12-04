@@ -2,17 +2,16 @@
 <div class="content-header row">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="content-title card-title">Customers</h2>
-       
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill mt-10 mr-10" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
+            <button class="btn  border-0" type="submit">Search</button>
+        </div>
     </div>
 </div>         
         </div>
         
             <header class="card-header text-center mb-20">
                 <form action="/admin/users" method="get" class="d-inline">
-                    <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-                        <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
-                        <button class="btn  border-0" type="submit">Search</button>
-                    </div>
                 </form>
             </header>
             <div class="right mt-5">
@@ -36,13 +35,13 @@
                                 <td>
                                     <% if (!data[i].isBlocked) { %>
                                         <a href="/admin/blockCustomer?id=<%= data[i]._id %>" 
-                                           class="btn btn-danger" 
+                                           class="btn btn-danger block-btn" 
                                            style="width: 80px; text-decoration: none; color: white;">
                                             Block
                                         </a>
                                     <% } else { %>
                                         <a href="/admin/unblockCustomer?id=<%= data[i]._id %>" 
-                                           class="btn btn-success" 
+                                           class="btn btn-success unblock-btn" 
                                            style="width: 80px; text-decoration: none; color: white;">
                                             Unblock
                                         </a>
@@ -67,4 +66,48 @@
                 </ul>
             </nav>
         </div>
+
+        <script>
+            // Add event listeners to block/unblock buttons
+            document.getElementById('customer-table-body').addEventListener('click', function (event) {
+                const button = event.target;
+        
+                // Check if the clicked element is a block/unblock button
+                if (button.classList.contains('block-btn') || button.classList.contains('unblock-btn')) {
+                    event.preventDefault();
+        
+                    const customerId = button.dataset.id;
+                    const action = button.classList.contains('block-btn') ? 'block' : 'unblock';
+        
+                    // Send an asynchronous request to the server
+                    fetch(`/admin/${action}Customer`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: customerId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update the button dynamically
+                                if (action === 'block') {
+                                    button.classList.remove('block-btn', 'btn-danger');
+                                    button.classList.add('unblock-btn', 'btn-success');
+                                    button.textContent = 'Unblock';
+                                } else {
+                                    button.classList.remove('unblock-btn', 'btn-success');
+                                    button.classList.add('block-btn', 'btn-danger');
+                                    button.textContent = 'Block';
+                                }
+                            } else {
+                                alert('Action failed: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred. Please try again.');
+                        });
+                }
+            });
+        </script>
+        
         <%- include("../../views/partials/admin/footer") %>

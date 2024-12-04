@@ -3,7 +3,9 @@ const admin_Router=express.Router()
 const adminController=require("../controllers/admin/adminController")
 const customerController=require("../controllers/admin/customerController")
 const categoryController=require("../controllers/admin/categoryController")
+const productController=require('../controllers/admin/productController')
 const {userAuth,adminAuth}=require("../middileware/auth")
+const upload =require('../config/multer')
 
 
 //login management
@@ -16,13 +18,20 @@ admin_Router.get("/logout",adminController.adminLogout)
 //cumstomer management
 
 admin_Router.get("/users",adminAuth,customerController.customerInfo)
-admin_Router.get('/blockCustomer',customerController.blockCustomer)
-admin_Router.get('/unblockCustomer',customerController.unblockCustomer)
+admin_Router.get('/blockCustomer',adminAuth,customerController.blockCustomer)
+admin_Router.get('/unblockCustomer',adminAuth,customerController.unblockCustomer)
 
 //category management
 
-admin_Router.get("/category",categoryController.categoryinfo)
-admin_Router.post("/addCategory",categoryController.addCategory)
+admin_Router.get("/category",adminAuth,categoryController.categoryinfo)
+admin_Router.post("/addCategory",adminAuth,upload.single('image'),categoryController.addCategory)
+admin_Router.get("/listCategory",adminAuth,categoryController.listCategory)
+admin_Router.get("/unlistCategory",adminAuth,categoryController.unlistCategory)
+admin_Router.post('/admin/category/:id',adminAuth,categoryController.editCategory)
 
+//porduct management
+admin_Router.post("/addProducts", adminAuth, upload.array('images',4), productController.addProducts)
+admin_Router.get("/products", adminAuth, productController.getAllProduct);
+admin_Router.get('/addProducts',adminAuth,productController.getaddProducts)
 
 module.exports =admin_Router

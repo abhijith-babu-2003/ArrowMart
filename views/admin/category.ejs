@@ -66,98 +66,160 @@
             .error-message {
                 color: red;
             }
+
+            /* Style the buttons for a modern look */
+            /* General table styling */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1rem 0;
+                font-size: 0.9rem;
+                font-family: Arial, sans-serif;
+            }
+
+            tr {
+                border-bottom: 1px solid #ddd;
+            }
+
+            tr:hover {
+                background-color: #f9f9f9;
+            }
+
+            /* Action buttons styling */
+            .action-buttons,
+            .toggle-buttons {
+                display: flex;
+                gap: 0.5rem;
+                /* Space between buttons */
+            }
+
+            .action-buttons button,
+            .toggle-buttons button {
+                padding: 0.4rem 0.8rem;
+                border-radius: 5px;
+                font-size: 0.8rem;
+                border: none;
+                transition: transform 0.2s, background-color 0.3s;
+            }
+
+            .action-buttons button a,
+            .toggle-buttons button a {
+                text-decoration: none;
+                color: white;
+            }
+
+            .action-buttons button:hover,
+            .toggle-buttons button:hover {
+                transform: scale(1.05);
+                /* Slight zoom on hover */
+                opacity: 0.9;
+            }
+
+            /* Badge styling */
+            .status-badges {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .badge {
+                padding: 0.4rem 0.7rem;
+                font-size: 0.75rem;
+                font-weight: bold;
+            }
+
+            .alert-success {
+                background-color: #28a745;
+                color: white;
+            }
+
+            .alert-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            /* Edit button styling */
+            a.btn-info {
+                padding: 0.4rem 0.8rem;
+                border-radius: 5px;
+                text-decoration: none;
+                font-size: 0.8rem;
+            }
+
+            a.btn-info:hover {
+                background-color: #138496;
+                /* Slightly darker shade */
+                color: white;
+            }
         </style>
     </head>
 
     <body>
         <section class="content-main">
             <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Category</h2>
-                </div>
+                <h2 class="content-title card-title">Category</h2>
+                <!-- Add Category Button (Top Right) -->
+                <span class="col-6 text-end mb-4">
+                    <button class="btn btn-primary" onclick="showCategoryModal()">Add Category</button>
+                </span>
             </div>
-            <header class="card-header text-center mb-20">
-                <form action="/admin/category" method="get" class="d-inline">
-                    <div class="input-group input-group-sm border border-1 border-grey rounded-pill"
-                        style="width: 500px; margin-left: 230px">
-                        <input type="text" class="form-control border-0 rounded-pill mt-3"
-                            placeholder="Search categories" name="search" />
-                        <button class="btn" type="submit">Search</button>
-                    </div>
-                </form>
-            </header>
+
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
-                            <form method="post" action="/admin/addCategory" onsubmit="return handleFromSubmit(event)">
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Name</label>
-                                    <input type="text" name="name" placeholder="Type here" class="form-control"
-                                        id="product_name" required />
-                                    <div id="name-error" class="error-message"></div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Description</label>
-                                    <textarea placeholder="Type here" name="description" class="form-control"
-                                        id="descriptionId" required></textarea>
-                                    <div id="description-error" class="error-message"></div>
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-primary" type="submit">
-                                        Create category
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-8 ml-10">
+                        <!-- Categories Table -->
+                        <div class="col-12 ml-10">
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table table-hover bg-light w-100 p">
                                     <thead>
                                         <tr>
-                                            <th class="text-center"></th>
-                                            <th>Name</th>
+                                            <th>No</th>
+                                            <th>Image</th>
+                                            <th>categoryName</th>
                                             <th>Description</th>
-                                            <th>Offer Price</th>
-                                            <th>Offer</th>
-                                            <th>Status</th>
-                                            <th>List/Unlist</th>
-                                            <th class="text-start">Edit</th>
+                                            <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td></td>
-                                            <td class="text-start"></td>
-                                            <td class="text-start"></td>
-                                            <td>
-                                            </td>
-                                            <td class="text-start">
-                                                <button class="btn btn-info" style="width: 100px">
-                                                    <a href="#" class="text-white">Add Offer</a>
-                                                </button>
-                                                <button class="btn btn-info" style="width: 100px">
-                                                    <a href="#" class="text-white">Remove</a>
-                                                </button>
-                                            </td>
-                                            <td class="text-start">
-                                                <span class="badge rounded-pill alert-success"
-                                                    style="width: 60px">Listed</span>
-                                                <span class="badge rounded-pill alert-danger"
-                                                    style="width: 60px">Unlisted</span>
-                                            </td>
-                                            <td class="text-start">
-                                                <button class="btn btn-danger" style="width: 70px">
-                                                    <a href="#" class="text-white">Unlist</a>
-                                                </button>
-                                                <button class="btn btn-success" style="width: 70px">
-                                                    <a href="" class="text-white">List</a>
-                                                </button>
-                                            </td>
-                                            <td class="text-start">
-                                                <a href="" class="btn btn-info text-white">Edit</a>
-                                            </td>
-                                        </tr>
+                                        <% cat.reverse().forEach((category, i)=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= i + 1 %>
+                                                </td>
+                                                <td>
+                                                    <% if (category.image) { %>
+                                                        <img src="/uploads/<%= category.image %>"
+                                                            alt="<%= category.name %>" width="50">
+                                                        <% } else { %>
+                                                            no image
+                                                            <% } %>
+                                                </td>
+                                                <td>
+                                                    <%= category.categoryName%>
+                                                </td>
+                                                <td>
+                                                    <%= category.description %>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="action-buttons d-flex justify-content-center">
+                                                        <% if (category.isListed) { %>
+                                                            <a href="/admin/listCategory?id=<%=category._id %>"
+                                                                class="btn btn-warning btn-sm mx-1">List</a>
+                                                            <% } else { %>
+                                                                <a href="/admin/unlistCategory?id=<%= category._id %>"
+                                                                    class="btn btn-success btn-sm mx-1">Unlist</a>
+                                                                <% } %>
+                                                                    <div class="action-buttons d-flex ">
+                                                                        <button class="btn btn-google"
+                                                                            onclick="openEditModal('<%= category._id %>', '<%= category.categoryName %>', '<%= category.description %>')">
+                                                                            Edit
+                                                                        </button>
+                                                                    </div>
+                                                    </div>
+
+
+                                                </td>
+                                            </tr>
+                                            <% }); %>
                                     </tbody>
                                 </table>
                             </div>
@@ -165,51 +227,311 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Pagination -->
             <div class="pagination-container">
                 <a href="#">&laquo; Previous</a>
                 <span class="current-page"></span>
-                <a href="#"></a>
                 <a href="#">Next &raquo;</a>
             </div>
         </section>
+
+
+        <!-- add  cateogory modal-->
+
+        <!-- Modal Structure -->
+        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addCategoryForm" enctype="multipart/form-data" onsubmit="return validateForm()">
+                            <div class="mb-4">
+                                <label for="categoryName" class="form-label">Category Name</label>
+                                <input type="text" name="name" placeholder="Type here" class="form-control"
+                                    id="categoryName" />
+                                <span id="name-error" class="error-message text-danger" style="display: none;"></span>
+                            </div>
+                            <div class="mb-4">
+                                <label for="descriptionId" class="form-label">Description</label>
+                                <textarea placeholder="Type here" name="description" class="form-control"
+                                    id="descriptionId"></textarea>
+                                <span id="description-error" class="error-message text-danger"
+                                    style="display: none;"></span>
+                            </div>
+                            <div class="mb-4">
+                                <label for="categoryImage" class="form-label">Upload Image</label>
+                                <input type="file" name="image" class="form-control" id="categoryImage"
+                                    accept="image/*" />
+                                <span id="image-error" class="error-message text-danger" style="display: none;"></span>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Create Category</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!---------EDIT MODAL-------------->
+
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editCategoryForm" enctype="multipart/form-data" onsubmit="return validateEditForm()">
+                            <div class="mb-4">
+                                <label for="editCategoryName" class="form-label">Category Name</label>
+                                <input type="text" name="name" placeholder="Type here" class="form-control"
+                                    id="editCategoryName" />
+                                <span id="edit-name-error" class="error-message text-danger"
+                                    style="display: none;"></span>
+                            </div>
+                            <div class="mb-4">
+                                <label for="editDescriptionId" class="form-label">Description</label>
+                                <textarea placeholder="Type here" name="description" class="form-control"
+                                    id="editDescriptionId"></textarea>
+                                <span id="edit-description-error" class="error-message text-danger"
+                                    style="display: none;"></span>
+                            </div>
+                            <div class="mb-4">
+                                <label for="editCategoryImage" class="form-label">Upload New Image</label>
+                                <input type="file" name="image" class="form-control" id="editCategoryImage"
+                                    accept="image/*" />
+                                <span id="edit-image-error" class="error-message text-danger"
+                                    style="display: none;"></span>
+                            </div>
+                            <input type="hidden" id="editCategoryId" name="id" />
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Save Changes</button>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
         <script>
+            document.getElementById('addCategoryForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formElement = document.getElementById('addCategoryForm');
+                const formData = new FormData(formElement);
 
-            function handleFromSubmit(event) {
-                event.preventDefault()
-                if (!validateForm()) {
-                    return
+                try {
+                    const response = await fetch("/admin/addCategory", {
+                        method: "POST",
+
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        displayErrorMessage("name-error", data.error);
+                    } else {
+                        Swal.fire("Success", "Category added successfully", "success").then(() => {
+                            window.location.reload();
+                        });
+                    }
+                } catch (error) {
+                    displayErrorMessage("name-error", "An error occurred while adding the category");
+                    console.error(error);
                 }
-            }
+            });
 
+
+            //validation form ADD
 
             function validateForm() {
-                clearErrorMessages()
-                const name = document.getElementsByName("namne")[0].value.trim()
-                const description = document.getElementById("descriptionId").value.trim()
-                isValid = true
+                clearErrorMessages();
 
-                if (name === "") {
-                    displayErrorMessage("nameError", "please enter a name")
-                    isValid = false
-                }
-                else if (!/^[a-zA-Z\s]+$/.test(name)) {
-                    displayErrorMessage("nameError", "Category name should contain only alphabetic characters")
-                    isValid = false
+                const name = document.getElementById('categoryName').value.trim();
+                const description = document.getElementById('descriptionId').value.trim();
+                const image = document.getElementById('categoryImage').files[0];
+                let isValid = true;
+
+                const nameRegex = /^[a-zA-Z\s]+$/;
+
+                // Validate Category Name
+                if (!name) {
+                    document.getElementById('name-error').textContent = 'Category name is required.';
+                    document.getElementById('name-error').style.display = 'inline';
+                    isValid = false;
+                } else if (!nameRegex.test(name)) {
+                    document.getElementById('name-error').textContent = 'Category name must contain only letters and spaces.';
+                    document.getElementById('name-error').style.display = 'inline';
+                    isValid = false;
                 }
 
-                if (description === "") {
-                    displayErrorMessage("descriptionError", "please enter a description")
-                    isValid = false
+                // Validate Description
+                if (!description) {
+                    document.getElementById('description-error').textContent = 'Description is required.';
+                    document.getElementById('description-error').style.display = 'inline';
+                    isValid = false;
                 }
 
-                return isValid
+                // Validate Image
+                if (!image) {
+                    document.getElementById('image-error').textContent = 'Please upload an image.';
+                    document.getElementById('image-error').style.display = 'inline';
+                    isValid = false;
+                } else if (!/\.(jpg|jpeg|png|gif)$/i.test(image.name)) {
+                    document.getElementById('image-error').textContent = 'Only JPG, JPEG, PNG, or GIF files are allowed.';
+                    document.getElementById('image-error').style.display = 'inline';
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function clearErrorMessages() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach((element) => {
+                    element.textContent = '';
+                    element.style.display = 'none';
+                });
+            }
+
+
+            //Modal Structure add
+            function showCategoryModal() {
+                const addCategoryModal = new bootstrap.Modal(document.getElementById('addCategoryModal'));
+                addCategoryModal.show();
+            }
+            //-----------------EDIT------------
+
+
+
+            
+            function openEditModal(id, categoryName, categoryDescription) {
+                const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+                modal.show();
+
+                document.getElementById('editCategoryId').value = id;
+                document.getElementById('editCategoryName').value = categoryName;
+                document.getElementById('editDescriptionId').value = categoryDescription;
+ 
+                console.log('catid',categoryName);
+
             }
 
 
 
+            //---------EDIT VALIDATION------
+
+            // Function to validate the edit form
+            function validateEditForm() {
+                clearEditErrorMessages();
+
+                const name = document.getElementById('editCategoryName').value.trim();
+                const description = document.getElementById('editDescriptionId').value.trim();
+                const image = document.getElementById('editCategoryImage').files[0];
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                let isValid = true;
+
+                // Validate Name
+                if (!name) {
+                    displayEditErrorMessage('edit-name-error', 'Category name is required.');
+                    isValid = false;
+                } else if (!nameRegex.test(name)) {
+                    displayEditErrorMessage('edit-name-error', 'Category name must contain only letters and spaces.');
+                    isValid = false;
+                }
+
+                // Validate Description
+                if (!description) {
+                    displayEditErrorMessage('edit-description-error', 'Description is required.');
+                    isValid = false;
+                }
+
+                // Validate Image (optional field)
+                if (image && !/\.(jpg|jpeg|png|gif)$/i.test(image.name)) {
+                    displayEditErrorMessage('edit-image-error', 'Only image files (JPG, JPEG, PNG, GIF) are allowed.');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // Helper function to display error messages
+            function displayEditErrorMessage(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+
+            // Helper function to clear error messages
+            function clearEditErrorMessages() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach((element) => {
+                    element.textContent = '';
+                    element.style.display = 'none';
+                });
+            }
+
+
+
+
+
+
+
+            //list and unlist manage------------------------
+
+            document.addEventListener('click', function (event) {
+                const button = event.target;
+
+                if (button.classList.contains('list-btn') || button.classList.contains('unlist-btn')) {
+                    event.preventDefault();
+
+                    const categoryId = button.dataset.id;
+                    const action = button.classList.contains('list-btn') ? 'list' : 'unlist';
+
+                    // Send an asynchronous request to the server
+                    fetch(`/admin/${action}Category`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: categoryId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update the button dynamically
+                                if (action === 'list') {
+                                    button.classList.remove('list-btn', 'btn-success');
+                                    button.classList.add('unlist-btn', 'btn-warning');
+                                    button.textContent = 'Unlist';
+                                } else {
+                                    button.classList.remove('unlist-btn', 'btn-warning');
+                                    button.classList.add('list-btn', 'btn-success');
+                                    button.textContent = 'List';
+                                }
+                            } else {
+                                Swal.fire('Action failed: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('An error occurred. Please try again.');
+                        });
+                }
+            });
         </script>
 
         <%- include("../../views/partials/admin/footer") %>
