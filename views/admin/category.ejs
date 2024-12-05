@@ -290,10 +290,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="editCategoryForm" enctype="multipart/form-data" onsubmit="return validateEditForm()">
+                        <form method="post" action="" id="editCategoryForm" enctype="multipart/form-data" onsubmit="return validateEditForm()">
                             <div class="mb-4">
                                 <label for="editCategoryName" class="form-label">Category Name</label>
-                                <input type="text" name="name" placeholder="Type here" class="form-control"
+                                <input type="text" name="categoryName" placeholder="Type here" class="form-control"
                                     id="editCategoryName" />
                                 <span id="edit-name-error" class="error-message text-danger"
                                     style="display: none;"></span>
@@ -305,13 +305,7 @@
                                 <span id="edit-description-error" class="error-message text-danger"
                                     style="display: none;"></span>
                             </div>
-                            <div class="mb-4">
-                                <label for="editCategoryImage" class="form-label">Upload New Image</label>
-                                <input type="file" name="image" class="form-control" id="editCategoryImage"
-                                    accept="image/*" />
-                                <span id="edit-image-error" class="error-message text-danger"
-                                    style="display: none;"></span>
-                            </div>
+                           
                             <input type="hidden" id="editCategoryId" name="id" />
                             <div class="d-grid">
                                 <button class="btn btn-primary" type="submit">Save Changes</button>
@@ -424,11 +418,12 @@
                 const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
                 modal.show();
 
+                document.getElementById('editCategoryForm').action = `/admin/editCategory/${id}`;
                 document.getElementById('editCategoryId').value = id;
                 document.getElementById('editCategoryName').value = categoryName;
                 document.getElementById('editDescriptionId').value = categoryDescription;
  
-                console.log('catid',categoryName);
+                
 
             }
 
@@ -442,7 +437,7 @@
 
                 const name = document.getElementById('editCategoryName').value.trim();
                 const description = document.getElementById('editDescriptionId').value.trim();
-                const image = document.getElementById('editCategoryImage').files[0];
+             
                 const nameRegex = /^[a-zA-Z\s]+$/;
                 let isValid = true;
 
@@ -458,12 +453,6 @@
                 // Validate Description
                 if (!description) {
                     displayEditErrorMessage('edit-description-error', 'Description is required.');
-                    isValid = false;
-                }
-
-                // Validate Image (optional field)
-                if (image && !/\.(jpg|jpeg|png|gif)$/i.test(image.name)) {
-                    displayEditErrorMessage('edit-image-error', 'Only image files (JPG, JPEG, PNG, GIF) are allowed.');
                     isValid = false;
                 }
 
@@ -523,6 +512,7 @@
                                     button.textContent = 'List';
                                 }
                             } else {
+                               
                                 Swal.fire('Action failed: ' + data.message);
                             }
                         })
@@ -532,6 +522,7 @@
                         });
                 }
             });
+            
         </script>
 
         <%- include("../../views/partials/admin/footer") %>

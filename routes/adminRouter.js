@@ -27,11 +27,17 @@ admin_Router.get("/category",adminAuth,categoryController.categoryinfo)
 admin_Router.post("/addCategory",adminAuth,upload.single('image'),categoryController.addCategory)
 admin_Router.get("/listCategory",adminAuth,categoryController.listCategory)
 admin_Router.get("/unlistCategory",adminAuth,categoryController.unlistCategory)
-admin_Router.post('/admin/category/:id',adminAuth,categoryController.editCategory)
+admin_Router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
 
 //porduct management
 admin_Router.post("/addProducts", adminAuth, upload.array('images',4), productController.addProducts)
 admin_Router.get("/products", adminAuth, productController.getAllProduct);
 admin_Router.get('/addProducts',adminAuth,productController.getaddProducts)
+admin_Router.get('/editProducts',adminAuth,productController.getEditProducts)
+admin_Router.post("/editProducts",adminAuth,upload.array('images',4),productController.editproduct)
+admin_Router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
+
+admin_Router.get("/blockProduct",adminAuth,productController.blockProduct)
+admin_Router.get("/unblockProduct",adminAuth,productController.unblockProduct)
 
 module.exports =admin_Router

@@ -6,7 +6,7 @@ const categoryinfo=async(req,res)=>{
     const limit=4;
     const skip = (page - 1) * limit;
 
-    const categoryData=await category.find({})
+    const categoryData=await category.find()
     .sort({createdAt:-1})
     .skip(skip)
     .limit(limit)
@@ -54,7 +54,7 @@ cls
         description: description,
         image
      })
-     console.log("newCat", newCategory)
+     
      await newCategory.save()
      return res.status(200).json({message:"Category added successfully"})
     } catch (error) {
@@ -97,18 +97,21 @@ const editCategory=async (req,res)=>{
   try {
     const id=req.params.id;
     const {categoryName,description}=req.body
-    const existingCategory=await category.findOne({name:categoryName})
+    const existingCategory=await category.findOne({id,name:categoryName})
+  
+    
 
     if(existingCategory){
       return res.status(400).json({error:"category exists"})
     }
 
-    const updateCategory=await category.findByIdAndUpdate  (id,{
+    const updateCategory={
       name:categoryName,
-      description:description,
-    },{new:true})
+      description,
+    }
 
     if(updateCategory){
+      await category.findByIdAndUpdate(id,updateCategory,{new:true})
       res.redirect("/admin/category")
     }else{
       res.status(404).json({error:"category not found"})
