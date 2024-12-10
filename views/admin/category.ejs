@@ -210,7 +210,7 @@
                                                                 <% } %>
                                                                     <div class="action-buttons d-flex ">
                                                                         <button class="btn btn-google"
-                                                                            onclick="openEditModal('<%= category._id %>', '<%= category.categoryName %>', '<%= category.description %>')">
+                                                                            onclick="openEditModal('<%= category._id %>','<%= category.categoryName %>','<%= category.description %>')">
                                                                             Edit
                                                                         </button>
                                                                     </div>
@@ -227,15 +227,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Pagination -->
-            <div class="pagination-container">
-                <a href="#">&laquo; Previous</a>
-                <span class="current-page"></span>
-                <a href="#">Next &raquo;</a>
-            </div>
-        </section>
-
 
         <!-- add  cateogory modal-->
 
@@ -290,28 +281,29 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="post" action="" id="editCategoryForm" enctype="multipart/form-data" onsubmit="return validateEditForm()">
+                        <form id="editCategoryForm" onsubmit="handleEditCategory(event)">
                             <div class="mb-4">
                                 <label for="editCategoryName" class="form-label">Category Name</label>
-                                <input type="text" name="categoryName" placeholder="Type here" class="form-control"
-                                    id="editCategoryName" />
+                                <input type="text" id="editCategoryName" name="categoryName" placeholder="Type here"
+                                    class="form-control" />
                                 <span id="edit-name-error" class="error-message text-danger"
                                     style="display: none;"></span>
                             </div>
                             <div class="mb-4">
                                 <label for="editDescriptionId" class="form-label">Description</label>
-                                <textarea placeholder="Type here" name="description" class="form-control"
-                                    id="editDescriptionId"></textarea>
+                                <textarea id="editDescriptionId" name="description" placeholder="Type here"
+                                    class="form-control"></textarea>
                                 <span id="edit-description-error" class="error-message text-danger"
                                     style="display: none;"></span>
                             </div>
-                           
                             <input type="hidden" id="editCategoryId" name="id" />
                             <div class="d-grid">
                                 <button class="btn btn-primary" type="submit">Save Changes</button>
-
                             </div>
                         </form>
+
+
+
                     </div>
                 </div>
             </div>
@@ -324,6 +316,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
         <script>
+
+            //adding category
             document.getElementById('addCategoryForm').addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const formElement = document.getElementById('addCategoryForm');
@@ -413,8 +407,9 @@
 
 
 
-            
+
             function openEditModal(id, categoryName, categoryDescription) {
+                 console.log("ID:", id, "Category Name:", categoryName, "Description:", categoryDescription);
                 const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
                 modal.show();
 
@@ -422,10 +417,80 @@
                 document.getElementById('editCategoryId').value = id;
                 document.getElementById('editCategoryName').value = categoryName;
                 document.getElementById('editDescriptionId').value = categoryDescription;
- 
-                
-
             }
+
+
+
+
+            function handleEditCategory(event) {
+                event.preventDefault();
+
+                // Get form values
+                const id = document.getElementById('editCategoryId').value;
+                const categoryName = document.getElementById('editCategoryName').value.trim();
+                const description = document.getElementById('editDescriptionId').value.trim();
+
+                // Clear previous error messages
+                const nameError = document.getElementById('edit-name-error');
+                const descriptionError = document.getElementById('edit-description-error');
+                nameError.style.display = 'none';
+                descriptionError.style.display = 'none';
+
+                let isValid = true;
+
+                // Frontend validation
+                if (!categoryName) {
+                    nameError.textContent = 'Category name is required.';
+                    nameError.style.display = 'block';
+                    isValid = false;
+                } else if (categoryName.length < 3) {
+                    nameError.textContent = 'Category name must be at least 3 characters long.';
+                    nameError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (!description) {
+                    descriptionError.textContent = 'Description is required.';
+                    descriptionError.style.display = 'block';
+                    isValid = false;
+                }
+
+                // Stop submission if validation fails
+                if (!isValid) {
+                    return;
+                }
+
+                // Proceed with the fetch request if validation passes
+                fetch(`/admin/editCategory/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ categoryName, description }),
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            Swal.fire("Success", "Category edited successfully", "success").then(() => {
+                            window.location.reload();
+                        });
+                        } else {
+                            return response.json();
+                        }
+                    })
+                    .then((data) => {
+                        if (data.error) {
+                            Swal.fire(data.error);
+                        } else {
+                            Swal.fire(data.message); 
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            }
+
+
+
 
 
 
@@ -437,7 +502,7 @@
 
                 const name = document.getElementById('editCategoryName').value.trim();
                 const description = document.getElementById('editDescriptionId').value.trim();
-             
+
                 const nameRegex = /^[a-zA-Z\s]+$/;
                 let isValid = true;
 
@@ -512,7 +577,7 @@
                                     button.textContent = 'List';
                                 }
                             } else {
-                               
+
                                 Swal.fire('Action failed: ' + data.message);
                             }
                         })
@@ -522,7 +587,7 @@
                         });
                 }
             });
-            
+
         </script>
 
         <%- include("../../views/partials/admin/footer") %>

@@ -1,256 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archery Sign Up</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Arial', sans-serif;
-      background: url('https://source.unsplash.com/1600x900/?archery,target') no-repeat center center/cover;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 20px 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .signup-form h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-      font-weight: bold;
-      color: #f8e71c;
-      /* Gold color representing excellence */
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border: 2px solid #f8e71c;
-    }
-
-    .btn {
-      width: 100%;
-      background-color: #f8e71c;
-      color: #333;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background-color: #c2a617;
-    }
-
-    p {
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    p a {
-      color: #f8e71c;
-      text-decoration: none;
-    }
-
-    p a:hover {
-      text-decoration: underline;
-    }
-
-    .error {
-      color: #de1212;
-      font-size: 14px;
-      margin-top: 5px;
-    }
-    .logo-google{
-      background-color: rgba(0, 0, 0, 0.7);
-      
-
-    }
-
-    /* Add a custom "target" icon for form inputs */
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      background-image: url('https://source.unsplash.com/40x40/?arrow');
-      background-size: 20px;
-      background-repeat: no-repeat;
-      background-position: 10px center;
-      padding-left: 40px;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <form class="signup-form" id="signupForm">
-      <h1>register</h1>
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" placeholder="Enter your username" >
-        <span class="error" id="usernameError"></span>
-      </div>
-      <div class="form-group">
-        <label for="email">phone</label>
-        <input type="phone" name="phone" id="phone" placeholder="Enter your phone" >
-        <span class="error" id="phoneError"></span>
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" placeholder="Enter your email" >
-        <span class="error" id="emailError"></span>
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" placeholder="Create a password" >
-        <span class="error" id="passwordError"></span>
-      </div>
-      <div class="form-group">
-        <label for="confirm-password">Confirm Password</label>
-        <input type="password" name="confirmPassword" id="confirm-password" placeholder="Re-enter your password">
-        <span class="error" id="confirmPasswordError"></span>
-      </div>
-      <button type="submit" class="btn">Sign Up</button>
-      <p>Already a member? <a href="/login">Login here</a></p>
-         <a href="/auth/google"  class="btn btn-outline-danger logo-google">
-          <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo"
-          style="width: 24px;height: 20px;">
-        </a>
-      </div>
-    </form>
-  </div>
-  
-<script>
-  // Form validation function
-  const signupForm = document.getElementById('signupForm');
-
-  signupForm.addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    // Clear previous error messages
-    document.querySelectorAll('.error').forEach(error => error.textContent = '');
-
-    // Collect form data
-    const username = document.getElementById('username').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const confirmPassword = document.getElementById('confirm-password').value.trim();
-
-    let isValid = true;
-
-    // Username validation
-    const usernameRegex = /^[a-zA-Z]+$/;
-if (!username || username.length < 3 || !usernameRegex.test(username)) {
-  document.getElementById('usernameError').textContent = 'Username must be at least 3 alphabetic characters with no numbers or special characters.';
-  isValid = false;
-}
-
-    // Phone number validation (example: must be 10 digits)
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      document.getElementById('phoneError').textContent = 'Phone number must be 10 digits.';
-      isValid = false;
-    }
-
-    // Email validation
-    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (email && !emailRegex.test(email)) {
-      document.getElementById('emailError').textContent = 'Please enter a valid email address.';
-      isValid = false;
-    }
-
-    // Password validation
-    if (password.length < 6) {
-      document.getElementById('passwordError').textContent = 'Password must be at least 6 characters long.';
-      isValid = false;
-    }
-
-    // Confirm password validation
-    if (password !== confirmPassword) {
-      document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
-      isValid = false;
-    }
-
-    // If the form is valid, proceed with submission
-    if (isValid) {
-      const formData = { username, phone, email, password, cpassword: confirmPassword };
-
-      try {
-        const response = await fetch('/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-       
-        
-
-        let result;
-
-        // Safely handle different response types
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          result = await response.json(); // Parse as JSON
-        } else {
-          result = { message: await response.text() }; // Parse as plain text
-        } 
-
-        
-
-        console.log("result after registration", result);
-
-        if (response.ok) {
-          window.location.href = '/verifyOtp';
-        } else {
-          Swal.fire('Error', result.message || 'Something went wrong!', 'error');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      } catch (error) {
-        console.error('Error:', error);
-        Swal.fire('Error', 'An unexpected error occurred.', 'error');
+
+        body,html {
+            font-family: 'Arial', sans-serif;
+   
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://media.istockphoto.com/id/1062502646/photo/the-wooden-arrow-on-white-stock-image.jpg?s=612x612&w=0&k=20&c=4-lajcfflkvu2HZZFXjJyEsxim1Z_gIsu9n1JgqtOac=');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            background: linear-gradient(135deg, #c3c1c1 40%, #f8f9fa 100%);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            width: 400px;
+            height: 650px;
+           
+            text-align: center;
+        }
+
+        .login-form h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #000000;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #ffffff 40%, #f8f9fa 100%);
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: #050505;
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #f8e71c;
+        }
+
+        .btn {
+            width: 100%;
+            background-color:#65f4bb;
+            color: #c8c1c1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #ddc134;
+        }
+
+        p {
+            margin-top: 20px;
+            color: #141414;
+        }
+
+        p a {
+            color: #d96d4f;
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form class="login-form" id="signupForm">
+          
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" name="username" id="username" placeholder="Enter your username">
+              <span class="error" id="usernameError"></span>
+          </div>
+          <div class="form-group">
+            <label for="phone">phone</label>
+            <input type="phone" name="phone" id="phone" placeholder="Enter your phone">
+            <span class="error" id="phoneError"></span>
+        </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" name="email" id="email" placeholder="Enter your email">
+                <span class="error" id="emailError"></span>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter your password">
+                <span class="error" id="passwordError"></span>
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" name="confirmPassword" id="confirm-password" placeholder="Re-enter your password">
+              <span class="error" id="confirmPasswordError"></span>
+          </div>
+            <button type="submit" class="btn">Sign up</button>
+            <p>Already a member? <a href="/login">Login here</a></p>
+            <a href="/auth/google" >
+              <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo"
+                style="width: 24px;height: 20px;">
+            </a>
+        </form>
+       
+    </div>
+
+
+
+
+  <script>
+    // Form validation function
+    const signupForm = document.getElementById('signupForm');
+
+    signupForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Clear previous error messages
+      document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+      // Collect form data
+      const username = document.getElementById('username').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+      let isValid = true;
+
+      // Username validation
+      const usernameRegex = /^[a-zA-Z]+$/;
+      if (!username || username.length < 3 || !usernameRegex.test(username)) {
+        document.getElementById('usernameError').textContent = 'Username must be at least 3 alphabetic characters with no numbers or special characters.';
+        isValid = false;
       }
-    }
-  });
-</script>
+
+      // Phone number validation (example: must be 10 digits)
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(phone)) {
+        document.getElementById('phoneError').textContent = 'Phone number must be 10 digits.';
+        isValid = false;
+      }
+
+      // Email validation
+      const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (email && !emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+        isValid = false;
+      }
+
+      // Password validation
+      const passwordRegex = /^[A-Za-z0-9]+$/;
+      if (password.length < 4) {
+        document.getElementById('passwordError').textContent = 'Password must be at least 4 characters long.';
+        isValid = false;
+      } else if (!passwordRegex.test(password)) {
+        document.getElementById('passwordError').textContent = 'Password can only contain alphabets and numbers.';
+        isValid = false;
+      } else {
+        document.getElementById('passwordError').textContent = ''; // Clear the error if the password is valid
+      }
+
+
+      if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+        isValid = false;
+      } else {
+        document.getElementById('confirmPasswordError').textContent = ''; // Clear the error if passwords match
+      }
+
+      // If the form is valid, proceed with submission
+      if (isValid) {
+        const formData = { username, phone, email, password, cpassword: confirmPassword };
+
+        try {
+          const response = await fetch('/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+
+
+
+          let result;
+
+          // Safely handle different response types
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            result = await response.json(); // Parse as JSON
+          } else {
+            result = { message: await response.text() }; // Parse as plain text
+          }
+
+
+
+          console.log("result after registration", result);
+
+          if (response.ok) {
+            window.location.href = '/verifyOtp';
+          } else {
+            Swal.fire('Error', result.message || 'Something went wrong!', 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire('Error', 'An unexpected error occurred.', 'error');
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>

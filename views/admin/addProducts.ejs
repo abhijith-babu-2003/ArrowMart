@@ -38,7 +38,10 @@
         #imagePreviewModal .cropper-container {
             max-height: 500px;
         }
+        
+
     </style>
+   
 
     <div class="container-fluid">
         <section class="content-main">
@@ -145,7 +148,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary" onclick="return validateForm()">Publish
+                                <button type="submit" class="btn btn-primary" onclick="return validateForm()" >Publish
                                     Product</button>
                             </form>
                         </div>
@@ -202,7 +205,8 @@
 
                 if (file) {
                     if (!validImageFormats.includes(file.type)) {
-                        displayErrorMessage(`imageError${currentImageIndex}`, 'Invalid image format. Please upload JPG or PNG.');
+                        alert('Invalid image format. Please upload JPG or PNG.');
+                        event.target.value = '';
                         return;
                     }
 
@@ -228,7 +232,7 @@
             });
         });
 
-        document.getElementById('saveCroppedImage').addEventListener('submit', function () {
+        document.getElementById('saveCroppedImage').addEventListener('click', function () {
             const croppedCanvas = cropper.getCroppedCanvas();
             const previewImg = document.getElementById(`previewImage${currentImageIndex}`);
             const imageBox = document.getElementById(`imageBox${currentImageIndex}`);
@@ -253,10 +257,13 @@
 
 
 
+        // document.getElementById('productForm').addEventListener('submit', validateForm);
 
-        function validateForm() {
+        function validateForm(event) {
+            event.preventDefault();
             clearErrorMessages();
             let isValid = true;
+
             const productName = document.getElementsByName('productName')[0].value.trim();
             if (!productName) {
                 displayErrorMessage('productName-error', 'Product name is required.');
@@ -268,6 +275,7 @@
                 displayErrorMessage('productName-error', 'Product name can only contain letters, numbers, spaces, and special characters like -&().');
                 isValid = false;
             }
+
             const description = document.getElementById('descriptionid').value.trim();
             if (!description) {
                 displayErrorMessage('description-error', 'Product description is required.');
@@ -276,6 +284,7 @@
                 displayErrorMessage('description-error', 'Description must be between 10 and 1000 characters.');
                 isValid = false;
             }
+
             const salePrice = document.getElementsByName('salePrice')[0].value.trim();
             if (!salePrice) {
                 displayErrorMessage('salePrice-error', 'Sale price is required.');
@@ -290,17 +299,19 @@
                     isValid = false;
                 }
             }
+
             const quantity = document.getElementsByName('quantity')[0].value.trim();
             if (!quantity) {
                 displayErrorMessage('quantity-error', 'Stock quantity is required.');
                 isValid = false;
             } else {
-                const qty = parseInt(quantity);
+                const qty = parseInt(quantity, 10);
                 if (isNaN(qty) || qty < 0) {
                     displayErrorMessage('quantity-error', 'Please enter a valid non-negative number.');
                     isValid = false;
                 }
             }
+
             const color = document.getElementsByName('color')[0].value.trim();
             if (!color) {
                 displayErrorMessage('color-error', 'Color is required.');
@@ -312,29 +323,29 @@
                 displayErrorMessage('color-error', 'Color should contain only alphabetic characters.');
                 isValid = false;
             }
-            const brand = document.getElementsByName('brand')[0].value.trim();
-            if (!brand) {
-                displayErrorMessage('brand-error', 'Please select a brand.');
-                isValid = false;
-            }
 
             const category = document.getElementsByName('category')[0].value.trim();
             if (!category) {
                 displayErrorMessage('category-error', 'Please select a category.');
                 isValid = false;
             }
+
             const images = document.querySelectorAll('input[name="images"]');
             const validImageFormats = ["image/jpeg", "image/png", "image/jpg"];
             let imageSelected = false;
-
+            
             images.forEach((input, index) => {
                 if (input.files.length > 0) {
                     imageSelected = true;
                     const file = input.files[0];
+
+                    
                     if (!validImageFormats.includes(file.type)) {
-                        displayErrorMessage(`imageError${index + 1}`, 'Invalid image format. Only JPG and PNG are allowed.');
+                        displayErrorMessage(`imageError${index + 1}`, 'Invalid file type. Only image files are allowed.');
                         isValid = false;
                     }
+
+              
                     if (file.size > 5 * 1024 * 1024) {
                         displayErrorMessage(`imageError${index + 1}`, 'Image size must be less than 5MB.');
                         isValid = false;
@@ -342,12 +353,14 @@
                 }
             });
 
+            
             if (!imageSelected) {
                 displayErrorMessage('imageError1', 'Please upload at least one product image.');
-                isValid = false;
-            }
+                isValid=false
+            } 
 
-            return isValid;
+
+            return isValid
         }
 
         function displayErrorMessage(elementId, message) {
@@ -372,5 +385,6 @@
 
 
 
+    <script src="path/to/your/validation-script.js"></script>
 
     <%- include("../../views/partials/admin/footer") %>

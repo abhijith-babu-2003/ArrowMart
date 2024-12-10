@@ -40,4 +40,9 @@ admin_Router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 admin_Router.get("/blockProduct",adminAuth,productController.blockProduct)
 admin_Router.get("/unblockProduct",adminAuth,productController.unblockProduct)
 
+
+
+
+
+
 module.exports =admin_Router

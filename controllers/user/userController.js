@@ -1,8 +1,11 @@
 const User = require("../../models/userSchema");
 const nodemailer = require("nodemailer");
+const Cateory=require("../../models/categorySchema")
+const Product=require("../../models/ProductSchema")
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const { use } = require("../../routes/userRouter");
+const category = require("../../models/categorySchema");
 
 
 
@@ -24,14 +27,22 @@ const securePassword = async (password) => {
 const loadHomePage = async (req, res) => {
   try {
     const user=req.session.user
-   
+    const categories=await Cateory.find({isListed:true})
+    let productData=await Product.find(
+     {isBlocked:false,
+       category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
+     }
+    )
+
+    productData.sort((a,b)=>new Date(b.createdOn) - new Date(a.createdOn))
+    productData=productData.slice(0,4)
+
 
     if(user){
       const userData=await User.findOne({ _id:user})
-   
-     res.render("home", { user: userData });
+     res.render("home", { user:userData ,products:productData });
     }else{
-       return res.render("home",{user:null});
+       return res.render("home",{ user:null,products:productData});
     }
   } catch (error) {
     console.log("home page not found");
@@ -52,7 +63,7 @@ const loadSignup = async (req, res) => {
 
 
 
-const signup = async (req, res) => {
+const signup = async (req,res) => {
   try {
     const { username, phone, email, password, cpassword } = req.body;
 

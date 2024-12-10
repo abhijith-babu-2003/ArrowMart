@@ -28,6 +28,7 @@ const login =async (req,res)=>{
          return res.render("adminLogin",{message:"admin not found"})
       }
       const passwordMatch = await bcrypt.compare(password, admin.password);
+      
          if(!passwordMatch){
            return res.render("adminLogin",{message:"invalid password"})
 

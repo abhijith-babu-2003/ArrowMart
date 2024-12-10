@@ -6,98 +6,128 @@
     <title>Login Page</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background: url('https://source.unsplash.com/1600x900/?archery,target') no-repeat center center/cover;
-    color: #fff;
+        body,html {
+            font-family: 'Arial', sans-serif;
+   
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://media.istockphoto.com/id/1393150646/vector/arrow.jpg?s=612x612&w=0&k=20&c=1634yz6VfWr4w30BbeY3ovkjgwQ3b0f5MJ56HZFk3ug=');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            background: linear-gradient(135deg, #c3c1c1 40%, #f8f9fa 100%);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-form h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #000000;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #ffffff 40%, #f8f9fa 100%);
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: #050505;
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #f8e71c;
+        }
+
+        .btn {
+            width: 100%;
+            background-color: #65f4bb;
+            color: #333;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #ddc134;
+        }
+
+        p {
+            margin-top: 20px;
+            color: #141414;
+        }
+
+        p a {
+            color: #d96d4f;
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .logo-google {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-}
-
-.container {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 400px;
-}
-
-.login-form h1 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-    font-weight: bold;
-    color: #f8e71c;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #fff;
-}
-
-input {
-    width: 100%;
+    margin: 10px auto;
     padding: 10px;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 16px;
-    outline: none;
+    width: fit-content;
+    background-color: #fff;
 }
 
-input:focus {
-    border: 2px solid #f8e71c;
-}
-
-.btn {
-    width: 100%;
-    background-color: #f8e71c;
-    color: #333;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #c2a617;
-}
-
-p {
-    text-align: center;
-    margin-top: 15px;
-}
-
-p a {
-    color: #f8e71c;
-    text-decoration: none;
-}
-
-p a:hover {
-    text-decoration: underline;
-}
-
-.error {
-    color: #de1212;
-    font-size: 14px;
-    margin-top: 5px;
+.logo-google img {
+    width: 24px;
+    height: 20px;
 }
 
     </style>
@@ -105,21 +135,22 @@ p a:hover {
 <body>
     <div class="container">
         <form class="login-form" id="loginForm">
-            <h1>Login</h1>
+            <h1>Welcome Back!</h1>
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Enter your email" required>
+                <label for="email">Email Address</label>
+                <input type="email" name="email" id="email" placeholder="Enter your email">
                 <span class="error" id="emailError"></span>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="Enter your password" required>
+                <input type="password" name="password" id="password" placeholder="Enter your password">
                 <span class="error" id="passwordError"></span>
             </div>
             <button type="submit" class="btn">Sign In</button>
             <p>Not a member? <a href="signup">Register here</a></p>
         </form>
     </div>
+
 
     <script>
           const loginForm = document.getElementById('loginForm');

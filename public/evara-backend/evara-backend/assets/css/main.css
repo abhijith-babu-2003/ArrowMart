@@ -630,8 +630,8 @@ b {
 
 .menu-aside .menu-link {
     padding: 10px;
-    font-weight: 500;
-    font-size: 13px;
+    font-weight: 700;
+    font-size: 16px;
     color: #292f46;
     border-radius: 0.3rem;
     position: relative
@@ -3872,6 +3872,8 @@ body.aside-mini .menu-aside .menu-link {
 
 body.aside-mini .menu-aside .menu-link .text {
     display: none
+    
+
 }
 
 body.aside-mini .menu-aside .menu-link .icon {
@@ -3890,6 +3892,7 @@ body.aside-mini .menu-aside .submenu {
     left: 100%;
     top: 0;
     width: 180px
+
 }
 
 body.aside-mini .menu-aside .menu-item {
