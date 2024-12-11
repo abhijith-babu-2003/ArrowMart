@@ -34,22 +34,42 @@ const productDetails=async(req,res)=>{
 }
 
 
-const getShopPage=async(req,res)=>{
-    let user=req.session.user
+
+  const getProductDetails = async (req, res) => {
     try {
-        if(user){
-            res.render("shop",{user})
-        }else{
-            res.redirect("/login")
+        const productId = req.query.id;
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
         }
-      
-    } catch (error) {
-       res.status(500).send("Internal server error")
+
+        const relatedProducts = await Product.find({
+            category: product.category,
+            _id: { $ne: productId },
+        }).limit(4);
         
+        if (relatedProducts.length === 0) {
+            console.log('No related products found.');
+        }
+        limit(4);
+
+       
+        res.render('productDetails', { 
+            product, 
+            relatedProducts 
+        });
+        
+    } catch (error) {
+        console.error('Error in getProductDetails:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-}
+};
+
+
+
 
 module.exports={
     productDetails,
-    getShopPage
+  getProductDetails,
+
 }

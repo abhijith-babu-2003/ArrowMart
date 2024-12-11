@@ -1,12 +1,12 @@
 const User = require("../../models/userSchema");
 const nodemailer = require("nodemailer");
-const Cateory=require("../../models/categorySchema")
+const Category=require("../../models/categorySchema")
 const Product=require("../../models/ProductSchema")
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const { use } = require("../../routes/userRouter");
-const category = require("../../models/categorySchema");
-
+const { link } = require("fs");
+const mongoose=require("mongoose")
 
 
 
@@ -27,7 +27,7 @@ const securePassword = async (password) => {
 const loadHomePage = async (req, res) => {
   try {
     const user=req.session.user
-    const categories=await Cateory.find({isListed:true})
+    const categories=await Category.find({isListed:true})
     let productData=await Product.find(
      {isBlocked:false,
        category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
@@ -35,7 +35,7 @@ const loadHomePage = async (req, res) => {
     )
 
     productData.sort((a,b)=>new Date(b.createdOn) - new Date(a.createdOn))
-    productData=productData.slice(0,4)
+    productData=productData.slice(0,20)
 
 
     if(user){
@@ -308,6 +308,103 @@ const logout =async (req,res)=>{
 }
 
 
+const getShopPage=async(req,res)=>{
+  
+  try {
+    const user=req.session.user
+     const userData=await User.findOne({_id:user})
+     const categories=await Category.find({isListed:true}) 
+     const categoryIds=categories.map((category)=>category._id.toString())
+     const page=parseInt(req.query.page) || 1
+     const limit=16
+     const skip=(page-1)*limit
+     const products=await Product.find({
+      isBlocked:false,
+      category:{$in:categoryIds},
+      quantity:{$gt:0},
+
+     }).sort({createdOn:-1}).skip(skip).limit(limit)
+     const totalProducts=await Product.countDocuments({
+       isBlocked:false,
+       category:{$in:categoryIds},
+       quantity:{$gt:0}
+     })
+     const totalPages=Math.ceil(totalProducts / limit)
+     const categoriesWithIds=categories.map(category=>({_id:category._id, categoryName:category.categoryName}))
+
+
+          res.render("shop",{
+            user:userData,
+            products:products,
+            category:categoriesWithIds,
+            totalProducts:totalProducts,
+            currentPage:page,
+            totalPages:totalPages
+          })
+    
+  } catch (error) {
+     res.status(500).send("Internal server error")
+      
+  }
+}
+
+
+const filterProduct=async(req,res)=>{
+  try {
+    const user=req.session.user
+    const category=req.query.category
+   
+    const findCategory = mongoose.Types.ObjectId.isValid(category) ? await Category.findOne({ _id: category }) : null;
+    const query={
+      isBlocked:false,
+      quantity:{$gt:0}
+    }
+    if(findCategory){
+
+      query.category=findCategory._id
+
+    }
+
+    let findproducts=await Product.find(query).lean();
+    findproducts.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn))
+
+    const categories=await Category.find({isListed:true})
+    let itemsPerPage=6;
+    let currentPage=parseInt(req.query.page) || 1
+    let startIndex=(currentPage-1)*itemsPerPage
+    let endIndex=startIndex + itemsPerPage
+    let totalPages=Math.ceil(findproducts.length / itemsPerPage)
+    const currentProduct=findproducts.slice(startIndex,endIndex)
+
+    let userData=null
+    if(user){
+      userData=await user.findOne({_id: user})
+      if (userData) {
+        userData.searchHistory = userData.searchHistory || [];
+        const searchEntry = {
+          category: findCategory ? findCategory._id : null,
+          searchedOn: new Date(),
+        };
+        userData.searchHistory.push(searchEntry);
+        await userData.save();
+      }
+      
+
+    }
+    req.session.filteredProducts=currentProduct
+    res.render("shop",{
+      user:userData,
+      products:currentProduct,
+      category:categories,
+      totalPages,
+      currentPage,
+      selectedCateory:category || null
+    }) 
+    
+  } catch (error) {
+    res.redirect("/pageNotFound")
+  }
+}
 
 module.exports = {
   loadHomePage,
@@ -319,5 +416,7 @@ module.exports = {
   resendOtp,
   loadLogin,
   login,
-  logout
+  logout,
+  getShopPage,
+  filterProduct
 };

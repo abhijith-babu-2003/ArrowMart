@@ -11,7 +11,7 @@ user_Router.post('/signup',userController.signup)
 
 user_Router.get("/pageNotFound",userController.pageNotFound)
 
-
+//otp page
 user_Router.get('/verifyOtp',userController. loadingOtp)
 user_Router.post("/verifyOtp",userController.verifyOtp)
 user_Router.post('/resend-otp',userController.resendOtp)
@@ -30,16 +30,18 @@ user_Router.get('/auth/google', (req, res) => {
       res.render('/', { username: 'Guest' });
     }
   });
-
+//loginpage
 user_Router.get("/login",userController.loadLogin)
 user_Router.post("/login",userController.login)
 
+//product and home page 
 user_Router.get("/",userController.loadHomePage)
 user_Router.get("/logout",userController.logout)
+user_Router.get("/productDetails",userAuth,productController.productDetails)
+user_Router.get("/shop",userAuth,userController.getShopPage)
+user_Router.get("/filter",userAuth,userController.filterProduct)
 
-//product management
-user_Router.get("/productDetails",productController.productDetails)
-user_Router.get("/shop",productController.getShopPage)
 
+user_Router.get('/productDetails',productController.getProductDetails);
 module.exports=user_Router
 

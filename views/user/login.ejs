@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,10 @@
             box-sizing: border-box;
         }
 
-        body,html {
+        body,
+        html {
             font-family: 'Arial', sans-serif;
-   
+
             color: #fff;
             display: flex;
             justify-content: center;
@@ -113,25 +115,26 @@
             margin-top: 5px;
             text-align: left;
         }
+
         .logo-google {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 10px auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: fit-content;
-    background-color: #fff;
-}
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: fit-content;
+            background-color: #fff;
+        }
 
-.logo-google img {
-    width: 24px;
-    height: 20px;
-}
-
+        .logo-google img {
+            width: 24px;
+            height: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <form class="login-form" id="loginForm">
@@ -153,72 +156,93 @@
 
 
     <script>
-          const loginForm = document.getElementById('loginForm');
+        const loginForm = document.getElementById('loginForm');
 
-   loginForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
-
-
-    document.getElementById("emailError").innerText = "";
-    document.getElementById("passwordError").innerText = "";
-   
-
-   const email=document.getElementById("email").value.trim()
-   const password=document.getElementById("password").value.trim()
-
-   let isValid=true
+        loginForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
 
 
+            document.getElementById("emailError").innerText = "";
+            document.getElementById("passwordError").innerText = "";
 
-   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!email || !emailRegex.test(email)) {
-        document.getElementById("emailError").innerText = "Please enter a valid email address.";
-        isValid = false;
-    }
 
-    // Validate password (basic length check)
-    if (!password || password.length < 3) {
-        document.getElementById("passwordError").innerText = "Password must be at least 6 characters.";
-        isValid = false;
-    }
-    if (isValid) {
-        try {
-            const response = await fetch("/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
-        // Safely handle different response types
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          result = await response.json(); // Parse as JSON
-        } else {
-          result = { message: await response.text() }; // Parse as plain text
-        } 
+            const email = document.getElementById("email").value.trim()
+            const password = document.getElementById("password").value.trim()
 
-        if (response.ok) {
-            // Display success message and delay redirection
-            Swal.fire(result.message).then(() => {
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 2000); 
-            });
-        } else {
-        
-            const errorMessage = result.message || "Login failed. Please try again.";
-            Swal.fire(errorMessage);
-        }
-        } catch (error) {
-            console.error("Login request error:", error);
-            Swal.fire("Login failed. Please try again later.");
-        }
-    }
-   })
-   
-   </script>
+            let isValid = true
+
+
+
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById("emailError").innerText = "Please enter a valid email address.";
+                isValid = false;
+            }
+
+            // Validate password (basic length check)
+            if (!password || password.length < 3) {
+                document.getElementById("passwordError").innerText = "Password must be at least 6 characters.";
+                isValid = false;
+            }
+            if (isValid) {
+                try {
+                    const response = await fetch("/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+                    // Safely handle different response types
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json(); // Parse as JSON
+                    } else {
+                        result = { message: await response.text() }; // Parse as plain text
+                    }
+
+                    if (response.ok) {
+                        // Display a styled success message
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success!",
+                            text: result.message,
+                            showConfirmButton: false,
+                            timer: 2000, // Automatically close after 2 seconds
+                            timerProgressBar: true,
+                            backdrop: `
+      rgba(0,0,123,0.4)
+      url("https://sweetalert2.github.io/images/nyan-cat.gif")
+      left top
+      no-repeat
+    `
+                        }).then(() => {
+                            window.location.href = "/";
+                        });
+                    } else {
+                        // Display a styled error message
+                        const errorMessage = result.message || "Login failed. Please try again.";
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: errorMessage,
+                            footer: '<a href="/forgot-password">Forgot your password?</a>'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Login request error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error!",
+                        text: "Login failed. Please try again later.",
+                        confirmButtonText: "Retry"
+                    });
+                }
+            }
+        })
+
+    </script>
 
 </body>
+
 </html>
- 

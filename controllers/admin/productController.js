@@ -19,20 +19,24 @@ const getaddProducts = async (req, res) => {
 const getAllProduct = async (req, res) => {
   try {
     const search = req.query.search || "";
-    const page = parseInt(req.query.currentPage) || 1;
-    const limit = 4;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
 
     const productData = await Product.find({
       $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
     })
       .limit(limit)
       .skip((page - 1) * limit)
-      .populate("category")
+      .populate({
+        path: "category",
+        match: { isListed: true }, // Ensures only listed categories are populated
+      })
       .exec();
 
-    const count = await Product.find({
-      $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
-    }).countDocuments();
+      const count = await Product.countDocuments({
+        $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
+      });
+  
 
     const category = await Category.find({ isListed: true });
 
@@ -65,7 +69,7 @@ const addProducts = async (req, res) => {
       const images = [];
       if (req.files && req.files.length > 0) {
         for (let i = 0; i < req.files.length; i++) {
-          const originalImagePath = req.files[i].path; // Original uploaded image
+          const originalImagePath = req.files[i].path; 
           const resizedImageName = `resized-${Date.now()}-${req.files[i].filename}`;
           const resizedImagePath = path.join("public", "uploads", resizedImageName);
 

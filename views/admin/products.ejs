@@ -2,6 +2,8 @@
 
     <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
         <style>
             /* General Styling */
             .content-header {
@@ -149,7 +151,7 @@
                     <th scope="col">productImage</th>
                     <th scope="col">Product Name</th>
                     <th scope="col">Category</th>
-                    <th scope="col">Brand</th>
+                    
                     <th scope="col">Sale Price</th>
                     <th scope="col">Offer Price</th>
                     <th scope="col">Offer Percentage</th>
@@ -175,11 +177,10 @@
                             <%= data[i].productName %>
                         </td>
                         <td>
-                            <%= data[i].category.categoryName %>
-                        </td>
-                        <td>
-                            <%= data[i].brand %>
-                        </td>
+                            <%= data[i].category ? data[i].category.categoryName : "No Category" %>
+                          </td>
+                          
+                       
                         <td>
                             <%= data[i].regularPrice %>
                         </td>
@@ -221,92 +222,22 @@
 
     <div class="pagination-area mt-15 mb-50">
         <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-center">
+          <ul class="pagination justify-content-start">
             <% for (let i = 1; i <= totalPages; i++) { %>
-              <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                <a class="page-link" href="?currentPage=<%= i %>&search=<%= search %>">
-                  <%= i %>
-                </a>
+              <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
               </li>
             <% } %>
           </ul>
         </nav>
       </div>
       
+      
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    <script>
-async function addOffer(productId){
-   const {value:amount} =await Swal.fire({
-   title:'offer in percentage',
-   input:'number',
-   inputLabel:'percentage',
-   inputPlaceholder:'%'
-   })
-   $.ajax({
-    url:"/admin/addproductOffer",
-    method:"POST",
-    data:{
-        percentage:amount,
-        productId:productId
-    },
-    success:(response)=>{
-        if(response.status===true){
-            
-            Swal.fire("Offer added","offer has been removed","success")
-            location.reload()
-        }else{
-            Swal.fire("failed")
-        }
-    },
-    error:(err)=>{
-        console.error(err);
-        Swal.fire('Error',"something  went wrong","error")
-        
-    }
-   })
-}
-
-function removeOffer(productId){
-    try {
-        Swal.fire({
-            title:"Remove offer",
-            text:"Are you sure want to remove this offer",
-            icon:"warning",
-            showCancelButton:true,
-            confirmButtonColor:'#3085d6',
-            timer:5000,
-            timerProgressBar:true
-
-        }).then(async(result)=>{
-            if(result.isConfirmed){
-                $.ajax({
-                    url:"/admin/removeProductOffer",
-                    method:"POST",
-                    data:{
-                        productId:productId
-                    },
-                    success:(response)=>{
-                        if(response.status===true){
-                            Swal.fire("Removed","The offer has been removed","success")
-                            location.reload()
-                        }else if(response.status===false){
-                            Swal.fire("failed")
-
-                        }else{
-                            alert("failed")
-                        }
-                    }
-                })
-            }
-        })
-    } catch (error) {
-        console.error(error);
-        
-    }
-}
+    
     
 
 
