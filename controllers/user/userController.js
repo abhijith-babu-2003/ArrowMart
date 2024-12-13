@@ -4,7 +4,6 @@ const Category=require("../../models/categorySchema")
 const Product=require("../../models/ProductSchema")
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
-const { use } = require("../../routes/userRouter");
 const { link } = require("fs");
 const mongoose=require("mongoose")
 
@@ -26,6 +25,7 @@ const securePassword = async (password) => {
 
 const loadHomePage = async (req, res) => {
   try {
+   
     const user=req.session.user
     const categories=await Category.find({isListed:true})
     let productData=await Product.find(
@@ -35,7 +35,7 @@ const loadHomePage = async (req, res) => {
     )
 
     productData.sort((a,b)=>new Date(b.createdOn) - new Date(a.createdOn))
-    productData=productData.slice(0,20)
+    productData=productData.slice(0,4)
 
 
     if(user){
@@ -168,14 +168,14 @@ const verifyOtp = async (req, res) => {
         .status(400)
         .json({ success: false, message: "OTP is required" });
     }
-    // checking user enter otp== session otp
+    
     if (otp.toString() === req.session.userOtp?.toString()) {
       const user = req.session.userData;
 
-      // Secure password hashing
+    
       const passwordHash = await securePassword(user.password);
 
-      // Save user data
+     
       const saveUserData = new User({
         username: user.username,
         email: user.email,
@@ -185,10 +185,9 @@ const verifyOtp = async (req, res) => {
 
       await saveUserData.save();
 
-      // Update session
       req.session.user = saveUserData._id;
 
-      return res.json({ success: true, redirectUrl: "/" }); //redirect home page
+      return res.json({ success: true, redirectUrl: "/" });   
     } else {
       return res
         .status(400)
@@ -262,28 +261,34 @@ const loadLogin=async(req,res)=>{
 const login =async(req,res)=>{
   try {
     const {email,password}=req.body
+ 
+  
+  const findUser=await User.findOne({isAdmin:0,email})
+ 
+  if(!findUser){
+    return res.status(400).json({ message: "User not found" ,success:false});
+  }
+  if(findUser.isBlocked){
 
-    const findUser=await User.findOne({isAdmin:0,email})
-    if(!findUser){
-      return res.status(400).json({ message: "User not found" });
-    }
-    if(findUser.isBlocked){
-      return res.render("login",{message:"User is blocked by admin"})
-    }
+    return res.status(400).json({message:"User is blocked by admin" ,success:false})
+  }
+  
+  const passwordMatch= await bcrypt.compare(password,findUser.password)
+ 
+  
+  if(!passwordMatch){
+    return res.status(400).json({ message: "Incorrect password" ,success:false});
+  }
+  
+  req.session.user=findUser._id
 
-    const passwordMatch= await bcrypt.compare(password,findUser.password)
-   
-    if(!passwordMatch){
-      return res.status(400).json({ message: "Incorrect password" });
-    }
-     
-    req.session.user=findUser._id
+    
     console.log("User logged in successfully:");
    
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: "Login successful",success:true });
 
   } catch (error) {
-    console.error("login error",error);
+    console.log("login error",error);
     res.status(500).json({ message: "Login failed. Please try again later." });  
   
   }
@@ -318,6 +323,7 @@ const getShopPage=async(req,res)=>{
      const page=parseInt(req.query.page) || 1
      const limit=16
      const skip=(page-1)*limit
+
      const products=await Product.find({
       isBlocked:false,
       category:{$in:categoryIds},
@@ -329,18 +335,19 @@ const getShopPage=async(req,res)=>{
        category:{$in:categoryIds},
        quantity:{$gt:0}
      })
+
      const totalPages=Math.ceil(totalProducts / limit)
      const categoriesWithIds=categories.map(category=>({_id:category._id, categoryName:category.categoryName}))
 
 
-          res.render("shop",{
-            user:userData,
-            products:products,
-            category:categoriesWithIds,
-            totalProducts:totalProducts,
-            currentPage:page,
-            totalPages:totalPages
-          })
+     res.render("shop", {
+      user: userData,
+      products: products,
+      categories: categoriesWithIds, 
+      totalProducts: totalProducts,
+      currentPage: page,
+      totalPages: totalPages
+    });
     
   } catch (error) {
      res.status(500).send("Internal server error")
@@ -348,63 +355,49 @@ const getShopPage=async(req,res)=>{
   }
 }
 
-
-const filterProduct=async(req,res)=>{
+const filterProduct = async (req, res) => {
   try {
-    const user=req.session.user
-    const category=req.query.category
-   
-    const findCategory = mongoose.Types.ObjectId.isValid(category) ? await Category.findOne({ _id: category }) : null;
-    const query={
-      isBlocked:false,
-      quantity:{$gt:0}
-    }
-    if(findCategory){
+    const category = req.query.category;
+    const query = {
+      isBlocked: false,
+      quantity: { $gt: 0 },
+    };
 
-      query.category=findCategory._id
-
-    }
-
-    let findproducts=await Product.find(query).lean();
-    findproducts.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn))
-
-    const categories=await Category.find({isListed:true})
-    let itemsPerPage=6;
-    let currentPage=parseInt(req.query.page) || 1
-    let startIndex=(currentPage-1)*itemsPerPage
-    let endIndex=startIndex + itemsPerPage
-    let totalPages=Math.ceil(findproducts.length / itemsPerPage)
-    const currentProduct=findproducts.slice(startIndex,endIndex)
-
-    let userData=null
-    if(user){
-      userData=await user.findOne({_id: user})
-      if (userData) {
-        userData.searchHistory = userData.searchHistory || [];
-        const searchEntry = {
-          category: findCategory ? findCategory._id : null,
-          searchedOn: new Date(),
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
+    if (category) {
+      const isValidCategory = mongoose.Types.ObjectId.isValid(category);
+      if (isValidCategory) {
+        query.category = new mongoose.Types.ObjectId(category); 
+      } else {
+        console.log("Invalid category ID");
       }
-      
-
     }
-    req.session.filteredProducts=currentProduct
-    res.render("shop",{
-      user:userData,
-      products:currentProduct,
-      category:categories,
-      totalPages,
+
+    const products = await Product.find(query).lean();
+   const categories = await Category.find({ isListed: true }).lean();
+
+
+    let itemsPerPage = 6;
+    let currentPage = parseInt(req.query.page) || 1;
+    let startIndex = (currentPage - 1) * itemsPerPage;
+    let endIndex = startIndex + itemsPerPage;
+    let totalPages = Math.ceil(products.length / itemsPerPage);
+
+    const paginatedProducts = products.slice(startIndex, endIndex);
+
+    res.render("shop", {
+      user: req.session.user || null,
+      products: paginatedProducts,
+      categories:categories,
       currentPage,
-      selectedCateory:category || null
-    }) 
-    
+      totalPages,
+      selectedCategory: category || null,
+    });
   } catch (error) {
-    res.redirect("/pageNotFound")
+    console.error("Error filtering products:", error);
+    res.redirect("/pageNotFound");
   }
-}
+};
+
 
 module.exports = {
   loadHomePage,

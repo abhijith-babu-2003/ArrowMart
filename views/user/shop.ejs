@@ -8,7 +8,7 @@
                     All Products
                 </button>
 
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
+               <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
                    Recurve
                 </button>
 
@@ -19,7 +19,7 @@
                
                 <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
                  Accessories
-                </button>
+                </button> -->
             </div>
 
             <div class="flex-w flex-c-m m-tb-10">
@@ -142,18 +142,18 @@
 
                     <div class="filter-col3 p-r-15 p-b-27">
                         <div class="mtext-102 cl2 p-b-15">
-                          Categories
+                          Category
                         </div>
-                      
                         <ul>
-                            <% category.forEach(function(cat) { %>
+                            <% for (let i = 0; i < categories.length; i++) { %>
                               <li>
-                                <a href="/filter?category=<%= cat._id %>" class="filter-link stext-106 trans-04">
-                                  <%= cat.categoryName %>
+                                <a href="/filter?category=<%= categories[i]._id %>" class="filter-link stext-106 trans-04">
+                                  <%= categories[i].categoryName %>
                                 </a>
                               </li>
-                            <% }) %>
+                            <% } %>
                           </ul>
+                          
                           
                           
                       </div>

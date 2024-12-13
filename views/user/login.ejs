@@ -22,13 +22,13 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://media.istockphoto.com/id/1393150646/vector/arrow.jpg?s=612x612&w=0&k=20&c=1634yz6VfWr4w30BbeY3ovkjgwQ3b0f5MJ56HZFk3ug=');
+            background-image: url('https://t3.ftcdn.net/jpg/09/63/34/86/240_F_963348651_95PUQT17LXirTF7mm8WzFYfPS7ICS8cq.jpg');
             background-size: cover;
             background-position: center;
         }
 
         .container {
-            background: linear-gradient(135deg, #c3c1c1 40%, #f8f9fa 100%);
+            background: rgb(255, 255, 255);
             padding: 40px 30px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
@@ -62,7 +62,7 @@
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            background: linear-gradient(135deg, #ffffff 40%, #f8f9fa 100%);
+            background: linear-gradient(135deg, #d4d0d0 40%, #f8f9fa 100%);
             color: #fff;
             outline: none;
             transition: all 0.3s ease;
@@ -73,13 +73,13 @@
         }
 
         input:focus {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgb(0, 0, 0);
             border: 2px solid #f8e71c;
         }
 
         .btn {
             width: 100%;
-            background-color: #65f4bb;
+            background-color: #a3f1d2;
             color: #333;
             padding: 12px;
             border: none;
@@ -92,7 +92,7 @@
         }
 
         .btn:hover {
-            background-color: #ddc134;
+            background-color: #ffffff;
         }
 
         p {
@@ -132,13 +132,89 @@
             width: 24px;
             height: 20px;
         }
+        .container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    display: block;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.social-login {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.social-btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.social-btn a {
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.social-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.social-btn.google {
+    background-color: #4285F4;
+    color: white;
+}
+
+.social-btn.facebook {
+    background-color: #3b5998;
+    color: white;
+}
+
     </style>
 </head>
 
 <body>
     <div class="container">
         <form class="login-form" id="loginForm">
-            <h1>Welcome Back!</h1>
+           
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" name="email" id="email" placeholder="Enter your email">
@@ -151,8 +227,24 @@
             </div>
             <button type="submit" class="btn">Sign In</button>
             <p>Not a member? <a href="signup">Register here</a></p>
+            <a  href="/forgotPassword">Forgot your password?</a>
         </form>
+        <div class="social-login">
+            <button class="social-btn google">
+                <a href="/auth/google">
+                    <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo">
+                    Sign in with Google
+                </a>
+            </button>
+            <button class="social-btn facebook">
+                <a href="/auth/facebook">
+                    <img src="https://cdn-icons-png.flaticon.com/128/733/733547.png" alt="Facebook logo">
+                    Sign in with Facebook
+                </a>
+            </button>
+        </div>
     </div>
+    
 
 
     <script>
@@ -193,32 +285,31 @@
                         },
                         body: JSON.stringify({ email, password }),
                     });
-                    // Safely handle different response types
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        result = await response.json(); // Parse as JSON
-                    } else {
-                        result = { message: await response.text() }; // Parse as plain text
-                    }
+
+                    // console.log('response from fetch',response)
+                    //         result = await response.json(); 
+
+                    // // Safely handle different response types
+                    // const contentType = response.headers.get('content-type');
+                    // if (contentType && contentType.includes('application/json')) {
+                    //     console.log('first rewsult',result)
+                    // } else {
+                    //     result = { message: await response.text() }; 
+                    // }
+                    const result=await response.json()
 
                     if (response.ok) {
-                        // Display a styled success message
+                       
                         Swal.fire({
                             icon: "success",
                             title: "Success!",
                             text: result.message,
                             showConfirmButton: false,
-                            timer: 2000, // Automatically close after 2 seconds
+                            timer: 2000,
                             timerProgressBar: true,
-                            backdrop: `
-      rgba(0,0,123,0.4)
-      url("https://sweetalert2.github.io/images/nyan-cat.gif")
-      left top
-      no-repeat
-    `
                         }).then(() => {
                             window.location.href = "/";
-                        });
+                        }).catch(()=>console.log('coming to cacth'))
                     } else {
                         // Display a styled error message
                         const errorMessage = result.message || "Login failed. Please try again.";
@@ -226,7 +317,7 @@
                             icon: "error",
                             title: "Oops...",
                             text: errorMessage,
-                            footer: '<a href="/forgot-password">Forgot your password?</a>'
+                          
                         });
                     }
                 } catch (error) {

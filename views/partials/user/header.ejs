@@ -86,21 +86,16 @@
                     </div>
                    
                     <div>
-                        <% if(user) { %>
+                        <% if(locals.user) { %>
                            
-                            <div class="dropdown">
+                            <div class="dropdown " >
+                                
                                 <a class="btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <%= user.username %> / Logout
+                                    <i class="fa-solid fa-user"></i>
                                 </a>
+                               
                                 <ul class="dropdown-menu" aria-labelledby="authDropdown">
-                                    <!-- Username Centered -->
-                                    <li class="dropdown-header text-center fw-bold">
-                                        <%= user.username %>
-                                    </li>
-                                    
-                                    <li><hr class="dropdown-divider"></li>
-                                    <!-- Logout Option -->
-                                    <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                                     <li><a href="/userprofile">user profile</a></li>
                                 </ul>
                             </div>
                             
@@ -108,7 +103,7 @@
                             <!-- Login and Signup Dropdown -->
                             <div class="dropdown d-flex justify-content-between">
                                 <a class="btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Login / Sign Up
+                                    <i class="fa-solid fa-user"></i>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="authDropdown">
                                     <li><a class="dropdown-item" href="/signup">Sign Up</a></li>

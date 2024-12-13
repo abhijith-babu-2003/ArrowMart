@@ -20,14 +20,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://media.istockphoto.com/id/1062502646/photo/the-wooden-arrow-on-white-stock-image.jpg?s=612x612&w=0&k=20&c=4-lajcfflkvu2HZZFXjJyEsxim1Z_gIsu9n1JgqtOac=');
+            background-image: url('https://t3.ftcdn.net/jpg/09/63/34/86/240_F_963348651_95PUQT17LXirTF7mm8WzFYfPS7ICS8cq.jpg');
             background-size: cover;
             background-position: center;
         }
 
         .container {
-            background: linear-gradient(135deg, #c3c1c1 40%, #f8f9fa 100%);
-            padding: 40px 30px;
+            background: white;
+            padding: 30px 40px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
             width: 400px;
@@ -61,7 +61,7 @@
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            background: linear-gradient(135deg, #ffffff 40%, #f8f9fa 100%);
+            background: linear-gradient(135deg, #d2d0d0 40%, #f8f9fa 100%);
             color: #fff;
             outline: none;
             transition: all 0.3s ease;
@@ -78,7 +78,7 @@
 
         .btn {
             width: 100%;
-            background-color:#65f4bb;
+            background-color:#9cd8c0;
             color: #c8c1c1;
             padding: 12px;
             border: none;
@@ -91,7 +91,7 @@
         }
 
         .btn:hover {
-            background-color: #ddc134;
+            background-color: #d4d2c5;
         }
 
         p {
@@ -114,47 +114,127 @@
             margin-top: 5px;
             text-align: left;
         }
+        .container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    display: block;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.social-login {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.social-btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.social-btn a {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.social-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.social-btn.google {
+    background-color: #4285F4;
+    color: white;
+}
+
+.social-btn.facebook {
+    background-color: #3b5998;
+    color: white;
+}
+
         
     </style>
 </head>
 <body>
-    <div class="container">
-        <form class="login-form" id="signupForm">
-          
-            <div class="form-group">
-              <label for="username">Username</label>
-              <input type="text" name="username" id="username" placeholder="Enter your username">
-              <span class="error" id="usernameError"></span>
-          </div>
-          <div class="form-group">
-            <label for="phone">phone</label>
+  <div class="container">
+    <form class="login-form" id="signupForm">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" placeholder="Enter your username">
+            <span class="error" id="usernameError"></span>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone</label>
             <input type="phone" name="phone" id="phone" placeholder="Enter your phone">
             <span class="error" id="phoneError"></span>
         </div>
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" name="email" id="email" placeholder="Enter your email">
-                <span class="error" id="emailError"></span>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="Enter your password">
-                <span class="error" id="passwordError"></span>
-            </div>
-            <div class="form-group">
-              <label for="confirm-password">Confirm Password</label>
-              <input type="password" name="confirmPassword" id="confirm-password" placeholder="Re-enter your password">
-              <span class="error" id="confirmPasswordError"></span>
-          </div>
-            <button type="submit" class="btn">Sign up</button>
-            <p>Already a member? <a href="/login">Login here</a></p>
-            <a href="/auth/google" >
-              <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo"
-                style="width: 24px;height: 20px;">
-            </a>
-        </form>
-       
-    </div>
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" id="email" placeholder="Enter your email">
+            <span class="error" id="emailError"></span>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Enter your password">
+            <span class="error" id="passwordError"></span>
+        </div>
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" name="confirmPassword" id="confirm-password" placeholder="Re-enter your password">
+            <span class="error" id="confirmPasswordError"></span>
+        </div>
+        <button type="submit" class="btn">Sign Up</button>
+        <p>Already a member? <a href="/login">Login here</a></p>
+        <div class="social-login">
+            <button class="social-btn google">
+                <a href="/auth/google">
+                    <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo">
+                    Sign up with Google
+                </a>
+            </button>
+            <button class="social-btn facebook">
+                <a href="/auth/facebook">
+                    <img src="https://cdn-icons-png.flaticon.com/128/733/733547.png" alt="Facebook logo">
+                    Sign up with Facebook
+                </a>
+            </button>
+        </div>
+    </form>
+</div>
+
 
 
 

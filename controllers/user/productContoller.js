@@ -19,12 +19,22 @@ const productDetails=async(req,res)=>{
         const productOffer = product.productOffer || 0;
         const totalOffer = categoryOffer + productOffer;
 
+      
+
+         const relatedProducts = await Product.find({
+            category: product.category,
+            _id: { $ne: productId }, 
+        });
+    
+        
+
         res.render("productDetails",{
             user:userData,
             product:product,
             quantity:product.quantity,
             totalOffer:totalOffer,
-            category:findCategory
+            category:findCategory,
+            relatedProduct: relatedProducts
         })
     } catch (error) {
         console.error("error for fetching details",error);
@@ -35,41 +45,10 @@ const productDetails=async(req,res)=>{
 
 
 
-  const getProductDetails = async (req, res) => {
-    try {
-        const productId = req.query.id;
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        const relatedProducts = await Product.find({
-            category: product.category,
-            _id: { $ne: productId },
-        }).limit(4);
-        
-        if (relatedProducts.length === 0) {
-            console.log('No related products found.');
-        }
-        limit(4);
-
-       
-        res.render('productDetails', { 
-            product, 
-            relatedProducts 
-        });
-        
-    } catch (error) {
-        console.error('Error in getProductDetails:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-
 
 
 module.exports={
     productDetails,
-  getProductDetails,
+
 
 }

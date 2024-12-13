@@ -25,7 +25,7 @@ async (accessToken,refreshToken,profile,done)=>{
            
             
          user=new User({
-            username:profile.displayName,
+            name:profile.displayName,
             email:profile.emails[0].value,
             googleId:profile.id,
          })

@@ -29,7 +29,7 @@ const getAllProduct = async (req, res) => {
       .skip((page - 1) * limit)
       .populate({
         path: "category",
-        match: { isListed: true }, // Ensures only listed categories are populated
+        match: { isListed: true }, 
       })
       .exec();
 
