@@ -12,203 +12,130 @@
             padding: 0;
             box-sizing: border-box;
         }
-
-        body,
-        html {
-            font-family: 'Arial', sans-serif;
-
-            color: #fff;
+    
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #faf6f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://t3.ftcdn.net/jpg/09/63/34/86/240_F_963348651_95PUQT17LXirTF7mm8WzFYfPS7ICS8cq.jpg');
-            background-size: cover;
-            background-position: center;
+            background-image: url(https://media.istockphoto.com/id/1181605940/photo/guy-aiming-with-a-bow-arrow-in-dark-studio.jpg?s=612x612&w=0&k=20&c=40C781NF4itVAzaKYI5-0brJWwXnqb2nL82WtSsuDKE=);
+           
         }
-
+    
         .container {
-            background: rgb(255, 255, 255);
-            padding: 40px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            background:url(https://media.istockphoto.com/id/1500826374/vector/archery-target-arrow-goal-destination-achieve.jpg?s=612x612&w=0&k=20&c=cQ_vuxMhuHkSB_PaysYb0DJbs9ChuiJ7Jsj56ZD2mKU=);
+            opacity: 0.6; 
+            /* z-index: -1; */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
-
-        .login-form h1 {
-            font-size: 2.5rem;
+    
+        h1 {
+            font-size: 24px;
             margin-bottom: 20px;
-            font-weight: bold;
-            color: #000000;
+            color: #333333;
         }
-
+    
         .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #000000;
+            margin-bottom: 15px;
             text-align: left;
         }
-
+    
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333333;
+        }
+    
         input {
             width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
             font-size: 16px;
-            background: linear-gradient(135deg, #d4d0d0 40%, #f8f9fa 100%);
-            color: #fff;
-            outline: none;
-            transition: all 0.3s ease;
         }
-
-        input::placeholder {
-            color: #050505;
-        }
-
+    
         input:focus {
-            background: rgb(0, 0, 0);
-            border: 2px solid #f8e71c;
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
-
+    
         .btn {
             width: 100%;
-            background-color: #a3f1d2;
-            color: #333;
-            padding: 12px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #ffffff;
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
             margin-top: 10px;
         }
-
+    
         .btn:hover {
-            background-color: #ffffff;
+            background-color: #0056b3;
         }
-
+    
         p {
-            margin-top: 20px;
-            color: #141414;
+            margin-top: 15px;
+            color: #666666;
         }
-
+    
         p a {
-            color: #d96d4f;
+            color: #007BFF;
             text-decoration: none;
         }
-
+    
         p a:hover {
             text-decoration: underline;
         }
-
+    
         .error {
-            color: #ff4d4d;
-            font-size: 14px;
+            color: red;
+            font-size: 12px;
             margin-top: 5px;
-            text-align: left;
         }
-
-        .logo-google {
+    
+        .social-login {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px auto;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    
+        .social-btn {
+            flex: 1;
+            margin: 0 5px;
             padding: 10px;
+            background-color: #f5f5f5;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            width: fit-content;
-            background-color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
         }
-
-        .logo-google img {
-            width: 24px;
-            height: 20px;
+    
+        .social-btn img {
+            width: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
         }
-        .container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    text-align: center;
-    font-family: Arial, sans-serif;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.error {
-    color: red;
-    font-size: 12px;
-    display: block;
-}
-
-.btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-.social-login {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.social-btn {
-    flex: 1;
-    margin: 0 5px;
-    padding: 10px;
-    text-align: center;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    text-decoration: none;
-}
-
-.social-btn a {
-    text-decoration: none;
-    color: black;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.social-btn img {
-    width: 20px;
-    height: 20px;
-}
-
-.social-btn.google {
-    background-color: #4285F4;
-    color: white;
-}
-
-.social-btn.facebook {
-    background-color: #3b5998;
-    color: white;
-}
-
+    
+        .social-btn.google {
+            background-color: #7e75cb;
+            border-color: #ddd;
+        }
+    
+       
     </style>
+    
 </head>
 
 <body>
@@ -236,12 +163,7 @@
                     Sign in with Google
                 </a>
             </button>
-            <button class="social-btn facebook">
-                <a href="/auth/facebook">
-                    <img src="https://cdn-icons-png.flaticon.com/128/733/733547.png" alt="Facebook logo">
-                    Sign in with Facebook
-                </a>
-            </button>
+           
         </div>
     </div>
     

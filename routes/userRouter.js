@@ -38,12 +38,16 @@ user_Router.get("/filter",userAuth,userController.filterProduct)
 
 //userProfile management
 user_Router.get("/userprofile",userAuth,profileController.userProfile)
-user_Router.get('/changeDetails',userAuth,profileController.changeDetails)
-user_Router.post('/changeDetails',userAuth,profileController.updateDetails)
+
+user_Router.put('/userdetails/:id', userAuth, profileController.updateDetails);
+
+user_Router.post('/changePassword',userAuth,profileController.changePassword)
 
 user_Router.get("/forgotPassword",profileController.forgotPassword)
 user_Router.post("/forgetValidate",profileController.forgetValidate)
 user_Router.post("/forgotOtp",profileController.forgotOtp)
 user_Router.get("/resetPassword",profileController.resetPassword)
+user_Router.post('/resendOtp',profileController.resendOtp)
+user_Router.post('/resetPassword',profileController.newPassword)
 module.exports=user_Router
 

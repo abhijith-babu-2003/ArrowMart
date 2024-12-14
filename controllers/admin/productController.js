@@ -20,7 +20,7 @@ const getAllProduct = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 20;
+    const limit = 24;
 
     const productData = await Product.find({
       $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
@@ -114,9 +114,9 @@ const addProducts = async (req, res) => {
       });
 
       await newProduct.save();
-       
-      console.log("Product saved successfully");
-      res.redirect("/admin/products");
+      
+   
+      return res.status(200).redirect("/admin/products")
     } else {
       res.status(400).json({ error: "Product already exists" });
     }

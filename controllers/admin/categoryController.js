@@ -3,7 +3,7 @@ const category = require("../../models/categorySchema");
 const categoryinfo = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 4;
     const skip = (page - 1) * limit;
 
     const categoryData = await category.find({})
@@ -36,9 +36,9 @@ const addCategory = async (req, res) => {
 
   try {
     const existingCategory = await category.findOne({ categoryName });
-    if (existingCategory) {
+    if (!existingCategory) {
       return res.status(400).json({ error: "Category already exist" });
-      cls;
+      
     }
 
     const newCategory = new category({

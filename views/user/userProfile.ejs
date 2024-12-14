@@ -1,190 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>Order Tracking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
     <style>
         body {
-            background: linear-gradient(135deg, #74ebd5, #9face6);
             font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
         }
+
         .container {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            width: 70%;
             display: flex;
-            gap: 1rem;
+            width: 90%;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         .sidebar {
-            width: 25%;
+            width: 250px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+            padding: 1.5rem;
+            height: 100%;
         }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #495057;
+            text-decoration: none;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            border-radius: 5px;
+            padding: 0.8rem 1rem;
+        }
+
+        .sidebar a i {
+            margin-right: 0.8rem;
+            color: #0d6efd;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .sidebar a.active i {
+            color: #fff;
+        }
+
         .main-content {
+            padding: 2rem;
             flex-grow: 1;
         }
-        .nav-tabs {
-            border-bottom: none;
+
+        .main-content h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            color: #333;
         }
-        .nav-link {
-            color: #6c757d;
+
+        .form-container {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container .form-control {
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+
+        .btn-track {
+            background-color: #0d6efd;
+            color: #fff;
+            border-radius: 20px;
             font-weight: bold;
-            transition: color 0.3s;
+            width: 100%;
         }
-        .nav-link.active {
-            color: #495057;
-            background: linear-gradient(135deg, #74ebd5, #9face6);
+
+        /* Card styles */
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            margin: 20px;
+            overflow: hidden;
+        }
+
+        /* Card header */
+        .card-header {
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 20px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Card body */
+        .card-body {
+            padding: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* User details list */
+        .card-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .card-body ul li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .card-body ul li strong {
+            color: #333;
+        }
+
+        /* Divider (hr) */
+        .card-body hr {
             border: none;
-            border-radius: 10px;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
         }
-        .btn {
-            border-radius: 25px;
-        }
-        h1, h2 {
-            font-family: 'Poppins', sans-serif;
-        }
-        .tab-content {
-            padding-top: 1.5rem;
-        }
-        .tab-pane {
-            animation: fadeEffect 0.5s;
-        }
-        @keyframes fadeEffect {
-            from {opacity: 0;}
-            to {opacity: 1;}
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .card {
+                margin: 10px;
+            }
+
+            .card-header h5 {
+                font-size: 16px;
+            }
+
+            .card-body {
+                font-size: 13px;
+            }
         }
     </style>
+</head>
 
-    <div class="container py-5">
+<body>
+    <div class="container">
+        <!-- Sidebar -->
         <div class="sidebar">
-            <h1>User Profile</h1>
-            <a href="/logout"><button class="btn btn-danger" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></a>
-        </div>
-        <div class="main-content">
-            <ul class="nav nav-tabs justify-content-center" id="profileTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
-                        <i class="fas fa-home"></i> Dashboard
-                    </button>
+            <ul class="nav flex-column" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab"
+                        aria-controls="dashboard" aria-selected="false"><i class="fi-rs-settings-sliders mr-10"></i>My
+                        profile</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="addresses-tab" data-bs-toggle="tab" data-bs-target="#addresses" type="button" role="tab">
-                        <i class="fas fa-map-marker-alt"></i> Addresses
-                    </button>
+                <li class="nav-item">
+                    <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab"
+                        aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
-                        <i class="fas fa-shopping-cart"></i> Orders
-                    </button>
+                <li class="nav-item">
+                    <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab"
+                        aria-controls="track-orders" aria-selected="false"><i
+                            class="fi-rs-shopping-cart-check mr-10"></i>Wishlist</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="wallet-tab" data-bs-toggle="tab" data-bs-target="#wallet" type="button" role="tab">
-                        <i class="fas fa-wallet"></i> Wallet
-                    </button>
+                <li class="nav-item">
+                    <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                        aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="referral-tab" data-bs-toggle="tab" data-bs-target="#referral" type="button" role="tab">
-                        <i class="fas fa-user-friends"></i> Referral
-                    </button>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
+                        aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account
+                        details</a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
                 </li>
             </ul>
+        </div>
 
-            <div class="tab-content mt-4" id="profileTabsContent">
-                <!-- Dashboard -->
-                <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
-                    <h2>Dashboard</h2>
-                    <div class="card p-4">
-                        <p><strong>Username:</strong> <span id="username"> <%= user.username %></span></p>
-                        <p><strong>Email:</strong> <span id="email"> <%= user.email %></span></p>
-                        <p><strong>Phone:</strong> <span id="phone"> <%= user.phone %></span></p>
-                        <div class="d-flex gap-2">
-                            <a href="/changeDetails" class="btn btn-primary">
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="tab-content dashboard-content">
+                <div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Hello, <span id="user-name"><%= user.username %></span>!</h5>
+                            <button class="btn btn-primary btn-sm" id="edit-user-details" data-bs-toggle="modal" data-bs-target="#editUserModal">Edit</button>
+                            <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editUserModalLabel">Edit User Details</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="edit-user-form">
+                                                <!-- Hidden field for user ID -->
+                                                <input type="hidden" id="user-id" value="<%= user._id %>">
+                            
+                                                <div class="mb-3">
+                                                    <label for="username" class="form-label">Name</label>
+                                                    <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="email" class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="phone" class="form-label">Phone Number</label>
+                                                    <input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="card-body">
+                            <hr>
+                            <h6>Your Details:</h6>
+                            <ul>
+                                <li><strong>Name:</strong> <span id="user-full-name"><%= user.username %></span></li>
+                                <li><strong>Email:</strong> <span id="user-email"><%= user.email %></span></li>
+                                <li><strong>Phone Number:</strong> <span id="user-phone"><%= user.phone %></span></li>
+                            </ul>
+                        </div>
+                    </div>
 
-                                <i class="fas fa-edit"></i>  Change details                              
+                    
 
-                            </a>
-                            <a href="/changePassword" class="btn btn-secondary">
-                                <i class="fas fa-key"></i> Change Password
-                            </a>
+                    <!-- Change Password Section -->
+                    <!-- Change Password Modal -->
+                    <div class="modal fade" id="changePasswordModal" tabindex="-1"
+                        aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="change-password-form">
+                                        <div class="mb-3">
+                                            <label for="current-password" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="current-password"
+                                                name="current-password" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="new-password" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="new-password"
+                                                name="new-password" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirm-password" class="form-label">Confirm New
+                                                Password</label>
+                                            <input type="password" class="form-control" id="confirm-password"
+                                                name="confirm-password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Change Password</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Button to trigger the modal -->
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#changePasswordModal">
+                        Change Password
+                    </button>
+
+
+                </div>
+             
+
+                <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>#1357</td>
+                                            <td>March 45, 2020</td>
+                                            <td>Processing</td>
+                                            <td>$125.00 for 2 item</td>
+                                            <td><a href="#" class="btn-small d-block">View</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>#2468</td>
+                                            <td>June 29, 2020</td>
+                                            <td>Completed</td>
+                                            <td>$364.00 for 5 item</td>
+                                            <td><a href="#" class="btn-small d-block">View</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>#2366</td>
+                                            <td>August 02, 2020</td>
+                                            <td>Completed</td>
+                                            <td>$280.00 for 3 item</td>
+                                            <td><a href="#" class="btn-small d-block">View</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Addresses -->
-                <div class="tab-pane fade" id="addresses" role="tabpanel">
-                    <h2>Addresses</h2>
-                    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addAddressModal">
-                        <i class="fas fa-plus-circle"></i> Add Address
-                    </button>
-                    <div id="addressList" class="list-group">
-                        <!-- Address items dynamically populated -->
+                <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                    <!-- <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Orders tracking</h5>
+                        </div>
+                        <div class="card-body contact-from-area">
+                            <p>To track your order please enter your OrderID in the box below and press "Track" button. This was given to you on your receipt and in the confirmation email you should have received.</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <form class="contact-form-style mt-30 mb-50" action="#" method="post">
+                                        <div class="input-style mb-20">
+                                            <label>Order ID</label>
+                                            <input name="order-id" placeholder="Found in your order confirmation email" type="text" class="square">
+                                        </div>
+                                        <div class="input-style mb-20">
+                                            <label>Billing email</label>
+                                            <input name="billing-email" placeholder="Email you used during checkout" type="email" class="square">
+                                        </div>
+                                        <button class="submit submit-auto-width" type="submit">Track</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+                <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card mb-3 mb-lg-0">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Billing Address</h5>
+                                </div>
+                                <div class="card-body">
+                                    <address>3522 Interstate<br> 75 Business Spur,<br> Sault Ste. <br>Marie, MI 49783
+                                    </address>
+                                    <p>New York</p>
+                                    <a href="#" class="btn-small">Edit</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Shipping Address</h5>
+                                </div>
+                                <div class="card-body">
+                                    <address>4299 Express Lane<br>
+                                        Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444</address>
+                                    <p>Sarasota</p>
+                                    <a href="#" class="btn-small">Edit</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Orders -->
-                <div class="tab-pane fade" id="orders" role="tabpanel">
-                    <h2>Orders</h2>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTable">
-                                <!-- Orders dynamically populated -->
-                            </tbody>
-                        </table>
+                <!-- <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Account Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Already have an account? <a href="page-login-register.html">Log in instead!</a></p>
+                            <form method="post" name="enq">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label>First Name <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="name" type="text">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>Last Name <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="phone">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>Display Name <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="dname" type="text">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>Email Address <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="email" type="email">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>Current Password <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="password" type="password">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>New Password <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="npassword" type="password">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label>Confirm Password <span class="required">*</span></label>
+                                        <input required="" class="form-control square" name="cpassword" type="password">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-fill-out submit" name="submit"
+                                            value="Submit">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Wallet -->
-                <div class="tab-pane fade" id="wallet" role="tabpanel">
-                    <h2>Wallet</h2>
-                    <div class="card p-4">
-                        <p><strong>Balance:</strong> $<span id="walletBalance">100.00</span></p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFundsModal">
-                            <i class="fas fa-money-bill-wave"></i> Add Funds
-                        </button>
-                    </div>
-                    <h3 class="mt-4">Transaction History</h3>
-                    <ul id="transactionHistory" class="list-group">
-                        <!-- Transactions dynamically populated -->
-                    </ul>
-                </div>
-
-                <!-- Referral -->
-                <div class="tab-pane fade" id="referral" role="tabpanel">
-                    <h2>Referral Program</h2>
-                    <div class="card p-4">
-                        <p><strong>Your Referral Link:</strong> <a href="#" id="referralLink">http://example.com/referral/johndoe</a></p>
-                        <p><strong>Total Earnings:</strong> $<span id="referralEarnings">50.00</span></p>
-                    </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
 
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap JS (for modal functionality) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <script>
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Ensure this runs after the DOM is fully loaded
+    document.getElementById('edit-user-form').addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Fetch form values
+        const userId = document.getElementById('user-id').value;
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+
+        try {
+            const response = await fetch(`/userdetails/${userId}`, {
+                method: 'PUT', // Ensure consistency with backend
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, phone }),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+                location.reload(); // Reload the page
+            } else {
+                alert(result.message || 'Failed to update user details');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while updating the user details.');
+        }
+    });
+});
+
+
+
+//change password
+
+
+
+
+    document.getElementById("change-password-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Get input values
+        const currentPassword = document.getElementById("current-password").value;
+        const newPassword = document.getElementById("new-password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+
+        // Validate inputs
+        if (newPassword !== confirmPassword) {
+            alert("New password and confirm password do not match.");
+            return;
+        }
+
+        try {
+            // Send the data to the backend
+            const response = await fetch("/changePassword", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message); // Success message from the server
+                // Optionally, reset the form and close the modal
+                document.getElementById("change-password-form").reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById("changePasswordModal"));
+                modal.hide();
+            } else {
+                alert(result.message); // Error message from the server
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    });
+
+
+</script>
 
    
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
+
 </html>
+

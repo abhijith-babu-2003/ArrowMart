@@ -4,7 +4,7 @@ const Category=require("../../models/categorySchema")
 const Product=require("../../models/ProductSchema")
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
-const { link } = require("fs");
+const fs = require("fs");
 const mongoose=require("mongoose")
 
 

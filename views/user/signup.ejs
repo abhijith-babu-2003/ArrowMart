@@ -6,234 +6,181 @@
     <title>Login Page</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body,html {
-            font-family: 'Arial', sans-serif;
-   
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-image: url('https://t3.ftcdn.net/jpg/09/63/34/86/240_F_963348651_95PUQT17LXirTF7mm8WzFYfPS7ICS8cq.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .container {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
-            width: 400px;
-            height: 650px;
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+  
+      body, html {
+          font-family: 'Arial', sans-serif;
+          background-image: url(https://media.istockphoto.com/id/1181605940/photo/guy-aiming-with-a-bow-arrow-in-dark-studio.jpg?s=612x612&w=0&k=20&c=40C781NF4itVAzaKYI5-0brJWwXnqb2nL82WtSsuDKE=);
            
-            text-align: center;
-        }
-
-        .login-form h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: #000000;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #000000;
-            text-align: left;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            background: linear-gradient(135deg, #d2d0d0 40%, #f8f9fa 100%);
-            color: #fff;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input::placeholder {
-            color: #050505;
-        }
-
-        input:focus {
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid #f8e71c;
-        }
-
-        .btn {
-            width: 100%;
-            background-color:#9cd8c0;
-            color: #c8c1c1;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            background-color: #d4d2c5;
-        }
-
-        p {
-            margin-top: 20px;
-            color: #141414;
-        }
-
-        p a {
-            color: #d96d4f;
-            text-decoration: none;
-        }
-
-        p a:hover {
-            text-decoration: underline;
-        }
-
-        .error {
-            color: #ff4d4d;
-            font-size: 14px;
-            margin-top: 5px;
-            text-align: left;
-        }
-        .container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.error {
-    color: red;
-    font-size: 12px;
-    display: block;
-}
-
-.btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-.social-login {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.social-btn {
-    flex: 1;
-    margin: 0 5px;
-    padding: 10px;
-    text-align: center;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.social-btn a {
-    text-decoration: none;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-.social-btn img {
-    width: 20px;
-    height: 20px;
-}
-
-.social-btn.google {
-    background-color: #4285F4;
-    color: white;
-}
-
-.social-btn.facebook {
-    background-color: #3b5998;
-    color: white;
-}
-
-        
-    </style>
-</head>
-<body>
-  <div class="container">
-    <form class="login-form" id="signupForm">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username" placeholder="Enter your username">
-            <span class="error" id="usernameError"></span>
-        </div>
-        <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="phone" name="phone" id="phone" placeholder="Enter your phone">
-            <span class="error" id="phoneError"></span>
-        </div>
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" name="email" id="email" placeholder="Enter your email">
-            <span class="error" id="emailError"></span>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" placeholder="Enter your password">
-            <span class="error" id="passwordError"></span>
-        </div>
-        <div class="form-group">
-            <label for="confirm-password">Confirm Password</label>
-            <input type="password" name="confirmPassword" id="confirm-password" placeholder="Re-enter your password">
-            <span class="error" id="confirmPasswordError"></span>
-        </div>
-        <button type="submit" class="btn">Sign Up</button>
-        <p>Already a member? <a href="/login">Login here</a></p>
-        <div class="social-login">
-            <button class="social-btn google">
-                <a href="/auth/google">
-                    <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google logo">
-                    Sign up with Google
-                </a>
-            </button>
-            <button class="social-btn facebook">
-                <a href="/auth/facebook">
-                    <img src="https://cdn-icons-png.flaticon.com/128/733/733547.png" alt="Facebook logo">
-                    Sign up with Facebook
-                </a>
-            </button>
-        </div>
-    </form>
-</div>
+          color: #333;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+      }
+  
+      .container {
+        background:url(https://media.istockphoto.com/id/1500826374/vector/archery-target-arrow-goal-destination-achieve.jpg?s=612x612&w=0&k=20&c=cQ_vuxMhuHkSB_PaysYb0DJbs9ChuiJ7Jsj56ZD2mKU=);
+        opacity: 0.6; 
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          width:700px;
+          max-width: 500px;
+      }
+  
+      .container h1 {
+          font-size: 24px;
+          margin-bottom: 20px;
+          text-align: center;
+          color: #444;
+      }
+  
+      .form-group {
+          margin-bottom: 15px;
+      }
+  
+      label {
+          display: block;
+          margin-bottom: 5px;
+          font-size: 14px;
+          color: #555;
+      }
+  
+      input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          font-size: 14px;
+          color: #333;
+          outline: none;
+      }
+  
+      input:focus {
+          border-color: #007bff;
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+  
+      .btn {
+          width: 100%;
+          padding: 10px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          margin-top: 10px;
+      }
+  
+      .btn:hover {
+          background-color: #0056b3;
+      }
+  
+      p {
+          text-align: center;
+          margin-top: 15px;
+          font-size: 14px;
+      }
+  
+      p a {
+          color: #007bff;
+          text-decoration: none;
+      }
+  
+      p a:hover {
+          text-decoration: underline;
+      }
+  
+      .social-login {
+          display: flex;
+          justify-content: center;
+          margin-top: 20px;
+          gap: 10px;
+      }
+  
+      .social-btn {
+          padding: 10px;
+          text-align: center;
+          background-color: #f5f5f5;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          cursor: pointer;
+          flex: 1;
+          text-decoration: none;
+          color: #333;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+      }
+  
+      .social-btn img {
+          width: 20px;
+          height: 20px;
+      }
+  
+      .social-btn.google {
+          background-color: #4285f4;
+          color: white;
+      }
+  
+     
+  
+      .error {
+          color: red;
+          font-size: 12px;
+          margin-top: 5px;
+      }
+  </style>
+  
+    <body>
+      <div class="container">
+          <h1>Register</h1>
+          <form id="signupForm">
+              <div class="form-group">
+                  <label for="username">Username</label>
+                  <input type="text" id="username" placeholder="Enter your username">
+                  <span class="error" id="usernameError"></span>
+              </div>
+              <div class="form-group">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone" placeholder="Enter your phone number">
+                  <span class="error" id="phoneError"></span>
+              </div>
+              <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" placeholder="Enter your email">
+                  <span class="error" id="emailError"></span>
+              </div>
+              <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password" id="password" placeholder="Enter your password">
+                  <span class="error" id="passwordError"></span>
+              </div>
+              <div class="form-group">
+                  <label for="confirm-password">Confirm Password</label>
+                  <input type="password" id="confirm-password" placeholder="Re-enter your password">
+                  <span class="error" id="confirmPasswordError"></span>
+              </div>
+              <button type="submit" class="btn">Sign Up</button>
+              <p>Already have an account? <a href="/login">Login here</a></p>
+          </form>
+          <div class="social-login">
+              <a href="/auth/google" class="social-btn google">
+                  <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google">
+                  Google
+              </a>
+          </div>
+      </div>
+  </body>
+  
 
 
 

@@ -135,10 +135,11 @@
             </div>
             <button type="button" class="resend-button" onclick="resendOtp()">Resend OTP</button>
             <div class="alert-danger mt-3" id="error-message"></div>
+            <div class="text-muted">
+                Already verified? <a href="/login">Login now</a>
+            </div>
         </div>
-        <div class="text-muted">
-            Already verified? <a href="/login">Login now</a>
-        </div>
+        
     </div>
 
     <script>
@@ -159,7 +160,8 @@
 
         // Validate OTP Form
         function validateOtpForm() {
-    const otpInput = $('#otp').val();  // Capture OTP input value
+            const otpInput = $('#otp').val().trim();
+        
     
     $.ajax({
         type: "POST",
@@ -194,23 +196,13 @@
     return false
 }
 
-            // const otpInput = document.getElementById("otp").value;
-            // if (!otpInput || otpInput.length !== 6 || isNaN(otpInput)) {
-            //     errorMessage.textContent = "Please enter a valid 6-digit OTP.";
-            //     return false;
-            // }
-            // errorMessage.textContent = ""; // Clear error
-            // Swal.fire("OTP Verified Successfully!");
-            // return true;
-          
-        
 
         // Resend OTP Functionality
         function resendOtp() {
+        
             timer = 30; // Reset timer
             otpTimer.textContent = timer;
-            errorMessage.textContent = ""; // Clear error
-            Swal.fire("OTP Resent! Please check your email.");
+            errorMessage.textContent = ""; 
             clearInterval(countdown); // Restart timer
             setInterval(() => {
                 if (timer > 0) {
@@ -220,7 +212,38 @@
                     otpTimer.textContent = "0";
                 }
             }, 1000);
+
+
+               $.ajax({
+                type:'POST',
+                url:'/resendOtp',
+                success:function(response){
+                   if(response.success){
+                    Swal.fire({
+                        icon:"success",
+                        title:"Resend OTP successfull",
+                        timer:1500,
+                    })
+                   }else{
+                      Swal.fire({
+                        icon:"error",
+                        title:"Error",
+                        text:'Failed to resend OTP.please try again'
+                      })
+                   }
+                },
+                error:function(){
+                      Swal.fire({
+                        icon:'error',
+                        title:'Error',
+                        text:"Failed to resend OTP.please try again"
+                      })
+                }
+               })
         }
+
+
+    
     </script>
 </body>
 </html>
