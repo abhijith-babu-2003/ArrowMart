@@ -1,9 +1,10 @@
 const User=require("../../models/userSchema")
+const Address=require("../../models/addressSchema")
 const nodemailer=require("nodemailer")
 const env=require("dotenv").config()
 const bcrypt = require('bcrypt');
 const session=require("express-session")
-
+const mongoose = require('mongoose');
 
 
 
@@ -161,8 +162,10 @@ const userProfile =async (req,res)=>{
     try {
         const userId=req.session.user
         const userData= await User.findById(userId)
+        const addressData=await Address.findOne({userId:userId})
         res.render("userProfile",{
             user:userData,
+            userAddress:addressData
 
         })
     } catch (error) {
@@ -231,6 +234,104 @@ const changePassword =async(req,res)=>{
 }
 
 
+
+const postAddAddresss=async(req,res)=>{
+    try {
+        const userId=req.session.user
+        const UserData=await User.findOne({_id:userId})
+
+     const {addressType,name,city,landMark,state,pincode,phone,altPhone}=req.body
+ 
+     const userAddress=await Address.findOne({userId: UserData._id})
+
+     if(!userAddress){
+        const newAddress= new Address({
+            userId:  UserData._id,
+            address:[{addressType,name,city,landMark,state,pincode,phone,altPhone}]
+        })
+        await newAddress.save()
+     }else{
+        userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone})
+        await userAddress.save()
+     }
+     res.json({ success: true, message: "Address added successfully" });
+    } catch (error) {
+        console.error("error adding address",error);
+        res.redirect("/pageNotFound")
+        
+    }
+}
+
+const editAddress =async(req,res)=>{
+    try {
+        const { id } = req.params;
+        const user=req.session.id   
+        const data=req.body
+    console.log(data);
+    
+
+   const findAddress=await Address.findOne({
+    "address._id":id
+   })
+    
+   if(!findAddress){
+    return res.redirect("/pageNotFound")
+   }
+   
+    await Address.updateOne(
+        {"address._id":id},
+        {$set:{"address.$":{
+         _id:id,
+         addressType:data.addressType,
+         name:data.name,
+         city:data.city,
+         landMark:data.landMark,
+         state:data.state,
+         pincode:data.pincode,
+         phone:data.phone,
+         altPhone:data.altPhone
+        }
+    }}
+    )
+    res.json({success:true,message:"Address added successfully"})
+
+    } catch (error) {
+        console.error(error.message);
+        
+        res.json({success:false,message:"Failed to update address"})
+    }
+}
+
+
+const deleteAddress=async(req,res)=>{
+    try {
+       const addressId=req.query.id 
+       const findAddress=await Address.findOne({"address._id":addressId})
+       if(!findAddress){
+        res.status(404).json({success:false,message:"address not found"})
+       }
+       await Address.updateOne({
+        "address._id":addressId
+       },
+       {
+        $pull:{address:{_id:addressId}}
+       }
+    )
+
+    res.json({success:true,message:"address successfully deleted"})
+    } catch (error) {
+         console.error("error in delete addresss");
+         res.redirect("/pageNotFound")
+         
+    }
+}
+
+
+
+
+
+
+
 module.exports={
     userProfile, 
     updateDetails,
@@ -240,5 +341,20 @@ module.exports={
     resetPassword,
     resendOtp,
     newPassword,
-    changePassword
+    changePassword,
+    postAddAddresss,
+    editAddress,
+    deleteAddress
 }
+
+
+
+
+
+
+
+
+
+
+
+

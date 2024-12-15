@@ -5,6 +5,7 @@ const userController=require("../controllers/user/userController");
 const productController=require("../controllers/user/productContoller")
 const profileController=require("../controllers/user/profileController")
 const passport = require("passport");
+const mongoose = require("mongoose");
 
 //signup
 user_Router.get('/signup',userController.loadSignup)
@@ -42,12 +43,25 @@ user_Router.get("/userprofile",userAuth,profileController.userProfile)
 user_Router.put('/userdetails/:id', userAuth, profileController.updateDetails);
 
 user_Router.post('/changePassword',userAuth,profileController.changePassword)
-
+//forgot password
 user_Router.get("/forgotPassword",profileController.forgotPassword)
 user_Router.post("/forgetValidate",profileController.forgetValidate)
 user_Router.post("/forgotOtp",profileController.forgotOtp)
 user_Router.get("/resetPassword",profileController.resetPassword)
 user_Router.post('/resendOtp',profileController.resendOtp)
 user_Router.post('/resetPassword',profileController.newPassword)
+
+
+//address management
+
+user_Router.post("/addAddress",userAuth,profileController.postAddAddresss)
+user_Router.put("/editAddress/:id", userAuth, profileController.editAddress);
+user_Router.get("/deleteAddress",userAuth,profileController.deleteAddress)
 module.exports=user_Router
+
+
+
+
+
+
 
