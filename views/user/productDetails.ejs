@@ -278,30 +278,24 @@
 						  
 						  <div class="availability text-danger"> <p>In Stock </p> </div> 
 						 
-						<div class="quantity-and-actions d-flex flex-column flex-md-row align-items-center mt-4">
-							<div class="quantity-wrapper d-flex align-items-center me-md-4 mb-3 mb-md-0">
-								<h6 class="quantity-label me-3">Quantity:</h6>
-								<div class="wrap-num-product d-flex align-items-center">
-									<button class="btn-num-product-down cl8 hov-btn3 trans-04">
-										-
-									</button>
-									<input class="num-product mtext-104 cl3 text-center mx-2" type="number" name="num-product" value="1">
-									<button class="btn-num-product-up cl8 hov-btn3 trans-04">
-										+
-									</button>
+						<div class="flex-w flex-r-m p-b-10">
+							<div class="size-204 flex-w flex-m respon6-next">
+								<div class="wrap-num-product flex-w m-r-20 m-tb-10">
+									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+										<i class="fs-16 zmdi zmdi-minus"></i>
+									</div>
+
+									<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" min="1" max="<%= product.quantity %>">
+
+									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+										<i class="fs-16 zmdi zmdi-plus"></i>
+									</div>
 								</div>
-							</div>
-					
-							<div class="action-buttons d-flex">
-								<button class="btn btn-danger me-3 px-4 py-2">
+
+								<button onclick="addToCart('<%= product._id %>', document.querySelector('.num-product').value)"
+										class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
 									Add to Cart
 								</button>
-								<div class="block2-txt-child2 flex-r p-t-3">
-									<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-										<img class="icon-heart1 dis-block trans-04" src="/assets/images/icons/icon-heart-01.png "alt="ICON">
-										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="/assets/images/icons/icon-heart-02.png" alt="ICON">
-									</a>
-								</div>
 							</div>
 						</div>
 					</div>
@@ -386,7 +380,7 @@
 							</div>
 						</div>
 					</div>
-				</>
+				</div>
 			</div>
 		</div>
 		</div>
@@ -444,7 +438,6 @@
 		</div>
 	</section>
 	
-
 	<script>
 		document.querySelectorAll('.zoom-container').forEach(container => {
     const img = container.querySelector('.zoom-img');

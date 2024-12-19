@@ -3622,3 +3622,124 @@ input.num-product::-webkit-inner-spin-button {
     padding: 20px;
   }
 }
+
+/* General Styles */
+.wrap-filter {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter Column */
+.filter-col1, .filter-col2, .filter-col3 {
+  margin-bottom: 20px;
+}
+
+/* Section Headers */
+.mtext-102 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* Select Dropdown */
+select.filter-link {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+select.filter-link:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Price and Category Links */
+.filter-link-active,
+.stext-106 {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #555;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-link-active {
+  background-color: #007bff;
+  color: #fff !important;
+}
+
+.stext-106:hover {
+  background-color: #f1f1f1;
+  color: #007bff;
+}
+
+/* Responsive Layout */
+@media (min-width: 768px) {
+  .flex-w {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .filter-col1, .filter-col2, .filter-col3 {
+    flex: 1;
+  }
+}
+/* General Styles for the Sort By Section */
+.filter-col1 {
+  margin-bottom: 20px;
+}
+
+.mtext-102 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* Dropdown Styling */
+select.filter-link {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  appearance: none; /* Removes the default dropdown arrow */
+  -webkit-appearance: none; /* Safari compatibility */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'%3E%3Cpath fill=\'%23333\' d=\'M2 0L0 2h4z\'/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+/* On Hover and Focus */
+select.filter-link:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+select.filter-link:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Mobile-friendly adjustments */
+@media (max-width: 576px) {
+  select.filter-link {
+    font-size: 14px;
+  }
+}

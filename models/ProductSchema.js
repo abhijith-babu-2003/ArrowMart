@@ -52,6 +52,11 @@ const productSchema=new Schema ({
         enum:["Available","out of stock","Discountinued"],
         required:true,
         default:"Avaliable"
+     },
+     popularity:{
+        type:Number,
+        required:true,
+        default:0
      }
 
 },{timestamps:true})

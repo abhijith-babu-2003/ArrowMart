@@ -1,6 +1,7 @@
 <%- include("../../views/partials/admin/header") %>
 
     <head>
+
         <style>
             .thumbnails-container {
                 display: flex;
@@ -22,6 +23,8 @@
                 display: none;
             }
         </style>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
     </head>
     <section class="content-main">
@@ -38,8 +41,7 @@
 
 
                     <div class="card-body">
-                        <form method="post" action="/admin/editProducts?id=<%= product._id %>"
-                            enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <form  id="editProductForm" enctype="multipart/form-data">>
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Product Name</label>
                                 <input type="text" name="productName" value="<%= product.productName %>"
@@ -216,8 +218,9 @@
                             </div>
                             <div>
 
-                                <button class="btn btn-md rounded font-sm hover-up" id="updatebtn"
-                                    type="submit">Update</button>
+                                <button class="btn btn-md rounded font-sm hover-up" id="updatebtn" type="button" onclick="submitForm(event)">Update</button>
+
+
 
                             </div>
                         </form>
@@ -228,7 +231,7 @@
         </div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 
@@ -237,84 +240,59 @@
     <script>
 
 
-        function validateAndSubmit() {
-            if (validateForm()) {
-                document.forms[0].submit();
-            }
-        }
 
+function submitForm(event) {
+  event.preventDefault();
+  
+    const formData = new FormData(document.getElementById("editProductForm"));
+    
+  
+    for (let i = 1; i <= 4; i++) {
+      const fileInput = document.getElementById(`input${i}`);
+      if (fileInput && fileInput.files.length > 0) {
+        formData.append('images', fileInput.files[0]);
+      }
+    }
 
-
-        function validateForm() {
-            let imageDatas = false
-            console.log("validate form");
-            clearErrorMessages();
-            const name = document.getElementsByName('productName')[0].value;
-            const description = document.getElementsByName('descriptionData')[0].value;
-            const price = document.getElementsByName('regularPrice')[0].value;
-            const saleprice = document.getElementsByName('salePrice')[0].value;
-            const color = document.getElementsByName('color')[0].value;
-            const category = document.getElementsByName('category')[0].value;
-            const images = document.getElementById('input1')
-            const quantity = document.getElementsByName('quantity')
-            imageDatas = document.getElementById("imageDatas")?.value;
-            let isValid = true;
-            if (name.trim() === "") {
-                displayErrorMessage('productName-error', 'Please enter a product name.');
-                isValid = false;
-            }
-
-            if (description === '') {
-                displayErrorMessage('description-error', 'Please enter a product description.');
-                isValid = false;
-            }
-
-
-            if (parseInt(quantity) < 0) {
-                displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                isValid = false;
-            }
-
-
-
-
-            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                isValid = false;
-            }
-            if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                isValid = false;
-            }
-
-            if (color.trim() === "") {
-                displayErrorMessage('color-error', 'Please enter a color.');
-                isValid = false;
-            }
-            if (!imageDatas && images.files.length === 0) {
-                displayErrorMessage("images-error", 'Please select an image.');
-                isValid = false;
-            }
-            return isValid;
-        }
-
-        function displayErrorMessage(elementId, message) {
-            var errorElement = document.getElementById(elementId);
-            errorElement.innerText = message;
-            errorElement.style.display = "block";
-        }
-
-
-        function clearErrorMessages() {
-            const errorElements = document.getElementsByClassName('error-message');
-            Array.from(errorElements).forEach(element => {
-                element.innerText = '';
-            });
-            const errorMessage = document.getElementById('errorMessage');
-
-
-        }
-
+    const productId = new URLSearchParams(window.location.search).get("id");
+    
+    fetch(`/admin/editProducts?id=${productId}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.error,
+                            icon: 'error',
+                            confirmButtonText: 'Retry',
+                            confirmButtonColor: '#d33',
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message || "Product updated successfully!",
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3085d6',
+                        }).then(() => {
+                            window.location.href = "/admin/products";
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong! Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#d33',
+                    });
+                });
+  }
 
 
 

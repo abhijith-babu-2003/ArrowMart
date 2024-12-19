@@ -1,4 +1,5 @@
 <%- include("../../views/partials/user/header") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="bg0 m-t-23 p-b-140">
     <div class="container">
@@ -42,101 +43,69 @@
                     <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
                         <i class="zmdi zmdi-search"></i>
                     </button>
-
-                    <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search">
+                    <form action="/search" method="post" >
+                        <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="query" placeholder="Search">
+                    </form>
                 </div>	
             </div>
 
             <!-- Filter -->
-            <div class="dis-none panel-filter w-full p-t-10">
-                <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
-                    <div class="filter-col1 p-r-15 p-b-27">
-                        <div class="mtext-102 cl2 p-b-15">
-                            Sort By
+            <div class="dis-none panel-filter w-full p-t-10" >
+                <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm  bg-secondary">
+                    <form id="sort-form">
+                        <div class="filter-col1 p-r-15 p-b-27">
+                            <div class="mtext-102 cl2 p-b-15">Sort By</div>
+                    
+                            <select name="sort" class="filter-link stext-106 trans-04"  onchange="fetchProducts()">
+                                <option value="default">Default</option>
+                                <option value="popularity">Popularity</option>
+                                <option value="az">Name: A to Z</option>
+                                <option value="za">Name: Z to A</option>
+                                <option value="priceLow">Price: Low to High</option>
+                                <option value="priceHigh">Price: High to Low</option>
+                            </select>
                         </div>
-
-                        <ul>
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                    Default
-                                </a>
-                            </li>
-
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                    Popularity
-                                </a>
-                            </li>
-
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                    Average rating
-                                </a>
-                            </li>
-
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                                    Newness
-                                </a>
-                            </li>
-
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                    Price: Low to High
-                                </a>
-                            </li>
-
-                            <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                    Price: High to Low
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    </form>
+                    
+                    
 
                     <div class="filter-col2 p-r-15 p-b-27">
-                        <div class="mtext-102 cl2 p-b-15">
-                            Price
-                        </div>
-
+                        <div class="mtext-102 cl2 p-b-15">Price</div>
                         <ul>
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
+                                <a href="/filterPrice?gt=0&lt=500" class="stext-106 trans-04 filter-link-active">
                                     Under $500
                                 </a>
                             </li>
-
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
+                                <a href="/filterPrice?gt=500&lt=5000" class="stext-106 trans-04">
                                     $500.00 - $5000.00
                                 </a>
                             </li>
-
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
+                                <a href="/filterPrice?gt=5000&lt=10000" class="stext-106 trans-04">
                                     $5000.00 - $10000.00
                                 </a>
                             </li>
-
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
+                                <a href="/filterPrice?gt=10000&lt=50000" class="stext-106 trans-04">
                                     $10000.00 - $50000.00
                                 </a>
                             </li>
-
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
+                                <a href="/filterPrice?gt=50000&lt=100000" class="stext-106 trans-04">
                                     $50000.00 - $100000.00
                                 </a>
                             </li>
-
                             <li class="p-b-6">
-                                <a href="#" class="filter-link stext-106 trans-04">
-                                   Above $100000.00+
+                                <a href="/filterPrice?gt=100000" class="stext-106 trans-04">
+                                    Above $100000.00+
                                 </a>
                             </li>
                         </ul>
                     </div>
+                    
+                    
 
                     
 
@@ -147,9 +116,11 @@
                         <ul>
                             <% for (let i = 0; i < categories.length; i++) { %>
                               <li>
-                                <a href="/filter?category=<%= categories[i]._id %>" class="filter-link stext-106 trans-04">
-                                  <%= categories[i].categoryName %>
-                                </a>
+                                
+                                <a href="/filter?category=<%= categories[i]._id %>" class="stext-106 trans-04">
+                                    <%= categories[i].categoryName %>
+                                  </a>
+                                  
                               </li>
                             <% } %>
                           </ul>
@@ -162,53 +133,48 @@
             </div>
         </div>
 
-        <div class="row isotope-grid">
+        <div class="row g-3" id="product-list">
            <% for(let i=0;i<products.length;i++){%>
-                
-            
-                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item <%= products.category %>">
-                    <!-- Block2 -->
-                    <div class="block2">
-                        <div class="block2-pic hov-img0">
-                            <a href="/productDetails?id=<%= products[i]._id %>"></a>
-                            <img src="/uploads/<%= products[i].productImage[0] %>" alt="<%=products[i].productImage%>">
-                            <a href="/productDetails?id=<%= products[i]._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-                                Quick View
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card h-100">
+                        <div class="product-img-container">
+                            <a href="/productDetails?id=<%= products[i]._id %>">
+                                <img src="/uploads/<%= products[i].productImage[0] %>" 
+                                     alt="<%=products[i].productImage%>" 
+                                     class="product-img">
                             </a>
+                            <div class="quick-view">
+                                <a href="/productDetails?id=<%= products[i]._id %>" 
+                                   class="btn btn-sm btn-light">Quick View</a>
+                            </div>
                         </div>
-                        <div class="block2-txt flex-w flex-t p-t-14">
-                            <div class="block2-txt-child1 flex-col-l">
-                                <a href="product-detail.html" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                                    <%=products[i].productName %>
-                                </a>
-                                <span class="stext-105 cl3">
-                                    Rs. <del style="font-size: small;"><%= products[i].regularPrice %></del>
-
-                                </span>
-                                <span class="stext-105 cl3">
-                                     <span style="color: red; font-size: 20px;">Rs.<%= products[i].salePrice %></span>
-
-                                </span>
+                        <div class="product-info">
+                            <h6 class="product-title text-truncate mb-1">
+                                <%=products[i].productName %>
+                            </h6>
+                            <div class="product-price mb-1">
+                                <span class="sale-price">Rs. <%= products[i].salePrice %></span>
+                                <small class="original-price">Rs. <%= products[i].regularPrice %></small>
                             </div>
-                            <div class="review-stars">
-                                &#9733;&#9733;&#9733;&#9733;&#9734; <!-- 4 filled stars, 1 empty -->
-                              </div>
-                            <div class="block2-txt-child2 flex-r p-t-3">
-                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                    <img class="icon-heart1 dis-block trans-04" src="/assets/images/icons/icon-heart-01.png "alt="ICON">
-                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/assets/images/icons/icon-heart-02.png" alt="ICON">
-                                </a>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="rating">★★★★☆</div>
+                                <small class="stock">Stock: <%= products[i].quantity %></small>
                             </div>
-                            <div class="block2-txt-child3 p-t-10">
-                                <a href="/addToCart?id=<%= products._id %>" class="btn-add-to-cart flex-c-m stext-103 cl2 size-102 bg-info-light bor2 hov-btn3 p-lr-15 trans-04">
+                            <div class="product-actions">
+                                <button onclick="addToCart('<%= products[i]._id %>')" 
+                                        class="btn btn-sm btn-primary w-100 mb-1">
                                     Add to Cart
-                                </a>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary w-100">
+                                    <i class="far fa-heart"></i> Wishlist
+                                </button>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
-                <% }%>
-         </div>
+            <% } %>
+        </div>
 
         <!-- Load more -->
         <div class="flex-c-m flex-w w-full p-t-45">
@@ -218,5 +184,219 @@
         </div>
     </div>
 </div>
+
+<style>
+.product-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-img-container {
+    position: relative;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    background: #f8f9fa;
+}
+
+.product-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.5rem;
+}
+
+.quick-view {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.9);
+    opacity: 0;
+    transition: opacity 0.2s;
+    text-align: center;
+}
+
+.product-card:hover .quick-view {
+    opacity: 1;
+}
+
+.product-info {
+    padding: 0.75rem;
+}
+
+.product-title {
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.sale-price {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.original-price {
+    color: #6c757d;
+    text-decoration: line-through;
+    font-size: 0.8rem;
+}
+
+.rating {
+    color: #ffc107;
+    font-size: 0.8rem;
+}
+
+.stock {
+    color: #6c757d;
+    font-size: 0.75rem;
+}
+
+.product-actions {
+    margin-top: 0.5rem;
+}
+
+.product-actions .btn {
+    font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .product-title {
+        font-size: 0.85rem;
+    }
+    .sale-price {
+        font-size: 0.85rem;
+    }
+    .original-price {
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+function addToCart(productId) {
+    fetch('/addCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, quantity: 1 })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Product added to cart successfully!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message || 'Failed to add product to cart.',
+                    icon: 'error',
+                    confirmButtonText: 'Retry'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Oops!',
+                text: 'Something went wrong.',
+                icon: 'error',
+                confirmButtonText: 'Close'
+            });
+        });
+}
+
+
+
+//sorting
+async function fetchProducts() {
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const sort = urlParams.get('sort');
+    const selectElement = document.querySelector('select[name="sort"]');
     
+    // Get the selected value
+    const sort = selectElement.value;
+
+    try {
+        const response = await fetch(`/Products?sort=${sort}`);
+        const products = await response.json();
+        
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '';
+        
+       
+        products.forEach(product => {
+            const productHTML = `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card h-100">
+                        <div class="product-img-container">
+                            <a href="/productDetails?id=${product._id}">
+                                <img src="/uploads/${product.productImage[0]}" 
+                                     alt="${product.productName}" 
+                                     class="product-img">
+                            </a>
+                            <div class="quick-view">
+                                <a href="/productDetails?id=${product._id}" 
+                                   class="btn btn-sm btn-light">Quick View</a>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h6 class="product-title text-truncate mb-1">
+                                ${product.productName}
+                            </h6>
+                            <div class="product-price mb-1">
+                                <span class="sale-price">Rs. ${product.salePrice}</span>
+                                <small class="original-price">Rs. ${product.regularPrice}</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="rating">★★★★☆</div>
+                                <small class="stock">Stock: ${product.quantity}</small>
+                            </div>
+                            <div class="product-actions">
+                                <button onclick="addToCart('${product._id}')" 
+                                        class="btn btn-sm btn-primary w-100 mb-1">
+                                    Add to Cart
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary w-100">
+                                    <i class="far fa-heart"></i> Wishlist
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            productList.insertAdjacentHTML('beforeend', productHTML);
+        });
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+
+</script>
+
 <%- include("../../views/partials/user/footer") %>

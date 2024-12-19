@@ -25,16 +25,8 @@ const cartSchema=new Schema({
             type:String,
             required:true
         },
-        status:{
-            type:String,
-            default:"placed"
-        },
-        cancellationReason:{
-            type:String,
-            default:"none"
-        }
+     
     }]
 })
 
-const Cart=mongoose.Model("Cart",cartSchema)
-module.exports=Cart
+module.exports = mongoose.model("Cart", cartSchema);

@@ -35,10 +35,11 @@ const getAllProduct = async (req, res) => {
 
       const count = await Product.countDocuments({
         $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
-      });
+        "category.isListed": true,
+      })
   
 
-    const category = await Category.find({ isListed: true });
+    const category = await Category.find({isListed:true});
 
     if (category) {
       res.render("products", {
@@ -61,77 +62,79 @@ const addProducts = async (req, res) => {
   try {
     const products = req.body;
 
+    
     const productExists = await Product.findOne({
       productName: products.productName,
     });
 
-    if (!productExists) {
-      const images = [];
-      if (req.files && req.files.length > 0) {
-        for (let i = 0; i < req.files.length; i++) {
-          const originalImagePath = req.files[i].path; 
-          const resizedImageName = `resized-${Date.now()}-${req.files[i].filename}`;
-          const resizedImagePath = path.join("public", "uploads", resizedImageName);
+    if (productExists) {
+      return res.status(400).json({ success:false, message:"Product already exists" });
+    }
 
-          
-          const outputDir = path.dirname(resizedImagePath);
-          if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-          }
+    // Handle image upload and resizing
+    const images = [];
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        const originalImagePath = req.files[i].path;
+        const resizedImageName = `resized-${Date.now()}-${req.files[i].filename}`;
+        const resizedImagePath = path.join("public", "uploads", resizedImageName);
 
-          
-          await sharp(originalImagePath)
-            .resize({ width: 440, height: 440 })
-            .toFile(resizedImagePath);
-
-          
-          images.push(resizedImageName);
+        const outputDir = path.dirname(resizedImagePath);
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
 
        
-          fs.unlinkSync(originalImagePath);
-        }
+        await sharp(originalImagePath)
+          .resize({ width: 440, height: 440 })
+          .toFile(resizedImagePath);
+
+        
+        images.push(resizedImageName);
+
+        fs.unlinkSync(originalImagePath);
       }
-
-
-      const category = await Category.findOne({
-        isListed: true,
-        categoryName: products.category,
-      });
-      if (!category) {
-        return res.status(400).send("Invalid category name");
-      }
-
-      const newProduct = new Product({
-        productName: products.productName,
-        description: products.description,
-        category: category._id,
-        regularPrice: products.regularPrice,
-        salePrice: products.salePrice,
-        quantity: products.quantity,
-        color: products.color,
-        productImage: images,
-        status: "Available",
-      });
-
-      await newProduct.save();
-      
-   
-      return res.status(200).redirect("/admin/products")
-    } else {
-      res.status(400).json({ error: "Product already exists" });
     }
+
+   
+    const category = await Category.findOne({
+      isListed: true,
+      categoryName: products.category,
+    });
+
+    if (!category) {
+      return res.status(400).json({ message: "Invalid category name" });
+    }
+
+    // Create the new product
+    const newProduct = new Product({
+      productName: products.productName,
+      description: products.description,
+      category: category._id,
+      regularPrice: products.regularPrice,
+      salePrice: products.salePrice,
+      quantity: products.quantity,
+      color: products.color,
+      productImage: images,
+      status: "Available",
+    });
+
+    await newProduct.save();
+
+    // Return success message
+    return res.status(200).json({success:true, message: "Product added successfully!" ,product:newProduct});
   } catch (error) {
     console.error("Error in saving products", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while saving the product" });
+    return res.status(500).json({ success:false, messaeg: "An error occurred while saving the product" });
   }
 };
+
+
 //block and unblock 
 const blockProduct = async (req, res) => {
   try {
     let id = req.query.id;
-    await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
+    await Product.updateOne({_id:id},{$set:{isBlocked:true}});
     res.redirect("/admin/products");
   } catch (error) {
     res.redirect("pageError");
@@ -141,23 +144,25 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
   try {
     let id = req.query.id;
-    await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
+    await Product.updateOne({_id:id},{$set:{ isBlocked: false } });
     res.redirect("/admin/products");
   } catch (error) {
     res.redirect("pageError");
   }
 };
  //view all products
-const getEditProducts = async (req, res) => {
+ const getEditProducts = async (req, res) => {
   try {
     const id = req.query.id;
-    const product = await Product.findById(id);
-    const category = await Category.find({});
-
-    console.log("product get:",product);
-    
-
     if (!id) {
+      return res.redirect("/admin/products");
+    }
+
+    const product = await Product.findById(id);
+    const category = await Category.find({ isListed: true });
+
+    if (!product) {
+      console.error("Product not found.");
       return res.redirect("/admin/products");
     }
 
@@ -166,7 +171,7 @@ const getEditProducts = async (req, res) => {
       cat: category,
     });
   } catch (error) {
-    console.error("Error fetching product or category:", error);
+    console.error("Error in getEditProducts:", error);
     res.redirect("/admin/products");
   }
 };
@@ -175,53 +180,55 @@ const getEditProducts = async (req, res) => {
 const editproduct = async (req, res) => {
   try {
     const id = req.query.id;
+   
     const product = await Product.findById(id);
-    const {
-      productName,
-      description,
-      regularPrice,
-      salePrice,
-      quantity,
-      color,
-      category,
-    } = req.body;
-    const cat = await Category.findOne({ categoryName: category });
-    const existingProduct = await Product.findOne({
-      productName: productName,
-      _id: { $ne: id },
-    });
-
-    if (existingProduct) {
-      return res.status(400).json({
-        error: "Product with this name already exists. Please try again.",
-      });
+    if (!product) {
+      return res.status(404).json({ error: "Product not found!" });
     }
 
-    const image = [];
-    if (req.files && req.files.length > 0) {
-      for (let i = 0; i < req.files.length; i++) {
-        image.push(req.files[i].filename);
+   
+    const updateData = {
+      productName: req.body.productName || product.productName,
+      description: req.body.description || product.description,
+      regularPrice: req.body.regularPrice || product.regularPrice,
+      salePrice: req.body.salePrice || product.salePrice,
+      quantity: req.body.quantity || product.quantity,
+      color: req.body.color || product.color,
+    };
+
+  
+    if (req.body.category) {
+      const category = await Category.findOne({ categoryName: req.body.category });
+      if (category) {
+        updateData.category = category._id;
       }
     }
 
-    const updateFile = {
-      productName,
-      description,
-      category: cat._id,
-      regularPrice,
-      salePrice,
-      quantity,
-      color,
-    };
-
-    if (image.length > 0) {
-      updateFile.$push = { productImage: { $each: image } };
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => file.filename);
+      updateData.productImage = [
+        ...product.productImage, 
+        ...newImages
+      ];
     }
-    await Product.findByIdAndUpdate(id, updateFile, { new: true });
-    res.redirect("/admin/editProducts");
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id, 
+      { $set: updateData }, 
+      { new: true }
+    );
+
+
+    if (!updatedProduct) {
+      return res.status(500).json({ error: "Failed to update product", product: updatedProduct });
+    }
+
+    res.status(200).json({success:true, message: "Product updated successfully!",    product: updatedProduct  });
+
   } catch (error) {
-    console.error(error);
-    res.redirect("/pageError");
+    console.error("Full error in editproduct:", error);
+    res.status(500).json({  error: "Something went wrong!",  details: error.message 
+    });
   }
 };
 

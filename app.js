@@ -46,7 +46,7 @@ app.use("/",userRouter)
 app.use('/admin',adminRouter)
 
 app.listen(process.env.PORT,()=>{
-    console.log(`server is rununing on http://localhost:${process.env.PORT}`);
+    console.log(`server is rununing on http://localhost:${process.env.PORT }`);
     
 })
 

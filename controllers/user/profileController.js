@@ -59,6 +59,7 @@ const forgotPassword =async(req,res)=>{
     }
 }
 
+
 const forgetValidate=async(req,res)=>{
     try {
         const {email}=req.body
@@ -91,8 +92,6 @@ const forgotOtp=async(req,res)=>{
     try {
         const enterdOtp = req.body.otp;
 
-    
-       
         if (enterdOtp.trim() === req.session.userOtp?.toString().trim()) { 
         res.json({success:true,redirectUrl:"/resetPassword"})
        }else{
@@ -267,9 +266,7 @@ const editAddress =async(req,res)=>{
         const { id } = req.params;
         const user=req.session.id   
         const data=req.body
-    console.log(data);
     
-
    const findAddress=await Address.findOne({
     "address._id":id
    })
@@ -293,7 +290,7 @@ const editAddress =async(req,res)=>{
         }
     }}
     )
-    res.json({success:true,message:"Address added successfully"})
+    res.json({success:true,message:"Address edited successfully"})
 
     } catch (error) {
         console.error(error.message);
@@ -305,7 +302,7 @@ const editAddress =async(req,res)=>{
 
 const deleteAddress=async(req,res)=>{
     try {
-       const addressId=req.query.id 
+       const addressId=req.params.id 
        const findAddress=await Address.findOne({"address._id":addressId})
        if(!findAddress){
         res.status(404).json({success:false,message:"address not found"})
@@ -318,9 +315,9 @@ const deleteAddress=async(req,res)=>{
        }
     )
 
-    res.json({success:true,message:"address successfully deleted"})
+    res.status(200).json({success:true,message:"address deleted successfully"})
     } catch (error) {
-         console.error("error in delete addresss");
+         console.error("error in delete addresss",error);
          res.redirect("/pageNotFound")
          
     }

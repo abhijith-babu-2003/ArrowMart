@@ -38,10 +38,8 @@
         #imagePreviewModal .cropper-container {
             max-height: 500px;
         }
-        
-
     </style>
-   
+
 
     <div class="container-fluid">
         <section class="content-main">
@@ -54,8 +52,7 @@
                 <div class="col-lg-8">
                     <div class="card mb-4">
                         <div class="card-body">
-                            <form method="POST" action="/admin/addProducts" enctype="multipart/form-data"
-                                id="productForm">
+                            <form id="productForm">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="product_name" class="form-label">Product Name</label>
@@ -63,7 +60,6 @@
                                             class="form-control" id="product_name">
                                         <div id="productName-error" class="error-message"></div>
                                     </div>
-
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Full description</label>
@@ -74,7 +70,7 @@
                                 <div class="row">
                                     <div class="col-lg-4">
                                         <div class="mb-4">
-                                            <label class="form-label">regular price</label>
+                                            <label class="form-label">Regular Price</label>
                                             <input placeholder="$" name="regularPrice" type="text"
                                                 class="form-control border">
                                             <div id="regularPrice-error" class="error-message"></div>
@@ -82,7 +78,7 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="mb-4">
-                                            <label class="form-label">Sale price</label>
+                                            <label class="form-label">Sale Price</label>
                                             <input placeholder="$" name="salePrice" type="text"
                                                 class="form-control border">
                                             <div id="salePrice-error" class="error-message"></div>
@@ -148,8 +144,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary" onclick="return validateForm()" >Publish
-                                    Product</button>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">Publish Product</button>
                             </form>
                         </div>
                     </div>
@@ -187,6 +182,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let currentImageIndex = 0;
         let cropper;
@@ -256,132 +252,131 @@
 
 
 
+        document.getElementById('productForm').addEventListener('submit', async function (e) {
+    e.preventDefault();  
 
-        // document.getElementById('productForm').addEventListener('submit', validateForm);
+    let isValid = true; 
+    const errorMessages = {
+        productName: "Product name is required.",
+        description: "Description is required.",
+        regularPrice: "Regular price is required and should be a valid number.",
+        salePrice: "Sale price is required and should be a valid number.",
+        quantity: "Stock quantity is required and should be a valid number.",
+        color: "Color is required.",
+        category: "Category is required.",
+        images: "At least one image is required."
+    };
 
-        function validateForm(event) {
-            event.preventDefault();
-            clearErrorMessages();
-            let isValid = true;
+   
+    document.querySelectorAll(".error-message").forEach((errorElement) => {
+        errorElement.textContent = '';
+    });
 
-            const productName = document.getElementsByName('productName')[0].value.trim();
-            if (!productName) {
-                displayErrorMessage('productName-error', 'Product name is required.');
-                isValid = false;
-            } else if (productName.length < 3 || productName.length > 100) {
-                displayErrorMessage('productName-error', 'Product name must be between 3 and 100 characters.');
-                isValid = false;
-            } else if (!/^[a-zA-Z0-9\s\-&()]+$/.test(productName)) {
-                displayErrorMessage('productName-error', 'Product name can only contain letters, numbers, spaces, and special characters like -&().');
-                isValid = false;
-            }
+   
+    const productName = document.getElementById("product_name").value.trim();
+    if (!productName) {
+        document.getElementById("productName-error").textContent = errorMessages.productName;
+        isValid = false;
+    }
 
-            const description = document.getElementById('descriptionid').value.trim();
-            if (!description) {
-                displayErrorMessage('description-error', 'Product description is required.');
-                isValid = false;
-            } else if (description.length < 10 || description.length > 1000) {
-                displayErrorMessage('description-error', 'Description must be between 10 and 1000 characters.');
-                isValid = false;
-            }
+    const description = document.getElementById("descriptionid").value.trim();
+    if (!description) {
+        document.getElementById("description-error").textContent = errorMessages.description;
+        isValid = false;
+    }
 
-            const salePrice = document.getElementsByName('salePrice')[0].value.trim();
-            if (!salePrice) {
-                displayErrorMessage('salePrice-error', 'Sale price is required.');
-                isValid = false;
-            } else {
-                const price = parseFloat(salePrice);
-                if (isNaN(price) || price < 0) {
-                    displayErrorMessage('salePrice-error', 'Please enter a valid non-negative number.');
-                    isValid = false;
-                } else if (!/^\d+(\.\d{1,2})?$/.test(salePrice)) {
-                    displayErrorMessage('salePrice-error', 'Price must have up to 2 decimal places.');
-                    isValid = false;
-                }
-            }
+    const regularPrice = document.querySelector('[name="regularPrice"]').value.trim();
+    if (!regularPrice || isNaN(regularPrice) || regularPrice <= 0) {
+        document.getElementById("regularPrice-error").textContent = errorMessages.regularPrice;
+        isValid = false;
+    }
 
-            const quantity = document.getElementsByName('quantity')[0].value.trim();
-            if (!quantity) {
-                displayErrorMessage('quantity-error', 'Stock quantity is required.');
-                isValid = false;
-            } else {
-                const qty = parseInt(quantity, 10);
-                if (isNaN(qty) || qty < 0) {
-                    displayErrorMessage('quantity-error', 'Please enter a valid non-negative number.');
-                    isValid = false;
-                }
-            }
+    const salePrice = document.querySelector('[name="salePrice"]').value.trim();
+    if (!salePrice || isNaN(salePrice) || salePrice <= 0) {
+        document.getElementById("salePrice-error").textContent = errorMessages.salePrice;
+        isValid = false;
+    }
 
-            const color = document.getElementsByName('color')[0].value.trim();
-            if (!color) {
-                displayErrorMessage('color-error', 'Color is required.');
-                isValid = false;
-            } else if (color.length < 2 || color.length > 50) {
-                displayErrorMessage('color-error', 'Color must be between 2 and 50 characters.');
-                isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(color)) {
-                displayErrorMessage('color-error', 'Color should contain only alphabetic characters.');
-                isValid = false;
-            }
+    const quantity = document.querySelector('[name="quantity"]').value.trim();
+    if (!quantity || isNaN(quantity) || quantity <= 0) {
+        document.getElementById("quantity-error").textContent = errorMessages.quantity;
+        isValid = false;
+    }
 
-            const category = document.getElementsByName('category')[0].value.trim();
-            if (!category) {
-                displayErrorMessage('category-error', 'Please select a category.');
-                isValid = false;
-            }
+    const color = document.querySelector('[name="color"]').value.trim();
+    if (!color) {
+        document.getElementById("color-error").textContent = errorMessages.color;
+        isValid = false;
+    }
 
-            const images = document.querySelectorAll('input[name="images"]');
-            const validImageFormats = ["image/jpeg", "image/png", "image/jpg"];
-            let imageSelected = false;
-            
-            images.forEach((input, index) => {
-                if (input.files.length > 0) {
-                    imageSelected = true;
-                    const file = input.files[0];
+    const category = document.querySelector('[name="category"]').value.trim();
+    if (!category) {
+        document.getElementById("category-error").textContent = errorMessages.category;
+        isValid = false;
+    }
 
-                    
-                    if (!validImageFormats.includes(file.type)) {
-                        displayErrorMessage(`imageError${index + 1}`, 'Invalid file type. Only image files are allowed.');
-                        isValid = false;
-                    }
+    const imageInputs = document.querySelectorAll('[name="images"]');
+    let imageUploaded = false;
+    imageInputs.forEach((input) => {
+        if (input.files && input.files.length > 0) {
+            imageUploaded = true;
+        }
+    });
+    if (!imageUploaded) {
+        document.getElementById("imageError1").textContent = errorMessages.images;
+        isValid = false;
+    }
 
-              
-                    if (file.size > 5 * 1024 * 1024) {
-                        displayErrorMessage(`imageError${index + 1}`, 'Image size must be less than 5MB.');
-                        isValid = false;
-                    }
-                }
+   
+    if (isValid) {
+    const formData = new FormData(this);
+
+    try {
+        const response = await fetch('/admin/addProducts', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: 'Success!',
+                text: result.message || 'Product added successfully!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+            }).then(() => {
+                window.location.href = "/admin/products";
             });
-
-            
-            if (!imageSelected) {
-                displayErrorMessage('imageError1', 'Please upload at least one product image.');
-                isValid=false
-            } 
-
-
-            return isValid
-        }
-
-        function displayErrorMessage(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.innerText = message;
-                errorElement.style.display = "block";
-            }
-        }
-
-        function clearErrorMessages() {
-            document.querySelectorAll('.error-message').forEach(el => {
-                el.innerText = '';
-                el.style.display = 'none';
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: result.message || 'Failed to add product. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'Retry',
+                confirmButtonColor: '#d33',
             });
         }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An unexpected error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#d33',
+        });
+    }
+}
+
+});
 
 
 
 
-        
+
+
 
     </script>
 

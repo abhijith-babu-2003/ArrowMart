@@ -1,113 +1,233 @@
 <%- include("../../views/partials/admin/header") %>
-<div class="content-header row">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="content-title card-title">Customers</h2>
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill mt-10 mr-10" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
-            <button class="btn  border-0" type="submit">Search</button>
+
+<style>
+    /* Main Layout */
+    .content-wrapper {
+        padding: 2rem;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    /* Header Styles */
+    .content-header {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .content-title {
+        font-size: 1.8rem;
+        color: #2d3436;
+        margin: 0;
+    }
+
+    /* Search Bar */
+    .search-container {
+        position: relative;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1.2rem;
+        border: 1px solid #e9ecef;
+        border-radius: 50px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #4834d4;
+        box-shadow: 0 0 0 3px rgba(72, 52, 212, 0.1);
+        background: white;
+    }
+
+    /* Table Styles */
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        color: #2d3436;
+        font-weight: 600;
+        padding: 1.2rem 1.5rem;
+        border: none;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+
+    .table td {
+        padding: 1.2rem 1.5rem;
+        vertical-align: middle;
+        border-top: 1px solid #f1f2f6;
+        color: #2d3436;
+    }
+
+    /* Button Styles */
+    .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none !important;
+        min-width: 100px;
+    }
+
+    .btn-danger {
+        background: #ff7675 !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background: #ff4757 !important;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: #00b894 !important;
+        color: white !important;
+    }
+
+    .btn-success:hover {
+        background: #00a885 !important;
+        transform: translateY(-2px);
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin: 2rem 0;
+        gap: 0.5rem;
+    }
+
+    .page-link {
+        border: none;
+        padding: 0.8rem 1.2rem;
+        color: #2d3436;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background: #4834d4;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: #4834d4;
+        color: white;
+        border: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .content-wrapper {
+            padding: 1rem;
+        }
+
+        .content-header {
+            padding: 1rem;
+        }
+
+        .table-container {
+            margin: 0 -1rem;
+            border-radius: 0;
+        }
+
+        .table td, 
+        .table th {
+            padding: 1rem;
+        }
+
+        .search-container {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h2 class="content-title">Customers</h2>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search customers..." name="search">
+            </div>
         </div>
     </div>
-</div>         
-        </div>
-        
-            <header class="card-header text-center mb-20">
-                <form action="/admin/users" method="get" class="d-inline">
-                </form>
-            </header>
-            <div class="right mt-5">
-                <table class="table table-striped">
-                    <thead>
-                       
-                      <tr>
-                        <th scope="col"><b>Name</b></th>
-                        <th scope="col"><b>Email</b></th>
-                        <th scope="col"><b>Phone No</b></th>
-                        <th scope="col"><b>Action</b></th>
-                      </tr>
-                      
-                    </thead>
-                    <tbody>
-                        <% for (let i = 0; i < data.length; i++) { %>
-                            <tr>
-                                <td><%= data[i].username %></td>
-                                <td><%= data[i].email %></td>
-                                <td><%= data[i].phone %></td>
-                                <td>
-                                    <% if (!data[i].isBlocked) { %>
-                                        <a href="/admin/blockCustomer?id=<%= data[i]._id %>" 
-                                           class="btn btn-danger block-btn" 
-                                           style="width: 80px; text-decoration: none; color: white;">
-                                            Block
-                                        </a>
-                                    <% } else { %>
-                                        <a href="/admin/unblockCustomer?id=<%= data[i]._id %>" 
-                                           class="btn btn-success unblock-btn" 
-                                           style="width: 80px; text-decoration: none; color: white;">
-                                            Unblock
-                                        </a>
-                                    <% } %>
-                                </td>
-                                
-                            </tr>
-                        <% } %>
-                    </tbody>
-                    
-                  </table>
-        </div>
-        <div class="container mt-3">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
-                    <% for(let i=1;i<=totalPages;i++){%>
-                        <li class="page-item <%=(i===currentPage) ? 'active' : '' %>">
-                            <a class="page-link" href="?page=<%=i%>"><%= i %></a>
 
-                        </li>
-                        <%}%>
-                </ul>
-            </nav>
-        </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone No</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < data.length; i++) { %>
+                    <tr>
+                        <td><%= data[i].username %></td>
+                        <td><%= data[i].email %></td>
+                        <td><%= data[i].phone %></td>
+                        <td class="text-center">
+                            <% if (!data[i].isBlocked) { %>
+                                <a href="/admin/blockCustomer?id=<%= data[i]._id %>" 
+                                   class="btn btn-danger block-btn">
+                                    Block
+                                </a>
+                            <% } else { %>
+                                <a href="/admin/unblockCustomer?id=<%= data[i]._id %>" 
+                                   class="btn btn-success unblock-btn">
+                                    Unblock
+                                </a>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
 
-        <script>
-            // Add event listeners to block/unblock buttons
-            document.getElementById('customer-table-body').addEventListener('click', function (event) {
-                const button = event.target;
-        
-                // Check if the clicked element is a block/unblock button
-                if (button.classList.contains('block-btn') || button.classList.contains('unblock-btn')) {
-                    event.preventDefault();
-        
-                    const customerId = button.dataset.id;
-                    const action = button.classList.contains('block-btn') ? 'block' : 'unblock';
-        
-                    // Send an asynchronous request to the server
-                    fetch(`/admin/${action}Customer`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: customerId })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Update the button dynamically
-                                if (action === 'block') {
-                                    button.classList.remove('block-btn', 'btn-danger');
-                                    button.classList.add('unblock-btn', 'btn-success');
-                                    button.textContent = 'Unblock';
-                                } else {
-                                    button.classList.remove('unblock-btn', 'btn-success');
-                                    button.classList.add('block-btn', 'btn-danger');
-                                    button.textContent = 'Block';
-                                }
-                            } else {
-                                alert('Action failed: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred. Please try again.');
-                        });
-                }
-            });
-        </script>
-        
-        <%- include("../../views/partials/admin/footer") %>
+    <div class="container">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% for(let i=1; i<=totalPages; i++) { %>
+                    <li class="page-item <%=(i===currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%=i%>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+>
+
+<%- include("../../views/partials/admin/footer") %>
