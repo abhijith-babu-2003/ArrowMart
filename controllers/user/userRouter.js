@@ -67,13 +67,8 @@ user_Router.delete("/deleteAddress/:id",userAuth,profileController.deleteAddress
 user_Router.get("/cart",userAuth,cartController.getCart)
 user_Router.post("/addCart",userAuth,cartController.addToCart)
 user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
-user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
-
-
-
-
+user_Router.post("/updateCart",userAuth,cartController.updateCart)
 module.exports=user_Router
-
 
 
 

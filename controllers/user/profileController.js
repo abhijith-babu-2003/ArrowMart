@@ -144,7 +144,7 @@ const newPassword=async(req,res)=>{
           );
          
           req.session.message = "Password successfully changed";
-         res.redirect('/login',{message});
+         res.redirect('/login',{message:"Password successfully changed"});
 
         }else{
             req.session.message = "Error updating password. Please try again.";

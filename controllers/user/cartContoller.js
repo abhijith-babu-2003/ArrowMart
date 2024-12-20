@@ -1,10 +1,12 @@
 const Cart = require("../../models/cartSchema");
+const User = require("../../models/userSchema");
 const Product = require("../../models/ProductSchema");
 
 const getCart = async (req, res) => {
   try {
-    const userId = req.session.user;
-    const cart = await Cart.findOne({ userId }).populate(
+    const user = req.session.user; 
+   
+    const cart = await Cart.findOne({ user: user._id }).populate(
       "items.productId",
       "productName productImage salePrice"
     );
@@ -15,7 +17,7 @@ const getCart = async (req, res) => {
       });
     }
 
-    res.render("cart", { cart });
+    res.render("cart", { cart ,user:user});
   } catch (error) {
     console.error("Get cart error:", error);
     res.status(500).json({
@@ -123,6 +125,7 @@ const removeFromCart = async (req, res) => {
   
     if (itemIndex !== -1) {
       cart.items.splice(itemIndex, 1);
+  
       await cart.save();  
       return res.json({ success: true, message: "Item removed successfully" });
     } else {
@@ -134,10 +137,17 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
   
 module.exports = {
   getCart,
   removeFromCart,
   // updateCart,
-  addToCart,
+  addToCart,        
+ 
 };
