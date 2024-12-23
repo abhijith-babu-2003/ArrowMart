@@ -294,41 +294,25 @@
 
 <script>
 function addToCart(productId) {
-    fetch('/addCart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId, quantity: 1 })
+  fetch('/addCart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity: 1 }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        Swal.fire('Success!', 'Product added to cart!', 'success');
+      } else {
+        Swal.fire('Error!', data.message, 'error');
+      }
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Product added to cart successfully!',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error!',
-                    text: data.message || 'Failed to add product to cart.',
-                    icon: 'error',
-                    confirmButtonText: 'Retry'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Oops!',
-                text: 'Something went wrong.',
-                icon: 'error',
-                confirmButtonText: 'Close'
-            });
-        });
+    .catch((error) => {
+      console.error('Add to Cart Error:', error);
+      Swal.fire('Oops!', 'Something went wrong.', 'error');
+    });
 }
+
 
 
 

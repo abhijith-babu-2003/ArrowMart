@@ -340,7 +340,7 @@
                         <h4>Cart Totals</h4>
                         
                         <div class="total-row">
-                            <span class="total-label">Subtotal</span>
+                            <span class="total-label cart-subtotal">Subtotal</span>
                             <span class="total-value">Rs.<span id="cart-subtotal">0</span></span>
                         </div>
                         
@@ -350,7 +350,7 @@
                         </div>
                         
                         <div class="total-row">
-                            <span class="total-label">Total</span>
+                            <span class="total-label cart-total">Total</span>
                             <span class="total-value">Rs.<span id="cart-total">0</span></span>
                         </div>
     
@@ -434,54 +434,68 @@
     });
 }
 
-//         function updateQuantity(productId, change, availableQuantity) {
-//     const quantityElement = document.getElementById(`quantity-${productId}`);
-//     const currentQuantity = parseInt(quantityElement.textContent);
-//     const maxQuantity = Math.min(availableQuantity, 5);
 
-//     if (currentQuantity + change < 1) {
-//         Swal.fire({ icon: "warning", title: "Minimum Quantity Reached", text: "The minimum quantity is 1." });
-//         return;
-//     } else if (currentQuantity + change > maxQuantity) {
-//         Swal.fire({ icon: "warning", title: "Maximum Quantity Reached" });
-//         return;
-//     }
+// cart total products sum
 
-//     fetch("/updateQuantity", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ productId, change }),
-//     })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.success) {
-//                 quantityElement.textContent = data.newQuantity;
-//                 document.getElementById(`subtotal-${productId}`).textContent = `₹${data.newSubtotal.toLocaleString()}`;
-//                 document.getElementById("cartTotal").textContent = `₹${data.totalPrice.toLocaleString()}`;
-//                 document.getElementById("grandTotal").textContent = `₹${data.totalPrice.toLocaleString()}`;
-//             } else {
-//                 Swal.fire({ icon: "error", title: "Error", text: data.message });
-//             }
-//         })
-//         .catch(error => console.error("Error updating quantity:", error));
-// }
-
-// function updateQuantityOnUI(itemId, quantity) {
-//     const inputElement = document.getElementById(itemId);
-//     if (inputElement) {
-//         inputElement.value = quantity;
-//     }
-// }
+document.addEventListener('DOMContentLoaded', function () {
+    updateCartTotals();
+    setupQuantityButtons();
+});
 
 
+function updateCartTotals() {
+    const cartItems = document.querySelectorAll('.table_row');
+    let subtotal = 0;
+
+    cartItems.forEach(row => {
+        const itemTotalElement = row.querySelector('.item-total'); 
+        if (itemTotalElement) {
+            const itemTotal = parseFloat(itemTotalElement.textContent) || 0;
+            subtotal += itemTotal;
+        }
+    });
+
+
+    document.getElementById('cart-subtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('cart-total').textContent = subtotal.toFixed(2);
+}
 
 
      
 
+function updateQuantity(productId, change, availableQuantity) {
+    const quantityElement = document.getElementById(`quantity-${productId}`);
+    const currentQuantity = parseInt(quantityElement.textContent);
+    const maxQuantity = Math.min(availableQuantity, 5);
 
-        function proceedToCheckout() {
-            window.location.href = '/checkout';
-        }
+    if (currentQuantity + change < 1) {
+        Swal.fire({ icon: "warning", title: "Minimum Quantity Reached", text: "The minimum quantity is 1." });
+        return;
+    } else if (currentQuantity + change > maxQuantity) {
+        Swal.fire({ icon: "warning", title: "Maximum Quantity Reached" });
+        return;
+    }
+
+    fetch("/updateQuantity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, change }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                quantityElement.textContent = data.newQuantity;
+                updateCartTotals();
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message });
+            }
+        })
+        .catch(error => console.error("Error updating quantity:", error));
+}
+
+
+
+       
     </script>
 
 

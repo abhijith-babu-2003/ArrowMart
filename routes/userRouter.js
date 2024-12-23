@@ -33,6 +33,8 @@ user_Router.post("/login",userController.login)
 user_Router.get("/",userAuth,userController.loadHomePage)
 user_Router.get("/logout",userController.logout)
 user_Router.get("/productDetails",userAuth,productController.productDetails)
+user_Router.post("/addCart",userAuth,productController.addToCart)
+
 //shop manegement
 
 user_Router.get("/shop",userAuth,userController.getShopPage)

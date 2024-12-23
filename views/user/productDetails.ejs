@@ -152,12 +152,15 @@
     color: gold;
 }
 /* Thumbnails Container */
+/* Thumbnails Container */
 .thumbnails {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 thumbnails per row */
-    gap: 10px; /* Spacing between thumbnails */
-    justify-content: center;
-    margin-top: 15px;
+    gap: 20px; /* Increased spacing between thumbnails */
+    justify-content: center; /* Center the grid */
+    margin-top: 20px; /* Space above the thumbnails */
+    margin-right: 0; /* Remove extra right margin for better alignment */
+    padding: 0 10px; /* Add some padding for responsiveness */
 }
 
 /* Individual Thumbnail Item */
@@ -167,19 +170,139 @@
     border: 1px solid #ddd;
     border-radius: 5px;
     transition: transform 0.3s, box-shadow 0.3s;
+    margin: 0 auto; /* Center each thumbnail in its grid cell */
 }
 
+/* Hover Effect */
 .thumbnail-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05); /* Slight zoom on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow on hover */
 }
 
 /* Thumbnail Image */
 .thumb-img {
-    width: 100%; /* Make it responsive within the grid item */
-    height: 250px; /* Set a fixed height for consistency */
-    object-fit: cover; /* Ensure images fit nicely without distortion */
+    width: 100%; /* Responsive width */
+    height: 180px; /* Consistent height for better grid alignment */
+    object-fit: cover; /* Prevent image distortion */
     border-radius: 5px;
+}
+
+/* General Styles */
+.product-details {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.product-details h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.price-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.price-section .regular-price {
+    font-size: 1rem;
+    color: #666;
+    text-decoration: line-through;
+}
+
+.price-section .sale-price {
+    font-size: 1.5rem;
+    color: red;
+    font-weight: bold;
+}
+
+.review-stars {
+    text-align: center;
+}
+
+.review-stars .star {
+    font-size: 1.5rem;
+    color: #ffcc00;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.product-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+    text-align: justify;
+}
+
+.availability {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.quantity-add-cart {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-control button {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.quantity-control input {
+    width: 50px;
+    height: 35px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.quantity-control button:hover {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+}
+
+button.btn-primary {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button.btn-primary:hover {
+    background-color: #0056b3;
+}
+.availability {
+    justify-content: flex-start; 
+    font-size: 14px; 
 }
 
 
@@ -206,9 +329,6 @@
 						
 						<div class="thumbnails">
 							<% for (let i = 0; i < product.productImage.length; i++) { %>
-							<div class="thumbnail-item">
-								<img src="/uploads/<%= product.productImage[i] %>" alt="IMG-THUMB" class="thumb-img">
-							</div>
 							<div class="thumbnail-item">
 								<img src="/uploads/<%= product.productImage[i] %>" alt="IMG-THUMB" class="thumb-img">
 							</div>
@@ -247,58 +367,51 @@
 						<h2 class="product-name mtext-105 cl2 js-name-detail mb-3">
 							<%= product.productName %>
 						</h2>
-						<span class="stext-105 cl3">
-							Rs. <del style="font-size: smaller; font-weight: 900; color: rgb(61, 55, 55);"><%= product.regularPrice %></del>
-						</span>
-						<span class="stext-105 cl3 p">
-							<span style="color: red; font-size: 24px;">Rs.<%= product.salePrice %></span>
-						</span>
+						<div class="price-section mb-4">
+							<span class="regular-price">
+								Rs. <del><%= product.regularPrice %></del>
+							</span>
+							<span class="sale-price">
+								Rs. <%= product.salePrice %>
+							</span>
+						</div>
+					
 						<!-- Review Star Section -->
-						<div class="review-stars mt-3">
+						<div class="review-stars mt-3 mb-4">
 							<span class="star" data-value="1">&#9733;</span>
 							<span class="star" data-value="2">&#9733;</span>
 							<span class="star" data-value="3">&#9733;</span>
 							<span class="star" data-value="4">&#9733;</span>
 							<span class="star" data-value="5">&#9733;</span>
 						</div>
-
 					
-						<p class="product-description stext-102 cl3 mb-4 p-10">
-							Specifications:<%= product.description %>
+						<p class="product-description">
+							<strong>Specifications:</strong> <%= product.description %>
 						</p>
-					    <div class="options">
-							<div class="color">
-							  <span class="me-2 fw-bold">Color:</span>
-							  <div class="d-inline-block rounded-circle bg-danger me-2 color-option" style="width: 30px; height: 30px;"></div>
-							  <div class="d-inline-block rounded-circle bg-primary me-2 color-option" style="width: 30px; height: 30px;"></div>
-							  <div class="d-inline-block rounded-circle bg-success me-2 color-option" style="width: 30px; height: 30px;"></div>
-							  <div class="d-inline-block rounded-circle bg-warning me-2 color-option" style="width: 30px; height: 30px;"></div>
-							</div>
-						  </div>
-						  
-						  <div class="availability text-danger"> <p>In Stock </p> </div> 
-						 
-						<div class="flex-w flex-r-m p-b-10">
-							<div class="size-204 flex-w flex-m respon6-next">
-								<div class="wrap-num-product flex-w m-r-20 m-tb-10">
-									<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-minus"></i>
-									</div>
-
-									<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" min="1" max="<%= product.quantity %>">
-
-									<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-										<i class="fs-16 zmdi zmdi-plus"></i>
-									</div>
-								</div>
-
-								<button onclick="addToCart('<%= product._id %>', document.querySelector('.num-product').value)"
-										class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
-									Add to Cart
+					
+						<div class="availability text-danger mb-4 d-flex align-items-center">
+							<p class="mb-0 me-2">In Stock:</p>
+							<span><%= product.quantity %></span>
+						</div>
+						
+					
+						<div class="quantity-add-cart d-flex align-items-center">
+							<div class="quantity-control d-flex align-items-center me-3">
+								<button class="btn btn-sm btn-outline-secondary btn-num-product-down">
+									-
+								</button>
+								<input class="form-control text-center num-product" type="number" name="num-product" value="1" min="1" max="<%= product.quantity %>">
+								<button class="btn btn-sm btn-outline-secondary btn-num-product-up">
+									+
 								</button>
 							</div>
+							<button onclick="addToCart('<%= product._id %>')"
+									class="btn btn-primary">
+								Add to Cart
+							</button>
 						</div>
 					</div>
+					
 					
 				</div>
 			</div>
@@ -471,5 +584,34 @@
 				clickable: true,
 			},
 		});
+
+
+		function addToCart(productId) {
+  fetch('/addCart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity: 1 }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        Swal.fire('Success!', 'Product added to cart!', 'success').then(() => {
+          // Redirect to the cart page after success
+          window.location.href = '/cart';
+        });
+      } else {
+        Swal.fire('Error!', data.message, 'error');
+      }
+    })
+    .catch((error) => {
+      console.error('Add to Cart Error:', error);
+      Swal.fire('Oops!', 'Something went wrong.', 'error');
+    });
+}
+
 	  </script>
+
+
+
+   
 	<%- include("../../views/partials/user/footer") %>
