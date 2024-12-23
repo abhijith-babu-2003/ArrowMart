@@ -1,0 +1,249 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+.custom-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.custom-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-control {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.custom-radio {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-radio:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.02);
+}
+
+.custom-radio input[type="radio"]:checked + label {
+    color: #3b82f6;
+}
+
+.btn-checkout {
+    background: #3b82f6;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-checkout:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.product-image {
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 2rem 0;
+}
+</style>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Order Summary -->
+        <div class="col-lg-7">
+            <div class="custom-card p-4 mb-4">
+                <h3 class="mb-4 fw-bold">Order Summary</h3>
+                <% cart.items.forEach(item => { %>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-3 col-md-2">
+                            <img src="/uploads/<%= item.productId.productImage[0] %>" 
+                                 class="img-fluid product-image" 
+                                 alt="<%= item.productId.productName %>">
+                        </div>
+                        <div class="col-6 col-md-5">
+                            <h6 class="mb-1 fw-semibold"><%= item.productId.productName %></h6>
+                            <div class="quantity-control mt-2">
+                                <input type="number" 
+                                       class="form-control form-control-sm" 
+                                       value="<%= item.quantity %>"
+                                       min="1"
+                                       onchange="updateQuantity('<%= item.productId._id %>', this)"
+                                       style="width: 80px;">
+                            </div>
+                        </div>
+                        <div class="col-3 text-end">
+                            <h6 class="fw-semibold mb-0 item-total">₹<%= item.productId.salePrice * item.quantity %></h6>
+                        </div>
+                    </div>
+                <% }); %>
+                
+                <div class="divider"></div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-0">Total Amount</h5>
+                        <p class="text-muted small mb-0">Including GST</p>
+                    </div>
+                    <h4 class="fw-bold mb-0 cart-total">₹<%= total %></h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="col-lg-5">
+            <form id="checkoutForm" action="/checkout/place-order" method="POST">
+                <!-- Shipping Information -->
+                <div class="custom-card p-4 mb-4">
+                    <h3 class="mb-4 fw-bold">Shipping Details</h3>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-2">Full Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               value="<%= user.name %>" 
+                               required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-2">Email</label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="email" 
+                               name="email" 
+                               value="<%= user.email %>" 
+                               required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-2">Phone</label>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="phone" 
+                               name="phone" 
+                               required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-2">Shipping Address</label>
+                        <textarea class="form-control" 
+                                  id="address" 
+                                  name="address" 
+                                  rows="3" 
+                                  required></textarea>
+                    </div>
+                </div>
+
+                <!-- Payment Options -->
+                <div class="custom-card p-4 mb-4">
+                    <h3 class="mb-4 fw-bold">Payment Method</h3>
+                    
+                    <div class="custom-radio">
+                        <input class="form-check-input me-3" 
+                               type="radio" 
+                               name="paymentMethod" 
+                               id="creditCard" 
+                               value="Credit/Debit Card" 
+                               required>
+                        <label class="form-check-label w-100" for="creditCard">
+                            Credit/Debit Card
+                        </label>
+                    </div>
+                    
+                    <div class="custom-radio">
+                        <input class="form-check-input me-3" 
+                               type="radio" 
+                               name="paymentMethod" 
+                               id="upi" 
+                               value="UPI">
+                        <label class="form-check-label w-100" for="upi">
+                            UPI Payment
+                        </label>
+                    </div>
+                    
+                    <div class="custom-radio">
+                        <input class="form-check-input me-3" 
+                               type="radio" 
+                               name="paymentMethod" 
+                               id="cod" 
+                               value="Cash on Delivery">
+                        <label class="form-check-label w-100" for="cod">
+                            Cash on Delivery
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Place Order Button -->
+                <button type="submit" class="btn btn-checkout w-100">
+                    Complete Order
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateQuantity(productId, element) {
+    const quantity = parseInt(element.value);
+    if (quantity < 1) {
+        element.value = 1;
+        return;
+    }
+
+    try {
+        const response = await fetch('/updateQuantity', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, quantity })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update item total price
+            const itemTotalElement = element.closest('.row').querySelector('.item-total');
+            itemTotalElement.textContent = `₹${data.newTotalPrice}`;
+            
+            // Update cart total
+            const cartTotalElement = document.querySelector('.cart-total');
+            cartTotalElement.textContent = `₹${data.cartTotal}`;
+        } else {
+            alert(data.message);
+            // Reset to previous value if error
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error);
+        alert('Failed to update quantity. Please try again.');
+        location.reload();
+    }
+}
+</script>
+
+<%- include("../../views/partials/user/footer") %>

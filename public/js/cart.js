@@ -133,6 +133,51 @@ function showMiniCartPreview(cartItem) {
     }, 5000);
 }
 
+// Remove item from cart
+async function removeItem(productId) {
+    try {
+        const response = await fetch('/removeitem', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Remove the row from the table
+            const row = document.querySelector(`button[onclick="removeItem('${productId}')"]`).closest('tr');
+            if (row) {
+                row.remove();
+                
+                // Update cart totals
+                const updateCartTotals = window.updateCartTotals;
+                if (typeof updateCartTotals === 'function') {
+                    updateCartTotals();
+                }
+
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Item removed from cart'
+                });
+            }
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Error removing item:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to remove item'
+        });
+    }
+}
+
 // Add CSS styles for the loading spinner and notifications
 const style = document.createElement('style');
 style.textContent = `

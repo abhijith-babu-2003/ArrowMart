@@ -25,7 +25,7 @@ const cartSchema=new Schema({
             type:String,
             required:true
         },
-     
+       
     }]
 })
 

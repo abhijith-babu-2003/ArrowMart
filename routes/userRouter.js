@@ -5,6 +5,7 @@ const userController=require("../controllers/user/userController");
 const productController=require("../controllers/user/productContoller")
 const profileController=require("../controllers/user/profileController")
 const cartController=require("../controllers/user/cartContoller")
+const checkoutController=require("../controllers/user/checkoutController")
 const passport = require("passport");
 
 
@@ -33,8 +34,6 @@ user_Router.post("/login",userController.login)
 user_Router.get("/",userAuth,userController.loadHomePage)
 user_Router.get("/logout",userController.logout)
 user_Router.get("/productDetails",userAuth,productController.productDetails)
-user_Router.post("/addCart",userAuth,productController.addToCart)
-
 //shop manegement
 
 user_Router.get("/shop",userAuth,userController.getShopPage)
@@ -69,17 +68,10 @@ user_Router.delete("/deleteAddress/:id",userAuth,profileController.deleteAddress
 user_Router.get("/cart",userAuth,cartController.getCart)
 user_Router.post("/addCart",userAuth,cartController.addToCart)
 user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
-user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
+user_Router.put("/cart/update-quantity", userAuth, cartController.updateQuantity);
 
-
+// checkout
+user_Router.get('/checkout', userAuth, checkoutController.loadCheckout)
 
 
 module.exports=user_Router
-
-
-
-
-
-
-
-

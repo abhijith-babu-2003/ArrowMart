@@ -85,7 +85,7 @@
     
                         <!-- Cart Icon -->
                          <a href="/cart">
-                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart cart-count" data-notify="<%= locals.cartCount || 0 %>">
+                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-14">
                                 <i class="fa-solid fa-cart-shopping"></i>
                              </div>
                          </div>
@@ -95,29 +95,31 @@
                     <div>
                         <% if(locals.user) { %>
     
-                            <div class="dropdown " >
-    
+                            <div class="dropdown">
                                 <a class="btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-user"></i>
                                 </a>
-    
-                                <ul class="dropdown-menu" aria-labelledby="authDropdown">
-                                    <li><a href="/userprofile">Account</a></li>
-                                    <li class="btn btn-facebook"><a href="/logout">logout</a></li>
+                            
+                                <ul class="dropdown-menu dropdown-menu-end text-center" aria-labelledby="authDropdown">
+                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/userprofile">Account</a></li>
+                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/orders">Orders</a></li>
+                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/logout">Logout</a></li>
                                 </ul>
                             </div>
+                            
     
                         <% } else { %>
                             <!-- Login and Signup Dropdown -->
-                            <div class="dropdown d-flex justify-content-between">
+                            <div class="dropdown">
                                 <a class="btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-user"></i>
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="authDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
                                     <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
                                     <li><a class="dropdown-item" href="/login">Login</a></li>
                                 </ul>
                             </div>
+                            
                         <% } %>
                     </div>
     
