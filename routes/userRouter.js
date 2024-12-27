@@ -22,9 +22,14 @@ user_Router.post('/resend-otp',userController.resendOtp)
 
 //gooleauth
 user_Router.get('/auth/google',passport.authenticate("google",{scope:['profile',"email"]}))
-user_Router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/"}),(req,res)=>{
-    res.redirect("/")
-})
+user_Router.get(
+    "/auth/google/callback",
+    passport.authenticate("google", { failureRedirect: "/" }),
+    (req, res) => {
+        console.log("Authentication Successful, User:", req.user);
+        res.redirect("/"); 
+    }
+);
 
 //loginpage
 user_Router.get("/login",userController.loadLogin)
@@ -71,7 +76,13 @@ user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
 user_Router.put("/cart/update-quantity", userAuth, cartController.updateQuantity);
 
 // checkout
-user_Router.get('/checkout', userAuth, checkoutController.loadCheckout)
+user_Router.get('/checkout', userAuth, checkoutController.loadCheckout);
+user_Router.post('/checkout/place-order', userAuth, checkoutController.placeOrder);
+//oder management
+user_Router.get('/orders', userAuth, checkoutController.getOrderHistory);
+user_Router.get('/order/:orderId', userAuth, checkoutController.getOrderDetails);
+user_Router.get('/order-success/:orderId', userAuth, checkoutController.getOrderSuccess);
+user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancelOrder);
 
 
 module.exports=user_Router

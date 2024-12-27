@@ -1,37 +1,280 @@
-const Cart = require("../../models/cartSchema");
-const User = require("../../models/userSchema");
+const mongoose = require('mongoose');
+const Order = require("../../models/orderSchema.js");
+const Cart = require("../../models/cartSchema.js");
+const Product = require("../../models/ProductSchema.js");
+const Address = require("../../models/addressSchema.js");
 
 const loadCheckout = async (req, res) => {
     try {
-        const user = req.session.user;
-        const cart = await Cart.findOne({ user: user._id }).populate(
-            "items.productId",
-            "productName productImage salePrice"
-        );
+        const userId = req.session.user;
+        const cart = await Cart.findOne({ userId }).populate('items.productId')
+        const addresses = await Address.findOne({ userId });
 
         if (!cart || cart.items.length === 0) {
+            req.session.warning = "Your cart is empty";
             return res.redirect('/cart');
         }
 
-        // Calculate total
-        const total = cart.items.reduce((acc, item) => {
-            return acc + (item.productId.salePrice * item.quantity);
-        }, 0);
+        let subtotal = 0;
+        let itemCount = 0;
 
-        res.render("checkout", { 
-            cart,
-            user: user,
-            total
+        cart.items.forEach(item => {
+            const price = item.productId.salePrice || item.productId.regularPrice;
+            subtotal += price * item.quantity;
+            itemCount += item.quantity;
+        });
+
+        const tax = subtotal * 0.05; 
+        const total = subtotal + tax;
+
+        const cartData = {
+            items: cart.items.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                total: (item.productId.salePrice || item.productId.regularPrice) * item.quantity
+            })),
+            subtotal,
+            tax,
+            total,
+            itemCount
+        };
+
+        res.render('checkout', { 
+            cart: cartData,
+            addresses: addresses ? addresses.address : [],
+            user: req.session.user,
+            title: 'Checkout'
         });
     } catch (error) {
-        console.error("Checkout error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to load checkout page"
+        console.error('Error in loadCheckout:', error);
+        req.session.error = "Failed to load checkout page";
+        res.redirect('/cart');
+    }
+};
+
+const placeOrder = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { addressId, paymentMethod } = req.body;
+        
+        // Find address
+        const addressDoc = await Address.findOne({ userId });
+        if (!addressDoc || !addressDoc.address) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "No addresses found" 
+            });
+        }
+
+        const selectedAddress = addressDoc.address.find(addr => addr._id.toString() === addressId);
+        if (!selectedAddress) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid address selected" 
+            });
+        }
+
+        // Get cart
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cart is empty" 
+            });
+        }
+
+        let subtotal = 0;
+        const orderItems = [];
+        
+       
+        for (const item of cart.items) {
+            const product = await Product.findById(item.productId._id);
+            
+            if (!product) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Product not found: ${item.productId.productName}` 
+                });
+            }
+            
+            if (product.quantity < item.quantity) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Insufficient stock for ${product.productName}. Available: ${product.quantity}` 
+                });
+            }
+            
+            const price = product.salePrice || product.regularPrice;
+            subtotal += price * item.quantity;
+
+           //udpate quantity
+            await Product.findByIdAndUpdate(
+                product._id,
+                { $inc: { quantity: -item.quantity } }
+            );
+            
+            orderItems.push({
+                product: product._id,
+                quantity: item.quantity,
+                price: price
+            });
+        }
+
+        const tax = subtotal * 0.05;
+        const total = subtotal + tax;
+
+        //  order Createte
+        const order = new Order({
+            userId,
+            orderedItems: orderItems,
+            totalPrice: subtotal,
+            finalAmount: total,
+            shippingAddress: selectedAddress,
+            paymentMethod: paymentMethod || 'COD',
+            paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
+            status: 'Pending'
+        });
+
+        await order.save();
+        
+        // Clear cart
+        await Cart.findOneAndUpdate(
+            { userId },
+            { $set: { items: [] } }
+        );
+        
+        res.status(200).json({ 
+            success: true, 
+            message: "Order placed successfully",
+            orderId: order._id
+        });
+    } catch (error) {
+        console.error('Error in placeOrder:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Failed to place order. Please try again." 
         });
     }
 };
 
+const cancelOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const userId = req.session.user;
+
+        const order = await Order.findOne({ _id: orderId, userId });
+        if (!order) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Order not found" 
+            });
+        }
+
+        if (['Delivered', 'Cancelled'].includes(order.status)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cannot cancel order in current status" 
+            });
+        }
+
+        // Restore product quantities
+        for (const item of order.orderedItems) {
+            await Product.findByIdAndUpdate(
+                item.product,
+                { $inc: { quantity: item.quantity } }
+            );
+        }
+
+        order.status = 'Cancelled';
+        await order.save();
+
+        res.json({ 
+            success: true, 
+            message: "Order cancelled successfully" 
+        });
+    } catch (error) {
+        console.error('Error in cancelOrder:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Failed to cancel order" 
+        });
+    }
+};
+
+const getOrderSuccess = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId)
+            .populate('orderedItems.product')
+            .populate('userId');
+        
+        if (!order) {
+            req.session.error = "Order not found";
+            return res.redirect('/orders');
+        }
+
+        res.render('order-success', {
+            order,
+            user: req.session.user,
+            title: 'Order Success'
+        });
+    } catch (error) {
+        console.error('Error in getOrderSuccess:', error);
+        req.session.error = "Failed to load order success page";
+        res.redirect('/orders');
+    }
+};
+
+const getOrderHistory = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const orders = await Order.find({ userId })
+            .populate('orderedItems.product')
+            .sort({ createdAt: -1 });
+
+        res.render('order-history', {
+            orders,
+            user: req.session.user,
+            title: 'Order History'
+        });
+    } catch (error) {
+        console.error('Error in getOrderHistory:', error);
+        req.session.error = "Failed to load order history";
+        res.redirect('/');
+    }
+};
+
+const getOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const userId = req.session.user;
+
+        const order = await Order.findOne({ _id: orderId, userId })
+            .populate({
+                path: 'orderedItems.product',
+                select: 'productName  productImage price'
+            });
+
+        if (!order) {
+            return res.redirect('/orders');
+        }
+
+        res.render('order-details', {
+            order,
+            user: req.session.user,
+            title: 'Order Details'
+        });
+    } catch (error) {
+        console.error('Error in getOrderDetails:', error);
+        res.redirect('/orders');
+    }
+};
+
 module.exports = {
-    loadCheckout
+    loadCheckout,
+    placeOrder,
+    cancelOrder,
+    getOrderSuccess,
+    getOrderHistory,
+    getOrderDetails
 };

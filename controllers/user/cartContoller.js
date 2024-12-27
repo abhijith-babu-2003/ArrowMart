@@ -32,7 +32,7 @@ const addToCart = async (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
     const user = req.session.user;
-    console.log(productId)
+
 
     if (!user) {
       return res.status(401).json({
@@ -42,7 +42,7 @@ const addToCart = async (req, res) => {
     }
 
     const product = await Product.findById(productId);
-    console.log(product)
+  
     
     if (!product) {
       return res.status(404).json({
@@ -156,7 +156,7 @@ const updateQuantity = async (req, res) => {
         const { productId, quantity } = req.body;
         const userId = req.session.user._id;
 
-        // Basic validation
+       
         if (!productId || !quantity || quantity < 1) {
             return res.status(400).json({
                 success: false,
@@ -164,7 +164,7 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-        // Check maximum quantity limit
+        //  maximum quantity 
         if (quantity > 5) {
             return res.status(400).json({
                 success: false,
@@ -172,13 +172,13 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-        // Find cart and product
+       
         const [cart, product] = await Promise.all([
             Cart.findOne({ user: userId }),
             Product.findById(productId)
         ]);
 
-        // Validate cart and product exist
+      
         if (!cart) {
             return res.status(404).json({
                 success: false,
@@ -211,9 +211,9 @@ const updateQuantity = async (req, res) => {
 
        
         cartItem.quantity = quantity;
-        cartItem.totalPrice = quantity * product.price;
+        cartItem.totalPrice = quantity * product.salePrice;
 
-        // Save cart
+    
         await cart.save();
 
     
@@ -225,7 +225,7 @@ const updateQuantity = async (req, res) => {
             newQuantity: quantity,
             newTotalPrice: cartItem.totalPrice,
             cartTotal: cartTotal,
-            maxQuantity: 5 
+            maxQuantity: 6
         });
 
     } catch (error) {

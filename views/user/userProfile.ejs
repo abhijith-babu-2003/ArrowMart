@@ -296,10 +296,7 @@
                         aria-controls="dashboard" aria-selected="false"><i class="fi-rs-settings-sliders mr-10"></i>My
                         profile</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab"
-                        aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
-                </li>
+               
                 <li class="nav-item">
                     <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab"
                         aria-controls="track-orders" aria-selected="false"><i
@@ -309,11 +306,7 @@
                     <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
                         aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
-                        aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account
-                        details</a>
-                </li> -->
+              
                 <li class="nav-item">
                     <a class="nav-link" href="/logout"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
                 </li>
@@ -433,51 +426,7 @@
                 </div>
 
                 <!-------oders -------------->
-                <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Your Orders</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Order</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Total</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>#1357</td>
-                                            <td>March 45, 2020</td>
-                                            <td>Processing</td>
-                                            <td>$125.00 for 2 item</td>
-                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td>#2468</td>
-                                            <td>June 29, 2020</td>
-                                            <td>Completed</td>
-                                            <td>$364.00 for 5 item</td>
-                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td>#2366</td>
-                                            <td>August 02, 2020</td>
-                                            <td>Completed</td>
-                                            <td>$280.00 for 3 item</td>
-                                            <td><a href="#" class="btn-small d-block">View</a></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
                 <!-----------address ------------------->
                 <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -560,15 +509,9 @@
                             <div class="col-md-6">
                                 <label for="address_type" class="form-label">Address Type</label>
                                 <select class="form-control" id="address_type" name="addressType">
-                                    <option value="">Select Address Type</option>
-                                    <option value="residential">Residential Address</option>
-                                    <option value="permanent">Permanent Address</option>
-                                    <option value="billing">Billing Address</option>
-                                    <option value="shipping">Shipping Address</option>
-                                    <option value="office">Office Address</option>
-                                    <option value="temporary">Temporary Address</option>
-                                    <option value="foreign">Foreign Address</option>
-                                    <option value="mailing">Mailing Address</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
 
@@ -641,15 +584,9 @@
                                     value="<%= userAddress._id %>">
                                 <label for="edit_address_type" class="form-label">Address Type</label>
                                 <select class="form-control" id="edit_address_type" name="addressType">
-                                    <option value="">Select Address Type</option>
-                                    <option value="residential">Residential Address</option>
-                                    <option value="permanent">Permanent Address</option>
-                                    <option value="billing">Billing Address</option>
-                                    <option value="shipping">Shipping Address</option>
-                                    <option value="office">Office Address</option>
-                                    <option value="temporary">Temporary Address</option>
-                                    <option value="foreign">Foreign Address</option>
-                                    <option value="mailing">Mailing Address</option>
+                                    <option value="Home">Home</option>
+                                <option value="Work">Work</option>
+                                <option value="Other">Other</option>
                                 </select>
                             </div>
 
@@ -721,11 +658,10 @@
         let addressIndex;
         //user details
         document.addEventListener('DOMContentLoaded', function () {
-            // Ensure this runs after the DOM is fully loaded
+            
             document.getElementById('edit-user-form').addEventListener('submit', async function (event) {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); 
 
-                // Fetch form values
                 const userId = document.getElementById('user-id').value;
                 const username = document.getElementById('username').value;
                 const email = document.getElementById('email').value;
@@ -733,7 +669,7 @@
 
                 try {
                     const response = await fetch(`/userdetails/${userId}`, {
-                        method: 'PUT', // Ensure consistency with backend
+                        method: 'PUT', 
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -743,8 +679,7 @@
                     const result = await response.json();
                     if (response.ok) {
                         Swal.fire(result.message);
-                        location.reload(); // Reload the page
-                    } else {
+                        location.reload(); 
                         Swal.fire(result.message || 'Failed to update user details');
                     }
                 } catch (error) {

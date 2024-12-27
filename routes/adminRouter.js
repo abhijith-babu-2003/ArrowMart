@@ -4,6 +4,7 @@ const adminController=require("../controllers/admin/adminController")
 const customerController=require("../controllers/admin/customerController")
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require('../controllers/admin/productController')
+const orderController=require("../controllers/admin/orderController")
 const {userAuth,adminAuth}=require("../middileware/auth")
 const upload =require('../config/multer')
 
@@ -40,8 +41,12 @@ admin_Router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 admin_Router.get("/blockProduct",adminAuth,productController.blockProduct)
 admin_Router.get("/unblockProduct",adminAuth,productController.unblockProduct)
 
+//order management
 
-
+admin_Router.get("/orders",adminAuth,orderController.listOrders)
+admin_Router.post('/orders/status', adminAuth, orderController.updateOrderStatus);
+admin_Router.post('/orders/:orderId/cancel', adminAuth, orderController.cancelOrder);
+admin_Router.get('/orders/:orderId',adminAuth, orderController.getOrderDetails);
 
 
 

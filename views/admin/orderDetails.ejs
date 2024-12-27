@@ -1,0 +1,207 @@
+<%- include('../partials/admin/header.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Order Details</h4>
+                    <a href="/admin/orders" class="btn btn-light">Back to Orders</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Order Information</h5>
+                            <p><strong>Order ID:</strong> <%= order._id %></p>
+                            <p><strong>Order Date:</strong> <%= new Date(order.createdAt).toLocaleString() %></p>
+                            <p>
+                                <strong>Status:</strong>
+                                <select class="form-select d-inline-block w-auto ms-2 order-status" 
+                                        data-order-id="<%= order._id %>"
+                                        <%= ['Delivered', 'Cancelled'].includes(order.status) ? 'disabled' : '' %>>
+                                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                            </p>
+                            <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+                            <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Customer Information</h5>
+                            <p><strong>Name:</strong> <%= order.userId.name %></p>
+                            <p><strong>Email:</strong> <%= order.userId.email %></p>
+                            <p><strong>Phone:</strong> <%= order.userId.phone %></p>
+                            
+                            <h5 class="mb-3 mt-4">Shipping Address</h5>
+                            <p><%= order.shippingAddress.name %></p>
+                            <p><%= order.shippingAddress.landMark %></p>
+                            <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                            <p>Phone: <%= order.shippingAddress.phone %></p>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Image</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <tr>
+                                        <td><%= item.product ? item.product.productName : 'Product Unavailable' %></td>
+                                        <td>
+                                            <% if (item.product && item.product.productImage) { %>
+                                                <img src="/uploads/products/<%= item.product.productImage %>" alt="<%= item.product.productName %>" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <% } else { %>
+                                                <img src="/uploads/products/default.jpg" alt="No image" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <% } %>
+                                        </td>
+                                        <td>₹<%= item.price %></td>
+                                        <td><%= item.quantity %></td>
+                                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                    <td>₹<%= order.totalPrice %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Tax (5%):</strong></td>
+                                    <td>₹<%= (order.finalAmount - order.totalPrice).toFixed(2) %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>₹<%= order.finalAmount %></strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <% if (!['Delivered', 'Cancelled'].includes(order.status)) { %>
+                            <button class="btn btn-danger cancel-order" data-order-id="<%= order._id %>">
+                                Cancel Order
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle order status changes
+    document.querySelectorAll('.order-status').forEach(select => {
+        select.addEventListener('change', async function() {
+            const orderId = this.dataset.orderId;
+            const status = this.value;
+
+            try {
+                const response = await fetch('/admin/orders/status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId, status })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (['Delivered', 'Cancelled'].includes(status)) {
+                        this.disabled = true;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to update order status'
+                });
+
+                this.value = this.getAttribute('data-previous-value');
+            }
+        });
+
+        select.addEventListener('focus', function() {
+            this.setAttribute('data-previous-value', this.value);
+        });
+    });
+
+    // Handle order cancellation
+    document.body.addEventListener('click', async function(event) {
+        if (event.target.classList.contains('cancel-order')) {
+            const button = event.target;
+            const orderId = button.dataset.orderId;
+
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/orders/${orderId}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Cancelled!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to cancel order'
+                    });
+                }
+            }
+        }
+    });
+});
+</script>
+
+<%- include('../partials/admin/footer.ejs') %>

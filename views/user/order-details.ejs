@@ -1,0 +1,145 @@
+<%- include("../../views/partials/user/header") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Order Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Order Information</h5>
+                            <p><strong>Order ID:</strong> <%= order._id %></p>
+                            <p><strong>Order Date:</strong> <%= new Date(order.createdAt).toLocaleString() %></p>
+                            <p><strong>Status:</strong> <span class="badge bg-<%= order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'warning' %>"><%= order.status %></span></p>
+                            <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+                            <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Shipping Address</h5>
+                            <p><%= order.shippingAddress.name %></p>
+                            <p><%= order.shippingAddress.landMark %></p>
+                            <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                            <p>Phone: <%= order.shippingAddress.phone %></p>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Image</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <tr>
+                                        <td><%= item.product ? item.product.productName : 'Product Unavailable' %></td>
+                                        <td>
+                                            <% if (item.product && item.product. productImage && item.product.productImage.length > 0) { %>
+                                                <img src="/uploads/products/<%= item.product.productImage %>" alt="<%= item.product.productName %>" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <% } else { %>
+                                                <img src="/uploads/products/default.jpg" alt="No image" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <% } %>
+                                        </td>
+                                        <td>₹<%= item.price %></td>
+                                        <td><%= item.quantity %></td>
+                                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                    <td>₹<%= order.totalPrice %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Tax (5%):</strong></td>
+                                    <td>₹<%= (order.finalAmount - order.totalPrice).toFixed(2) %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>₹<%= order.finalAmount %></strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <a href="/orders" class="btn btn-secondary">Back to Orders</a>
+                        <% if (!['Delivered', 'Cancelled'].includes(order.status)) { %>
+                            <button class="btn btn-danger cancel-order" data-order-id="<%= order._id %>">
+                                Cancel Order
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.body.addEventListener('click', async function (event) {
+        if (event.target.classList.contains('cancel-order')) {
+            const button = event.target;
+            const orderId = button.dataset.orderId;
+
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/order/cancel/${orderId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Cancelled!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to cancel order'
+                    });
+                }
+            }
+        }
+    });
+});
+
+</script>
+
+<%- include("../../views/partials/user/footer") %>
