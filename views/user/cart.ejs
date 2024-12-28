@@ -469,11 +469,11 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Update quantity input
+                   
                     const input = container.querySelector('.quantity-input');
                     input.value = quantity;
 
-                    // Update item total price
+            
                     const row = container.closest('tr');
                     const priceElement = row.querySelector('.column-3');
                     const totalCell = row.querySelector('.column-5');
@@ -483,7 +483,7 @@
                     
                     totalCell.textContent = `Rs.${newTotal.toFixed(2)}`;
 
-                    // Update cart totals
+                    
                     updateCartTotals();
 
                     // Update button states

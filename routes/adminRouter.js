@@ -45,7 +45,7 @@ admin_Router.get("/unblockProduct",adminAuth,productController.unblockProduct)
 
 admin_Router.get("/orders",adminAuth,orderController.listOrders)
 admin_Router.post('/orders/status', adminAuth, orderController.updateOrderStatus);
-admin_Router.post('/orders/:orderId/cancel', adminAuth, orderController.cancelOrder);
+admin_Router.delete("/order/cancel/:orderId", adminAuth, orderController.cancelOrder);
 admin_Router.get('/orders/:orderId',adminAuth, orderController.getOrderDetails);
 
 

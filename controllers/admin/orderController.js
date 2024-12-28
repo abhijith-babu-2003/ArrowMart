@@ -63,9 +63,9 @@ const updateOrderStatus = async (req, res) => {
 // Cancel order
 const cancelOrder = async (req, res) => {
     try {
+     
         const { orderId } = req.params;
-
-        const order = await Order.findById(orderId);
+        const order = await Order.findOne({_id:orderId});
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
@@ -76,7 +76,7 @@ const cancelOrder = async (req, res) => {
                 message: "Cannot cancel order in current status" 
             });
         }
-
+       
         // Restore product quantities
         for (const item of order.orderedItems) {
             await Product.findByIdAndUpdate(
@@ -85,9 +85,10 @@ const cancelOrder = async (req, res) => {
             );
         }
 
+  
         order.status = 'Cancelled';
         await order.save();
-
+  
         res.json({ 
             success: true, 
             message: "Order cancelled successfully" 

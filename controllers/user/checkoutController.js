@@ -86,7 +86,7 @@ const placeOrder = async (req, res) => {
         let subtotal = 0;
         const orderItems = [];
         
-       
+       //iterate each item in cart
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
             
@@ -177,7 +177,7 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Restore product quantities
+        // Restore product quantities and iterate orderitems in order
         for (const item of order.orderedItems) {
             await Product.findByIdAndUpdate(
                 item.product,

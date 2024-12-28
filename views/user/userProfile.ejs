@@ -580,8 +580,7 @@
                     <form id="editAddressForm">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="hidden" id="edit_address_id" name="addressId"
-                                    value="<%= userAddress._id %>">
+                                <input type="hidden" id="edit_address_id" name="addressId">
                                 <label for="edit_address_type" class="form-label">Address Type</label>
                                 <select class="form-control" id="edit_address_type" name="addressType">
                                     <option value="Home">Home</option>
@@ -883,9 +882,9 @@
     const editAddressModal = document.getElementById("editAddressModal");
 
     editAddressModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget; // Button that triggered the modal
+        const button = event.relatedTarget; 
 
-        // Extract data from data-* attributes
+        // Extract data from data attributes
         const addressId = button.getAttribute('data-id');
         const addressType = button.getAttribute('data-type');
         const name = button.getAttribute('data-name');

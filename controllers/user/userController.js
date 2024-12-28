@@ -187,7 +187,7 @@ const verifyOtp = async (req, res) => {
 
       req.session.user = saveUserData._id;
 
-      return res.json({ success: true, redirectUrl: "/" });   
+      return res.json({ success: true, redirectUrl: "/login" });   
     } else {
       return res
         .status(400)
@@ -408,9 +408,9 @@ const filterPrice = async (req, res) => {
     const userData = await User.findOne({ _id: user });
     const categories = await Category.find({ isListed: true }).lean();
 
-    // Ensure gt and lt are numbers
-    const gt = parseFloat(req.query.gt) || 0;  // Default to 0 if not provided
-    const lt = parseFloat(req.query.lt) || 1000000; // Default to a high value if not provided
+  
+    const gt = parseFloat(req.query.gt) || 0; 
+    const lt = parseFloat(req.query.lt) || 1000000; 
 
     let findProduct = await Product.find({
       salePrice: { $gt: gt, $lt: lt },
@@ -444,51 +444,54 @@ const filterPrice = async (req, res) => {
 };
 
 
-const searchProducts =async(req,res)=>{
+const searchProducts = async (req, res) => {
   try {
-    const user=req.session.user
-    const userData=await User.findOne({_id:user})
+    const user = req.session.user;
+    const userData = await User.findOne({ _id: user });
 
-    let search=req.body.query
+    let search = req.query.search ? req.query.search.trim() : ''; // Trim extra spaces
     const categories = await Category.find({ isListed: true }).lean();
 
-    const categoryIds=categories.map(category=>category._id.toString())
-    let searchResults=[]
-    if(req.session.filterProduct && req.session.filterProduct.length > 0){
-      searchResults=req.session.filterProduct.filter(product=>product.productName.toLowerCase().includes(search.toLowerCase()))
-    }else{
-      searchResults=await Product.find({
-        productName:{$regex:".*"+search+".*",$options:"i"},
-        isBlocked:false,
-        quantity:{$gt:0},
-        category:{$in:categoryIds}
-      })
-    }
-    searchResults.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn))
+    const categoryIds = categories.map((category) => category._id.toString());
+    let searchResults = [];
 
-     
+    if (req.session.filterProduct && req.session.filterProduct.length > 0) {
+      searchResults = req.session.filterProduct.filter((product) =>
+        product.productName.toLowerCase().includes(search.toLowerCase())
+      );
+    } else {
+      searchResults = await Product.find({
+        productName: { $regex: `.*${search}.*`, $options: 'i' }, 
+        isBlocked: false,
+        quantity: { $gt: 0 },
+        category: { $in: categoryIds },
+      });
+    }
+
+    searchResults.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+
     let itemsPerPage = 6;
     let currentPage = parseInt(req.query.page) || 1;
     let startIndex = (currentPage - 1) * itemsPerPage;
     let endIndex = startIndex + itemsPerPage;
-    let totalPages=Math.ceil(searchResults.length/itemsPerPage)
-    const currentProduct=searchResults.slice(startIndex,endIndex)
+    let totalPages = Math.ceil(searchResults.length / itemsPerPage);
+    const currentProduct = searchResults.slice(startIndex, endIndex);
 
-
-    res.render('shop',{
-      user:userData,
-      products:currentProduct,
-      categories:categories,
+    res.render('shop', {
+      user: userData,
+      products: currentProduct,
+      categories: categories,
       totalPages,
       currentPage,
-      count:searchResults.length
-    })
-  } catch (error) {
-    console.error('error',error);
-    res.redirect("pageNotFound")
+      count: searchResults.length,
+      query: search || '',
+    });
     
+  } catch (error) {
+    console.error('error', error);
+    res.redirect('pageNotFound');
   }
-}
+};
 
 
 const sorting = async (req, res) => {

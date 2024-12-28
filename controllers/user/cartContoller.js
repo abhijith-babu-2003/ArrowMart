@@ -51,7 +51,7 @@ const addToCart = async (req, res) => {
       });
     }
 
-    if (product.quantity < quantity) {
+    if (product.quantity < quantity) {    
       return res.status(400).json({
         success: false,
         message: "Not enough stock available.",
@@ -84,7 +84,7 @@ const addToCart = async (req, res) => {
           message: "Exceeds available stock.",
         });
       }
-
+    //prodict exist in cart not present
       existingItem.quantity = newQuantity;
       existingItem.totalPrice = existingItem.quantity * product.salePrice;
     } else {
@@ -126,7 +126,7 @@ const removeFromCart = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
-
+   //locate index base product in cart
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId
     );
@@ -172,7 +172,7 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-       
+        //fetch all products details in cart
         const [cart, product] = await Promise.all([
             Cart.findOne({ user: userId }),
             Product.findById(productId)
@@ -225,7 +225,7 @@ const updateQuantity = async (req, res) => {
             newQuantity: quantity,
             newTotalPrice: cartItem.totalPrice,
             cartTotal: cartTotal,
-            maxQuantity: 6
+            maxQuantity: 5
         });
 
     } catch (error) {
