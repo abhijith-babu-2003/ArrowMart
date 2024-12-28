@@ -1,6 +1,6 @@
 // Cart functionality
 function addToCart(productId, quantity = 1) {
-    // Show loading indicator
+   
     showLoadingIndicator();
 
     fetch('/addToCart', {
@@ -133,9 +133,28 @@ function showMiniCartPreview(cartItem) {
     }, 5000);
 }
 
+
 // Remove item from cart
 async function removeItem(productId) {
     try {
+     
+        const confirmation = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you really want to remove this item from the cart?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!confirmation.isConfirmed) {
+          
+            return;
+        }
+
+  
         const response = await fetch('/removeitem', {
             method: 'DELETE',
             headers: {
@@ -147,18 +166,18 @@ async function removeItem(productId) {
         const data = await response.json();
 
         if (data.success) {
-            // Remove the row from the table
+          
             const row = document.querySelector(`button[onclick="removeItem('${productId}')"]`).closest('tr');
             if (row) {
                 row.remove();
                 
-                // Update cart totals
+               
                 const updateCartTotals = window.updateCartTotals;
                 if (typeof updateCartTotals === 'function') {
                     updateCartTotals();
                 }
 
-                // Show success message
+              
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
@@ -177,6 +196,7 @@ async function removeItem(productId) {
         });
     }
 }
+
 
 // Add CSS styles for the loading spinner and notifications
 const style = document.createElement('style');

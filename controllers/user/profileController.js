@@ -214,7 +214,7 @@ const changePassword =async(req,res)=>{
             return res.status(404).json({ success:false,message:'user not found'})
         }
 
-        const isMatchCurrent=await bcrypt.compare(currentPassword, user.password)
+        const isMatchCurrent=await bcrypt.compare(currentPassword,user.password)
         if(!isMatchCurrent){
             return res.status(400).json({success:false, message:"Current password is incorrect"})
         }

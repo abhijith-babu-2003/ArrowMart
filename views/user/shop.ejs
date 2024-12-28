@@ -11,116 +11,76 @@
                 </div>
 
                 <div class="flex-w flex-c-m m-tb-10">
-                    <div
-                        class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
-                        <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
-                        <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-                        Filter
-                    </div>
 
                     <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
                         <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
                         <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-                        Search
+                        Search/Filter
                     </div>
                 </div>
 
                 <!-- Search product -->
                 <div class="dis-none panel-search w-full p-t-10 p-b-15">
-                    <div class="bor8 dis-flex p-l-15">
-                        <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-                            <i class="zmdi zmdi-search"></i>
-                        </button>
-                        <form action="/shop" method="get">
-                            <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search"
-                                value="<%= typeof query !== 'undefined' ? query : '' %>"
-                                placeholder="Search products....." />
+                    <div class="bor8 p-l-15 p-r-15 p-t-15">
+                        <form action="/shop" method="get" class="search-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input class="form-control" type="text" name="search"
+                                        value="<%= typeof query !== 'undefined' ? query : '' %>"
+                                        placeholder="Search products..." />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <select name="category" class="form-control">
+                                        <option value="">All Categories</option>
+                                        <% if(typeof categories !== 'undefined') { %>
+                                            <% categories.forEach(category => { %>
+                                                <option value="<%= category._id %>" 
+                                                    <%= (typeof selectedCategory !== 'undefined' && selectedCategory == category._id) ? 'selected' : '' %>>
+                                                    <%= category.categoryName %>
+                                                </option>
+                                            <% }) %>
+                                        <% } %>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <select name="priceRange" class="form-control">
+                                        <option value="">Price Range</option>
+                                        <option value="0-500">Under ₹500</option>
+                                        <option value="500-5000">₹500 - ₹5000</option>
+                                        <option value="5000-10000">₹5000 - ₹10000</option>
+                                        <option value="10000-50000">₹10000 - ₹50000</option>
+                                        <option value="50000-200000">₹50000+</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <select name="sortBy" class="form-control">
+                                        <option value="">Sort By</option>
+                                        <option value="nameAsc">Name: A to Z</option>
+                                        <option value="nameDesc">Name: Z to A</option>
+                                        <option value="priceLow">Price: Low to High</option>
+                                        <option value="priceHigh">Price: High to Low</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <select name="availability" class="form-control">
+                                        <option value="">Availability</option>
+                                        <option value="inStock">In Stock</option>
+                                        <option value="outOfStock">Out of Stock</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        Search
+                                    </button>
+                                    <button type="reset" class="btn btn-secondary px-4 ms-2">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Filter -->
-                <div class="dis-none panel-filter w-full p-t-10">
-                    <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm  bg-secondary">
-                        <form id="sort-form">
-                            <div class="filter-col1 p-r-15 p-b-27">
-                                <div class="mtext-102 cl2 p-b-15">Sort By</div>
-
-                                <select name="sort" class="filter-link stext-106 trans-04" onchange="fetchProducts()">
-                                    <option value="default">Default</option>
-                                    <option value="popularity">Popularity</option>
-                                    <option value="az">Name: A to Z</option>
-                                    <option value="za">Name: Z to A</option>
-                                    <option value="priceLow">Price: Low to High</option>
-                                    <option value="priceHigh">Price: High to Low</option>
-                                </select>
-                            </div>
-                        </form>
-
-
-
-                        <div class="filter-col2 p-r-15 p-b-27">
-                            <div class="mtext-102 cl2 p-b-15">Price</div>
-                            <ul>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=0&lt=500" class="stext-106 trans-04 filter-link-active">
-                                        Under $500
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=500&lt=5000" class="stext-106 trans-04">
-                                        $500.00 - $5000.00
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=5000&lt=10000" class="stext-106 trans-04">
-                                        $5000.00 - $10000.00
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=10000&lt=50000" class="stext-106 trans-04">
-                                        $10000.00 - $50000.00
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=50000&lt=100000" class="stext-106 trans-04">
-                                        $50000.00 - $100000.00
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a href="/filterPrice?gt=100000" class="stext-106 trans-04">
-                                        Above $100000.00+
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-
-
-
-
-                        <div class="filter-col3 p-r-15 p-b-27">
-                            <div class="mtext-102 cl2 p-b-15">
-                                Category
-                            </div>
-                            <ul>
-                                <% for (let i=0; i < categories.length; i++) { %>
-                                    <li>
-
-                                        <a href="/filter?category=<%= categories[i]._id %>" class="stext-106 trans-04">
-                                            <%= categories[i].categoryName %>
-                                        </a>
-
-                                    </li>
-                                    <% } %>
-                            </ul>
-
-
-
-                        </div>
-
-                    </div>
-                </div>
             </div>
 
             <div class="row g-3" id="product-list">
@@ -132,6 +92,7 @@
                                     <img src="/uploads/<%= products[i].productImage[0] %>"
                                         alt="<%= products[i].productName %>">
                                 </a>
+                                
                             </div>
                             <div class="product-details">
                                 <h5 class="product-title">
@@ -376,6 +337,7 @@
         }
 
 
+      
 
 
     </script>

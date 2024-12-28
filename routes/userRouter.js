@@ -6,6 +6,7 @@ const productController=require("../controllers/user/productContoller")
 const profileController=require("../controllers/user/profileController")
 const cartController=require("../controllers/user/cartContoller")
 const checkoutController=require("../controllers/user/checkoutController")
+const wishlistController=require("../controllers/user/wishlistController")
 const passport = require("passport");
 
 
@@ -42,10 +43,10 @@ user_Router.get("/productDetails",userAuth,productController.productDetails)
 //shop manegement
 
 user_Router.get("/shop",userAuth,userController.getShopPage)
-user_Router.get("/filter",userAuth, userController.filterProduct)
-user_Router.get("/filterPrice",userAuth,userController.filterPrice)
-user_Router.post('/search',userAuth,userController.searchProducts)
-user_Router.get('/Products',userAuth,userController.sorting)
+// user_Router.get("/filter",userAuth, userController.filterProduct)
+// user_Router.get("/filterPrice",userAuth,userController.filterPrice)
+// user_Router.post('/search',userAuth,userController.searchProducts)
+// user_Router.get('/Products',userAuth,userController.sorting)
 
 //userProfile management
 user_Router.get("/userprofile",userAuth,profileController.userProfile)
@@ -85,4 +86,7 @@ user_Router.get('/order-success/:orderId', userAuth, checkoutController.getOrder
 user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancelOrder);
 
 
+//wishlist management
+
+user_Router.get("/wishlist",userAuth,wishlistController.getWishlist)
 module.exports=user_Router
