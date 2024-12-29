@@ -154,10 +154,10 @@
 									&#9733;&#9733;&#9733;&#9733;&#9734; <!-- 4 filled stars, 1 empty -->
 								</div>
 								<div class="block2-txt-child2 flex-r p-t-3">
-									<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+									<button class="btn-addwish-b2 dis-block pos-relative" onclick="addToWishlist('<%= product._id %>')">
 										<img class="icon-heart1 dis-block trans-04" src="/assets/images/icons/icon-heart-01.png " alt="ICON">
 										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="/assets/images/icons/icon-heart-02.png" alt="ICON">
-									</a>
+									</button>
 								</div>
 								<!-- Add to Cart Button -->
 								<div class="block2-txt-child3 p-t-10">
@@ -243,6 +243,42 @@
                     });
                 });
         }
+
+
+//add to wiahlist
+
+function addToWishlist(productId){
+            $.ajax({
+                url: '/addWishlist',
+                type: 'POST',
+                data: {productId},
+                success:(response)=>{
+                    if(response.status){
+                        Swal.fire({
+                            title: "added to wishlist",
+                            text: 'Product added to wishlist successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error:(error)=>{
+                    Swal.fire({
+                        title: 'Oops!',
+                        text: 'Product already in wishlist',
+                        icon: 'error',
+                        confirmButtonText: 'Close'
+                    });
+                }
+            });
+        }
+
+
+
+
+
+
+
 </script>
 
 

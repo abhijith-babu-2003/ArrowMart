@@ -5,6 +5,7 @@ const customerController=require("../controllers/admin/customerController")
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require('../controllers/admin/productController')
 const orderController=require("../controllers/admin/orderController")
+const couponController=require("../controllers/admin/couponController")
 const {userAuth,adminAuth}=require("../middileware/auth")
 const upload =require('../config/multer')
 
@@ -48,6 +49,11 @@ admin_Router.post('/orders/status', adminAuth, orderController.updateOrderStatus
 admin_Router.delete("/order/cancel/:orderId", adminAuth, orderController.cancelOrder);
 admin_Router.get('/orders/:orderId',adminAuth, orderController.getOrderDetails);
 
-
+//coupon management
+admin_Router.get("/coupon",adminAuth,couponController.getCoupon)
+admin_Router.post("/createCoupon",adminAuth,couponController.createCoupon)
+admin_Router.get("/editCoupon", adminAuth, couponController.getEditCoupon);
+admin_Router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
+admin_Router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
 
 module.exports =admin_Router

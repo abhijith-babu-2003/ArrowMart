@@ -43,10 +43,6 @@ user_Router.get("/productDetails",userAuth,productController.productDetails)
 //shop manegement
 
 user_Router.get("/shop",userAuth,userController.getShopPage)
-// user_Router.get("/filter",userAuth, userController.filterProduct)
-// user_Router.get("/filterPrice",userAuth,userController.filterPrice)
-// user_Router.post('/search',userAuth,userController.searchProducts)
-// user_Router.get('/Products',userAuth,userController.sorting)
 
 //userProfile management
 user_Router.get("/userprofile",userAuth,profileController.userProfile)
@@ -89,4 +85,7 @@ user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancel
 //wishlist management
 
 user_Router.get("/wishlist",userAuth,wishlistController.getWishlist)
+user_Router.post("/addWishlist",userAuth,wishlistController.addToWishlist)
+user_Router.get("/removeitem",userAuth, wishlistController.removeFromWishlist);
+
 module.exports=user_Router

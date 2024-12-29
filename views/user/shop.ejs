@@ -118,6 +118,10 @@
                                         <% } else { %>
                                             <button disabled class="btn btn-secondary">Out of Stock</button>
                                             <% } %>
+
+                                    <button class="btn btn-instagram "  onclick="addToWishlist('<%= products[i]._id%>')">
+                                        <img class="icon-heart1 " src="/assets/images/icons/icon-heart-01.png " alt="ICON">
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -338,6 +342,37 @@
 
 
       
+
+
+
+
+        //add to wiahlist
+
+        function addToWishlist(productId){
+            $.ajax({
+                url: '/addWishlist',
+                type: 'POST',
+                data: {productId},
+                success:(response)=>{
+                    if(response.status){
+                        Swal.fire({
+                            title: "added to wishlist",
+                            text: 'Product added to wishlist successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error:(error)=>{
+                    Swal.fire({
+                        title: 'Oops!',
+                        text: 'Product already in wishlist',
+                        icon: 'error',
+                        confirmButtonText: 'Close'
+                    });
+                }
+            });
+        }
 
 
     </script>

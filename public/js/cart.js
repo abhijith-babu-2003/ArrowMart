@@ -176,8 +176,6 @@ async function removeItem(productId) {
                 if (typeof updateCartTotals === 'function') {
                     updateCartTotals();
                 }
-
-              
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
