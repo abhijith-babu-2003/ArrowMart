@@ -58,10 +58,10 @@ const addToCart = async (req, res) => {
       });
     }
 
-    let cart = await Cart.findOne({ user: user._id });
+    let cart = await Cart.findOne({ userId: user});
 
     if (!cart) {
-      cart = new Cart({ user: user._id, items: [] });
+      cart = new Cart({ userId: user, items: [] });
     }
 
     const existingItem = cart.items.find(
