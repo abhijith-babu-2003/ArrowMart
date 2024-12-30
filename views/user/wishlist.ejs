@@ -222,7 +222,7 @@ function removeProuct(productId) {
         cancelButtonText: 'Cancel'
     }).then((result)=>{
         if(result.isConfirmed){
-            window.location.href = `/removeitem?productId=/${productId}` 
+            window.location.href = `/removeitem?productId=${productId}`;
         }
     })
 }

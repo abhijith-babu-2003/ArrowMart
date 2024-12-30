@@ -309,7 +309,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Get user's cart
+        // FIND user cart
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({
@@ -318,7 +318,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Calculate cart total
+        //  cart total
         let subtotal = 0;
         cart.items.forEach(item => {
             const price = item.productId.salePrice || item.productId.regularPrice;
