@@ -7,6 +7,8 @@ const profileController=require("../controllers/user/profileController")
 const cartController=require("../controllers/user/cartContoller")
 const checkoutController=require("../controllers/user/checkoutController")
 const wishlistController=require("../controllers/user/wishlistController")
+const walletController = require('../controllers/user/walletController');
+
 const passport = require("passport");
 
 
@@ -87,5 +89,11 @@ user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancel
 user_Router.get("/wishlist",userAuth,wishlistController.getWishlist)
 user_Router.post("/addWishlist",userAuth,wishlistController.addToWishlist)
 user_Router.get("/removeitem",userAuth, wishlistController.removeFromWishlist);
+
+
+
+// Wallet routes
+user_Router.get('/wallet', userAuth, walletController.getWallet);
+
 
 module.exports=user_Router

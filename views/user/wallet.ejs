@@ -1,0 +1,51 @@
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">My Wallet</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h4>Current Balance</h4>
+                        <h2 class="text-primary">₹<%= wallet.balance.toFixed(2) %></h2>
+                    </div>
+
+                    <div>
+                        <h5>Transaction History</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% wallet.transactions.reverse().forEach(transaction => { %>
+                                    <tr>
+                                        <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                                        <td><span class="badge <%= transaction.type === 'credit' ? 'bg-success' : 'bg-danger' %>">
+                                            <%= transaction.type %>
+                                        </span></td>
+                                        <td>₹<%= transaction.amount.toFixed(2) %></td>
+                                        <td><%= transaction.description %></td>
+                                    </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<%- include("../../views/partials/user/footer") %>
