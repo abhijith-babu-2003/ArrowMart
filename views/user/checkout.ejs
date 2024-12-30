@@ -117,6 +117,11 @@
                     <button class="btn btn-primary" type="button" id="applyCouponBtn">
                         <i class="fas fa-tag me-2"></i>Apply
                     </button>
+                    <% if (cart.appliedCoupon) { %>
+                        <button class="btn btn-danger ms-2" type="button" id="removeCouponBtn">
+                            <i class="fas fa-times me-2"></i>Remove
+                        </button>
+                    <% } %>
                 </div>
                 <div id="couponMessage" class="small"></div>
             </div>
@@ -333,6 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyCouponBtn = document.getElementById('applyCouponBtn');
     const couponCode = document.getElementById('couponCode');
     const couponMessage = document.getElementById('couponMessage');
+    const removeCouponBtn = document.getElementById('removeCouponBtn');
 
     applyCouponBtn.addEventListener('click', async function() {
         const code = couponCode.value.trim();
@@ -384,6 +390,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    if (removeCouponBtn) {
+        removeCouponBtn.addEventListener('click', async function() {
+            try {
+                removeCouponBtn.disabled = true;
+                removeCouponBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Removing...';
+
+                const response = await fetch('/remove-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showCouponMessage(data.message, 'text-success');
+                    updateOrderSummary(data);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Coupon Removed!',
+                        text: data.message,
+                    });
+                } else {
+                    showCouponMessage(data.message, 'text-danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Coupon Error',
+                        text: data.message,
+                    });
+                }
+            } catch (error) {
+                showCouponMessage('Error removing coupon. Please try again.', 'text-danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to remove coupon. Please try again.',
+                });
+            } finally {
+                removeCouponBtn.disabled = false;
+                removeCouponBtn.innerHTML = '<i class="fas fa-times me-2"></i>Remove';
+            }
+        });
+    }
+
     function showCouponMessage(message, className) {
         couponMessage.textContent = message;
         couponMessage.className = 'small ' + className;
@@ -395,31 +445,42 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update tax
         document.querySelector('[data-summary="tax"]').textContent = '₹' + data.tax;
-        
+
         // Update discount section
         const discountSection = document.querySelector('[data-summary="discount-section"]');
         if (data.discountAmount > 0) {
             if (!discountSection) {
-                // Create discount section if it doesn't exist
-                const discountHtml = `
+                const newDiscountSection = `
                     <div class="d-flex justify-content-between align-items-center mb-2" data-summary="discount-section">
                         <div>
                             <h6 class="mb-0 text-success">Discount</h6>
-                            <small class="text-muted">Coupon: ${data.couponCode}</small>
+                            ${data.appliedCoupon ? `<small class="text-muted">Coupon: ${data.appliedCoupon.name}</small>` : ''}
                         </div>
                         <h6 class="mb-0 text-success" data-summary="discount">-₹${data.discountAmount}</h6>
-                    </div>
-                `;
-                document.querySelector('[data-summary="tax"]').closest('.d-flex').insertAdjacentHTML('afterend', discountHtml);
+                    </div>`;
+                const totalElement = document.querySelector('[data-summary="total"]').parentElement.parentElement;
+                totalElement.insertAdjacentHTML('beforebegin', newDiscountSection);
             } else {
-                discountSection.querySelector('[data-summary="discount"]').textContent = '-₹' + data.discountAmount;
+                const discountElement = discountSection.querySelector('[data-summary="discount"]');
+                discountElement.textContent = `-₹${data.discountAmount}`;
+                const couponNameElement = discountSection.querySelector('small.text-muted');
+                if (data.appliedCoupon && couponNameElement) {
+                    couponNameElement.textContent = `Coupon: ${data.appliedCoupon.name}`;
+                }
             }
         } else if (discountSection) {
             discountSection.remove();
         }
-        
+
         // Update total
-        document.querySelector('[data-summary="total"]').textContent = '₹' + data.newTotal;
+        document.querySelector('[data-summary="total"]').textContent = '₹' + data.total;
+
+        // If coupon is removed, reload the page after a short delay
+        if (!data.appliedCoupon) {
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
     }
 
     // Handleing place order

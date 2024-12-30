@@ -97,5 +97,6 @@ user_Router.get('/wallet', userAuth, walletController.getWallet);
 user_Router.post("/add-money",userAuth,walletController.addMoney)
 // Coupon routes
 user_Router.post('/apply-coupon', userAuth, checkoutController.applyCoupon);
+user_Router.post('/remove-coupon', userAuth, checkoutController.removeCoupon);
 
 module.exports=user_Router

@@ -368,6 +368,64 @@ const applyCoupon = async (req, res) => {
     }
 };
 
+const removeCoupon = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        
+        // Find cart and remove coupon
+        const cart = await Cart.findOne({ userId })
+            .populate('items.productId');
+
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found"
+            });
+        }
+
+        // Calculate cart totals without coupon
+        let subtotal = 0;
+        cart.items.forEach(item => {
+            const price = item.productId.salePrice || item.productId.regularPrice;
+            subtotal += price * item.quantity;
+        });
+
+        const tax = subtotal * 0.05;
+        const total = subtotal + tax;
+
+        // Update cart removing coupon and discount
+        await Cart.findOneAndUpdate(
+            { userId },
+            {
+                $set: {
+                    couponApplied: null,
+                    discountAmount: 0
+                }
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Coupon removed successfully",
+            cart: {
+                items: cart.items,
+                subtotal,
+                tax,
+                total,
+                discountAmount: 0,
+                appliedCoupon: null
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in removeCoupon:', error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to remove coupon"
+        });
+    }
+};
+
 module.exports = {
     loadCheckout,
     placeOrder,
@@ -375,5 +433,6 @@ module.exports = {
     getOrderSuccess,
     getOrderHistory,
     getOrderDetails,
-    applyCoupon
+    applyCoupon,
+    removeCoupon
 };
