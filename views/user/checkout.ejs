@@ -27,12 +27,40 @@
                 
                 <div class="divider"></div>
                 
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <h6 class="mb-0">Subtotal</h6>
+                    </div>
+                    <h6 class="mb-0" data-summary="subtotal">₹<%= cart.subtotal %></h6>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <h6 class="mb-0">GST (5%)</h6>
+                    </div>
+                    <h6 class="mb-0" data-summary="tax">₹<%= cart.tax %></h6>
+                </div>
+
+                <% if (cart.discountAmount > 0) { %>
+                    <div class="d-flex justify-content-between align-items-center mb-2" data-summary="discount-section">
+                        <div>
+                            <h6 class="mb-0 text-success">Discount</h6>
+                            <% if (cart.appliedCoupon) { %>
+                                <small class="text-muted">Coupon: <%= cart.appliedCoupon.name %></small>
+                            <% } %>
+                        </div>
+                        <h6 class="mb-0 text-success" data-summary="discount">-₹<%= cart.discountAmount %></h6>
+                    </div>
+                <% } %>
+
+                <div class="divider"></div>
+                
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="fw-bold mb-0">Total Amount</h5>
                         <p class="text-muted small mb-0">Including GST</p>
                     </div>
-                    <h4 class="fw-bold mb-0">₹<%= cart.total %></h4>
+                    <h4 class="fw-bold mb-0" data-summary="total">₹<%= cart.total %></h4>
                 </div>
             </div>
         </div>
@@ -80,6 +108,17 @@
                         <i class="fas fa-info-circle me-2"></i>No addresses found. Please add a delivery address.
                     </div>
                 <% } %>
+            </div>
+
+            <div class="custom-card p-4 mb-4">
+                <h3 class="mb-4 fw-bold">Apply Coupon</h3>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
+                    <button class="btn btn-primary" type="button" id="applyCouponBtn">
+                        <i class="fas fa-tag me-2"></i>Apply
+                    </button>
+                </div>
+                <div id="couponMessage" class="small"></div>
             </div>
 
             <div class="custom-card p-4 mb-4">
@@ -290,59 +329,152 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handleing place order
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-if (placeOrderBtn) {
-    placeOrderBtn.addEventListener('click', async function () {
-        const selectedAddress = document.querySelector('input[name="addressId"]:checked');
-        if (!selectedAddress) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'No Address Selected',
-                text: 'Please select a delivery address.',
-            });
+    // Coupon handling
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    const couponCode = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('couponMessage');
+
+    applyCouponBtn.addEventListener('click', async function() {
+        const code = couponCode.value.trim();
+        if (!code) {
+            showCouponMessage('Please enter a coupon code', 'text-danger');
             return;
         }
 
         try {
-            placeOrderBtn.disabled = true;
-            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            applyCouponBtn.disabled = true;
+            applyCouponBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Applying...';
 
-            const response = await fetch('/checkout/place-order', {
+            const response = await fetch('/apply-coupon', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    addressId: selectedAddress.value,
-                    paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
-                }),
+                body: JSON.stringify({ couponCode: code })
             });
 
             const data = await response.json();
+            
             if (data.success) {
+                showCouponMessage(data.message, 'text-success');
+                updateOrderSummary(data);
                 Swal.fire({
                     icon: 'success',
-                    title: 'Order Placed!',
-                    text: 'Your order has been successfully placed.',
-                    confirmButtonText: 'View Order',
-                }).then(() => {
-                    window.location.href = `/order-success/${data.orderId}`;
+                    title: 'Coupon Applied!',
+                    text: data.message,
                 });
             } else {
-                throw new Error(data.message || 'Failed to place order');
+                showCouponMessage(data.message, 'text-danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Coupon Error',
+                    text: data.message,
+                });
             }
         } catch (error) {
+            showCouponMessage('Error applying coupon. Please try again.', 'text-danger');
             Swal.fire({
                 icon: 'error',
-                title: 'Order Failed',
-                text: error.message,
+                title: 'Error',
+                text: 'Failed to apply coupon. Please try again.',
             });
-            placeOrderBtn.disabled = false;
-            placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
+        } finally {
+            applyCouponBtn.disabled = false;
+            applyCouponBtn.innerHTML = '<i class="fas fa-tag me-2"></i>Apply';
         }
     });
-}
+
+    function showCouponMessage(message, className) {
+        couponMessage.textContent = message;
+        couponMessage.className = 'small ' + className;
+    }
+
+    function updateOrderSummary(data) {
+        // Update subtotal
+        document.querySelector('[data-summary="subtotal"]').textContent = '₹' + data.subtotal;
+        
+        // Update tax
+        document.querySelector('[data-summary="tax"]').textContent = '₹' + data.tax;
+        
+        // Update discount section
+        const discountSection = document.querySelector('[data-summary="discount-section"]');
+        if (data.discountAmount > 0) {
+            if (!discountSection) {
+                // Create discount section if it doesn't exist
+                const discountHtml = `
+                    <div class="d-flex justify-content-between align-items-center mb-2" data-summary="discount-section">
+                        <div>
+                            <h6 class="mb-0 text-success">Discount</h6>
+                            <small class="text-muted">Coupon: ${data.couponCode}</small>
+                        </div>
+                        <h6 class="mb-0 text-success" data-summary="discount">-₹${data.discountAmount}</h6>
+                    </div>
+                `;
+                document.querySelector('[data-summary="tax"]').closest('.d-flex').insertAdjacentHTML('afterend', discountHtml);
+            } else {
+                discountSection.querySelector('[data-summary="discount"]').textContent = '-₹' + data.discountAmount;
+            }
+        } else if (discountSection) {
+            discountSection.remove();
+        }
+        
+        // Update total
+        document.querySelector('[data-summary="total"]').textContent = '₹' + data.newTotal;
+    }
+
+    // Handleing place order
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', async function () {
+            const selectedAddress = document.querySelector('input[name="addressId"]:checked');
+            if (!selectedAddress) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Address Selected',
+                    text: 'Please select a delivery address.',
+                });
+                return;
+            }
+
+            try {
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+                const response = await fetch('/checkout/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        addressId: selectedAddress.value,
+                        paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed!',
+                        text: 'Your order has been successfully placed.',
+                        confirmButtonText: 'View Order',
+                    }).then(() => {
+                        window.location.href = `/order-success/${data.orderId}`;
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to place order');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: error.message,
+                });
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
+            }
+        });
+    }
 
 });
 </script>

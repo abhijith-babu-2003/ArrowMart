@@ -30,6 +30,7 @@ const createCoupon = async (req, res) => {
       isList: true,
     });
 
+ 
     await newCoupon.save();
     console.log("Coupon saved successfully!");
     return res.redirect("/admin/coupon");

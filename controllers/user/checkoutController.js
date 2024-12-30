@@ -3,11 +3,15 @@ const Order = require("../../models/orderSchema.js");
 const Cart = require("../../models/cartSchema.js");
 const Product = require("../../models/ProductSchema.js");
 const Address = require("../../models/addressSchema.js");
+const Coupon = require("../../models/couponSchema.js");
 
 const loadCheckout = async (req, res) => {
     try {
         const userId = req.session.user;
-        const cart = await Cart.findOne({ userId }).populate('items.productId')
+        const cart = await Cart.findOne({ userId })
+            .populate('items.productId')
+            .populate('couponApplied');
+
         const addresses = await Address.findOne({ userId });
 
         if (!cart || cart.items.length === 0) {
@@ -24,8 +28,9 @@ const loadCheckout = async (req, res) => {
             itemCount += item.quantity;
         });
 
-        const tax = subtotal * 0.05; 
-        const total = subtotal + tax;
+        const tax = subtotal * 0.05;
+        const discountAmount = cart.discountAmount || 0;
+        const total = subtotal + tax - discountAmount;
 
         const cartData = {
             items: cart.items.map(item => ({
@@ -35,8 +40,10 @@ const loadCheckout = async (req, res) => {
             })),
             subtotal,
             tax,
+            discountAmount,
             total,
-            itemCount
+            itemCount,
+            appliedCoupon: cart.couponApplied
         };
 
         res.render('checkout', { 
@@ -74,8 +81,11 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Get cart
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        // Get cart with coupon details
+        const cart = await Cart.findOne({ userId })
+            .populate('items.productId')
+            .populate('couponApplied');
+
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ 
                 success: false, 
@@ -86,7 +96,7 @@ const placeOrder = async (req, res) => {
         let subtotal = 0;
         const orderItems = [];
         
-       //iterate each item in cart
+        // Iterate each item in cart
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
             
@@ -107,7 +117,7 @@ const placeOrder = async (req, res) => {
             const price = product.salePrice || product.regularPrice;
             subtotal += price * item.quantity;
 
-           //udpate quantity
+            // Update quantity
             await Product.findByIdAndUpdate(
                 product._id,
                 { $inc: { quantity: -item.quantity } }
@@ -121,14 +131,18 @@ const placeOrder = async (req, res) => {
         }
 
         const tax = subtotal * 0.05;
-        const total = subtotal + tax;
+        const discountAmount = cart.discountAmount || 0;
+        const total = subtotal + tax - discountAmount;
 
-        //  order Createte
+        // Create order
         const order = new Order({
             userId,
             orderedItems: orderItems,
             totalPrice: subtotal,
+            tax: tax,
+            discountAmount: discountAmount,
             finalAmount: total,
+            couponApplied: cart.couponApplied,
             shippingAddress: selectedAddress,
             paymentMethod: paymentMethod || 'COD',
             paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
@@ -140,7 +154,13 @@ const placeOrder = async (req, res) => {
         // Clear cart
         await Cart.findOneAndUpdate(
             { userId },
-            { $set: { items: [] } }
+            { 
+                $set: { 
+                    items: [],
+                    couponApplied: null,
+                    discountAmount: 0
+                } 
+            }
         );
         
         res.status(200).json({ 
@@ -270,11 +290,90 @@ const getOrderDetails = async (req, res) => {
     }
 };
 
+const applyCoupon = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { couponCode } = req.body;
+
+        // Find the coupon
+        const coupon = await Coupon.findOne({ 
+            name: couponCode,
+            isList: true,
+            expireOn: { $gt: new Date() }
+        });
+
+        if (!coupon) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid or expired coupon code"
+            });
+        }
+
+        // Get user's cart
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Cart is empty"
+            });
+        }
+
+        // Calculate cart total
+        let subtotal = 0;
+        cart.items.forEach(item => {
+            const price = item.productId.salePrice || item.productId.regularPrice;
+            subtotal += price * item.quantity;
+        });
+
+        // Check minimum purchase requirement
+        if (subtotal < coupon.minimumPrice) {
+            return res.status(400).json({
+                success: false,
+                message: `Minimum purchase of ₹${coupon.minimumPrice} required for this coupon`
+            });
+        }
+
+        // Apply discount
+        const discountAmount = Math.min(coupon.offerPrice, subtotal);
+        const tax = subtotal * 0.05;
+        const newTotal = subtotal + tax - discountAmount;
+
+        // Update cart with coupon
+        await Cart.findOneAndUpdate(
+            { userId },
+            { 
+                $set: { 
+                    couponApplied: coupon._id,
+                    discountAmount: discountAmount
+                }
+            }
+        );
+
+        res.json({
+            success: true,
+            message: "Coupon applied successfully!",
+            subtotal: subtotal.toFixed(2),
+            tax: tax.toFixed(2),
+            discountAmount: discountAmount.toFixed(2),
+            newTotal: newTotal.toFixed(2),
+            couponCode: coupon.name
+        });
+
+    } catch (error) {
+        console.error('Error in applyCoupon:', error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to apply coupon"
+        });
+    }
+};
+
 module.exports = {
     loadCheckout,
     placeOrder,
     cancelOrder,
     getOrderSuccess,
     getOrderHistory,
-    getOrderDetails
+    getOrderDetails,
+    applyCoupon
 };

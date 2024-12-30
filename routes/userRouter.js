@@ -95,5 +95,7 @@ user_Router.get("/removeitem",userAuth, wishlistController.removeFromWishlist);
 // Wallet routes
 user_Router.get('/wallet', userAuth, walletController.getWallet);
 
+// Coupon routes
+user_Router.post('/apply-coupon', userAuth, checkoutController.applyCoupon);
 
 module.exports=user_Router
