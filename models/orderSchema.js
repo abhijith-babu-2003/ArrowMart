@@ -32,7 +32,11 @@ const orderSchema=new Schema({
         type:Number,
         required:true
     },
-    discount:{
+    tax: {
+        type: Number,
+        required: true
+    },
+    discountAmount:{
         type:Number,
         default:0
     },
@@ -46,12 +50,12 @@ const orderSchema=new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['COD', 'Online'],
+        enum: ['COD', 'Online', 'WALLET'],
         required: true
     },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Paid', 'Failed'],
+        enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
         default: 'Pending'
     },
     status:{

@@ -134,6 +134,15 @@
                         <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery
                     </label>
                 </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="wallet" value="WALLET">
+                    <label class="form-check-label" for="wallet">
+                        <i class="fas fa-wallet me-2"></i>Wallet Balance
+                        <% if (typeof wallet !== 'undefined' && wallet) { %>
+                            <span class="text-success">(Available: ₹<%= wallet.balance %>)</span>
+                        <% } %>
+                    </label>
+                </div>
             </div>
 
             <button id="placeOrderBtn" class="btn btn-primary w-100 py-3">
@@ -483,60 +492,95 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Handleing place order
     const placeOrderBtn = document.getElementById('placeOrderBtn');
-    if (placeOrderBtn) {
-        placeOrderBtn.addEventListener('click', async function () {
-            const selectedAddress = document.querySelector('input[name="addressId"]:checked');
-            if (!selectedAddress) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Address Selected',
-                    text: 'Please select a delivery address.',
-                });
-                return;
-            }
+    const walletRadio = document.getElementById('wallet');
+    const cartTotal = <%= cart.finalAmount || cart.total  %>
+    const walletBalance = <%= typeof wallet !== 'undefined' && wallet ? wallet.balance : 0 %>;
 
-            try {
-                placeOrderBtn.disabled = true;
-                placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-
-                const response = await fetch('/checkout/place-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        addressId: selectedAddress.value,
-                        paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
-                    }),
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Order Placed!',
-                        text: 'Your order has been successfully placed.',
-                        confirmButtonText: 'View Order',
-                    }).then(() => {
-                        window.location.href = `/order-success/${data.orderId}`;
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to place order');
-                }
-            } catch (error) {
+    // Add event listener to wallet radio button
+    if (walletRadio) {
+        walletRadio.addEventListener('change', function() {
+            if (this.checked && walletBalance < cartTotal) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Order Failed',
-                    text: error.message,
+                    title: 'Insufficient Balance',
+                    text: `Your wallet balance (₹${walletBalance}) is less than the order total (₹${cartTotal})`
                 });
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
+                document.getElementById('cod').checked = true;
             }
         });
     }
 
+    placeOrderBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // Get selected address
+        const selectedAddress = document.querySelector('input[name="addressId"]:checked');
+        if (!selectedAddress) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Address Required',
+                text: 'Please select a delivery address'
+            });
+            return;
+        }
+
+        // Get payment method
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        
+        // Validate wallet balance if wallet payment is selected
+        if (paymentMethod === 'WALLET' && walletBalance < cartTotal) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Insufficient Balance',
+                text: `Your wallet balance (₹${walletBalance}) is less than the order total (₹${cartTotal})`
+            });
+            return;
+        }
+
+        try {
+            // Disable button and show loading state
+            placeOrderBtn.disabled = true;
+            placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            const response = await fetch('/checkout/place-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    addressId: selectedAddress.value,
+                    paymentMethod: paymentMethod
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Placed Successfully!',
+                    text: 'Redirecting to order details...',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `/order-success/${data.orderId}`;
+                });
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: error.message || 'Failed to place order. Please try again.'
+            });
+        } finally {
+            // Reset button state
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
+        }
+    });
 });
 </script>
 

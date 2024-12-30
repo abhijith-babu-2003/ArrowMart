@@ -4,6 +4,7 @@ const Cart = require("../../models/cartSchema.js");
 const Product = require("../../models/ProductSchema.js");
 const Address = require("../../models/addressSchema.js");
 const Coupon = require("../../models/couponSchema.js");
+const Wallet = require("../../models/walletSchema.js");
 
 const loadCheckout = async (req, res) => {
     try {
@@ -13,6 +14,7 @@ const loadCheckout = async (req, res) => {
             .populate('couponApplied');
 
         const addresses = await Address.findOne({ userId });
+        const wallet = await Wallet.findOne({ userId });
 
         if (!cart || cart.items.length === 0) {
             req.session.warning = "Your cart is empty";
@@ -49,6 +51,7 @@ const loadCheckout = async (req, res) => {
         res.render('checkout', { 
             cart: cartData,
             addresses: addresses ? addresses.address : [],
+            wallet: wallet,
             user: req.session.user,
             title: 'Checkout'
         });
@@ -117,12 +120,6 @@ const placeOrder = async (req, res) => {
             const price = product.salePrice || product.regularPrice;
             subtotal += price * item.quantity;
 
-            // Update quantity
-            await Product.findByIdAndUpdate(
-                product._id,
-                { $inc: { quantity: -item.quantity } }
-            );
-            
             orderItems.push({
                 product: product._id,
                 quantity: item.quantity,
@@ -134,6 +131,32 @@ const placeOrder = async (req, res) => {
         const discountAmount = cart.discountAmount || 0;
         const total = subtotal + tax - discountAmount;
 
+        // Handle wallet payment
+        if (paymentMethod === 'WALLET') {
+            const wallet = await Wallet.findOne({ userId });
+            if (!wallet || wallet.balance < total) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Insufficient wallet balance"
+                });
+            }
+
+            // Deduct from wallet
+            await Wallet.findOneAndUpdate(
+                { userId },
+                {
+                    $inc: { balance: -total },
+                    $push: {
+                        transactions: {
+                            type: 'debit',
+                            amount: total,
+                            description: `Order payment for purchase`
+                        }
+                    }
+                }
+            );
+        }
+
         // Create order
         const order = new Order({
             userId,
@@ -144,12 +167,32 @@ const placeOrder = async (req, res) => {
             finalAmount: total,
             couponApplied: cart.couponApplied,
             shippingAddress: selectedAddress,
-            paymentMethod: paymentMethod || 'COD',
-            paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
+            paymentMethod: paymentMethod,
+            paymentStatus: paymentMethod === 'WALLET' ? 'Paid' : (paymentMethod === 'COD' ? 'Pending' : 'Paid'),
             status: 'Pending'
         });
 
         await order.save();
+
+        // Update wallet transaction with order ID if it was wallet payment
+        if (paymentMethod === 'WALLET') {
+            await Wallet.findOneAndUpdate(
+                { userId, 'transactions.description': 'Order payment for purchase' },
+                {
+                    $set: {
+                        'transactions.$.description': `Order payment - Order ID: ${order._id}`
+                    }
+                }
+            );
+        }
+
+        // Update product quantities
+        for (const item of orderItems) {
+            await Product.findByIdAndUpdate(
+                item.product,
+                { $inc: { quantity: -item.quantity } }
+            );
+        }
         
         // Clear cart
         await Cart.findOneAndUpdate(
@@ -182,22 +225,26 @@ const cancelOrder = async (req, res) => {
         const { orderId } = req.params;
         const userId = req.session.user;
 
-        const order = await Order.findOne({ _id: orderId, userId });
+        // Find and update order status directly
+        const order = await Order.findOneAndUpdate(
+            { _id: orderId, userId, status: { $nin: ['Delivered', 'Cancelled'] } },
+            { 
+                $set: { 
+                    status: 'Cancelled',
+                    paymentStatus: 'WALLET' ? 'Refunded' : 'Failed'
+                } 
+            },
+            { new: true }
+        ).populate('orderedItems.product');
+
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                message: "Order not found" 
+                message: "Order not found or cannot be cancelled" 
             });
         }
 
-        if (['Delivered', 'Cancelled'].includes(order.status)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Cannot cancel order in current status" 
-            });
-        }
-
-        // Restore product quantities and iterate orderitems in order
+        // Restore quantities
         for (const item of order.orderedItems) {
             await Product.findByIdAndUpdate(
                 item.product,
@@ -205,18 +252,50 @@ const cancelOrder = async (req, res) => {
             );
         }
 
-        order.status = 'Cancelled';
-        await order.save();
+        // Refund to wallet if paid by wallet
+        if (order.paymentMethod === 'WALLET' && order.paymentStatus === 'Refunded') {
+            const wallet = await Wallet.findOne({ userId });
+            
+            if (!wallet) {
+                // Create new wallet with refund
+                const newWallet = new Wallet({
+                    userId,
+                    balance: order.finalAmount,
+                    transactions: [{
+                        type: 'credit',
+                        amount: order.finalAmount,
+                        description: `Refund for cancelled order - Order ID: ${order._id}`
+                    }]
+                });
+                await newWallet.save();
+            } else {
+                // Add refund to existing wallet
+                await Wallet.findOneAndUpdate(
+                    { userId },
+                    {
+                        $inc: { balance: order.finalAmount },
+                        $push: {
+                            transactions: {
+                                type: 'credit',
+                                amount: order.finalAmount,
+                                description: `Refund for cancelled order - Order ID: ${order._id}`
+                            }
+                        }
+                    }
+                );
+            }
+        }
 
-        res.json({ 
-            success: true, 
-            message: "Order cancelled successfully" 
+        res.status(200).json({
+            success: true,
+            message: "Order cancelled successfully" + (order.paymentMethod === 'WALLET' ? ". Amount refunded to wallet." : "")
         });
+
     } catch (error) {
         console.error('Error in cancelOrder:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: "Failed to cancel order" 
+        res.status(500).json({
+            success: false,
+            message: "Failed to cancel order"
         });
     }
 };
