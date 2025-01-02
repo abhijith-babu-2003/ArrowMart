@@ -74,23 +74,19 @@ user_Router.post("/addCart",userAuth,cartController.addToCart)
 user_Router.delete("/removeitem",userAuth, cartController.removeFromCart);
 user_Router.put("/cart/update-quantity", userAuth, cartController.updateQuantity);
 
-// checkout
+// checkout and order routes
 user_Router.get('/checkout', userAuth, checkoutController.loadCheckout);
-user_Router.post('/checkout/place-order', userAuth, checkoutController.placeOrder);
-//oder management
+user_Router.post('/place-order', userAuth, checkoutController.placeOrder);
+user_Router.get('/order-success', userAuth, checkoutController.getOrderSuccess);
 user_Router.get('/orders', userAuth, checkoutController.getOrderHistory);
 user_Router.get('/order/:orderId', userAuth, checkoutController.getOrderDetails);
-user_Router.get('/order-success/:orderId', userAuth, checkoutController.getOrderSuccess);
 user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancelOrder);
 
-
-//wishlist management
+// wishlist management
 
 user_Router.get("/wishlist",userAuth,wishlistController.getWishlist)
 user_Router.post("/addWishlist",userAuth,wishlistController.addToWishlist)
 user_Router.get("/removeitem",userAuth, wishlistController.removeFromWishlist);
-
-
 
 // Wallet routes
 user_Router.get('/wallet', userAuth, walletController.getWallet);
@@ -99,4 +95,8 @@ user_Router.post("/add-money",userAuth,walletController.addMoney)
 user_Router.post('/apply-coupon', userAuth, checkoutController.applyCoupon);
 user_Router.post('/remove-coupon', userAuth, checkoutController.removeCoupon);
 
-module.exports=user_Router
+// Razorpay routes
+user_Router.post('/create-razorpay-order', userAuth, checkoutController.createRazorpayOrder);
+user_Router.post('/verify-payment', userAuth, checkoutController.verifyPayment);
+
+module.exports = user_Router;

@@ -5,13 +5,36 @@ const walletController = {
     getWallet: async (req, res) => {
         try {
             const user = req.session.user;
+            const page = parseInt(req.query.page) || 1;
+            const limit = 6; 
+            
             let wallet = await Wallet.findOne({ userId: user });
 
             if (!wallet) {
                 wallet = await new Wallet({ userId: user, balance: 0, transactions: [] }).save();
             }
 
-            res.render('wallet', { wallet, user });
+            
+            const reversedTransactions = [...wallet.transactions].reverse();
+
+            // Calculate pagination
+            const totalTransactions = reversedTransactions.length;
+            const totalPages = Math.ceil(totalTransactions / limit);
+            const startIndex = (page - 1) * limit;
+            const endIndex = startIndex + limit;
+
+            // Get paginated transactions (already in reverse order)
+            const paginatedTransactions = reversedTransactions.slice(startIndex, endIndex);
+
+            res.render('wallet', { 
+                wallet, 
+                user,
+                transactions: paginatedTransactions,
+                currentPage: page,
+                totalPages,
+                hasNextPage: endIndex < totalTransactions,
+                hasPrevPage: page > 1
+            });
         } catch (error) {
             console.error('Error fetching wallet:', error);
             res.render('pageNotFound');

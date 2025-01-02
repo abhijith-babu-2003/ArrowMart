@@ -5,6 +5,10 @@ const Product = require("../../models/ProductSchema.js");
 const Address = require("../../models/addressSchema.js");
 const Coupon = require("../../models/couponSchema.js");
 const Wallet = require("../../models/walletSchema.js");
+const User = require("../../models/userSchema.js");
+const razorpay = require('../../config/razorpay.js');
+
+const crypto = require('crypto');
 
 const loadCheckout = async (req, res) => {
     try {
@@ -15,6 +19,7 @@ const loadCheckout = async (req, res) => {
 
         const addresses = await Address.findOne({ userId });
         const wallet = await Wallet.findOne({ userId });
+        const user = await User.findById(userId);
 
         if (!cart || cart.items.length === 0) {
             req.session.warning = "Your cart is empty";
@@ -51,21 +56,23 @@ const loadCheckout = async (req, res) => {
         res.render('checkout', { 
             cart: cartData,
             addresses: addresses ? addresses.address : [],
-            wallet: wallet,
-            user: req.session.user,
-            title: 'Checkout'
+            wallet,
+            user,
+            razorpayKey: process.env.RAZORPAY_KEY_ID
         });
     } catch (error) {
         console.error('Error in loadCheckout:', error);
-        req.session.error = "Failed to load checkout page";
-        res.redirect('/cart');
+        res.status(500).json({ 
+            success: false, 
+            message: "Failed to load checkout page" 
+        });
     }
 };
 
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { addressId, paymentMethod } = req.body;
+        const { addressId, paymentMethod, razorpayOrderId } = req.body;
         
         // Find address
         const addressDoc = await Address.findOne({ userId });
@@ -99,7 +106,7 @@ const placeOrder = async (req, res) => {
         let subtotal = 0;
         const orderItems = [];
         
-        // Iterate each item in cart
+        // Validate products and calculate total
         for (const item of cart.items) {
             const product = await Product.findById(item.productId._id);
             
@@ -150,7 +157,7 @@ const placeOrder = async (req, res) => {
                         transactions: {
                             type: 'debit',
                             amount: total,
-                            description: `Order payment for purchase`
+                            description: `Order payment`
                         }
                     }
                 }
@@ -168,8 +175,13 @@ const placeOrder = async (req, res) => {
             couponApplied: cart.couponApplied,
             shippingAddress: selectedAddress,
             paymentMethod: paymentMethod,
-            paymentStatus: paymentMethod === 'WALLET' ? 'Paid' : (paymentMethod === 'COD' ? 'Pending' : 'Paid'),
-            status: 'Pending'
+            paymentStatus: paymentMethod === 'WALLET' ? 'Paid' : 
+                         (paymentMethod === 'COD' ? 'Pending' : 
+                         (paymentMethod === 'RAZORPAY' ? 'Paid' : 'Pending')),
+            status: 'Pending',
+            paymentDetails: paymentMethod === 'RAZORPAY' ? {
+                orderId: razorpayOrderId
+            } : undefined
         });
 
         await order.save();
@@ -177,7 +189,7 @@ const placeOrder = async (req, res) => {
         // Update wallet transaction with order ID if it was wallet payment
         if (paymentMethod === 'WALLET') {
             await Wallet.findOneAndUpdate(
-                { userId, 'transactions.description': 'Order payment for purchase' },
+                { userId, 'transactions.description': 'Order payment' },
                 {
                     $set: {
                         'transactions.$.description': `Order payment - Order ID: ${order._id}`
@@ -285,7 +297,6 @@ const cancelOrder = async (req, res) => {
                 );
             }
         }
-
         res.status(200).json({
             success: true,
             message: "Order cancelled successfully" + (order.paymentMethod === 'WALLET' ? ". Amount refunded to wallet." : "")
@@ -302,24 +313,20 @@ const cancelOrder = async (req, res) => {
 
 const getOrderSuccess = async (req, res) => {
     try {
-        const orderId = req.params.orderId;
+        const orderId = req.query.orderId;
         const order = await Order.findById(orderId)
-            .populate('orderedItems.product')
-            .populate('userId');
-        
+            .populate('orderedItems.product');
+
         if (!order) {
-            req.session.error = "Order not found";
-            return res.redirect('/orders');
+            return res.status(404).redirect('/orders');
         }
 
         res.render('order-success', {
             order,
-            user: req.session.user,
-            title: 'Order Success'
+            message: 'Order placed successfully!'
         });
     } catch (error) {
         console.error('Error in getOrderSuccess:', error);
-        req.session.error = "Failed to load order success page";
         res.redirect('/orders');
     }
 };
@@ -505,6 +512,99 @@ const removeCoupon = async (req, res) => {
     }
 };
 
+const createRazorpayOrder = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { addressId } = req.body;
+
+        const cart = await Cart.findOne({ userId })
+            .populate('items.productId')
+            .populate('couponApplied');
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cart is empty" 
+            });
+        }
+
+        let subtotal = 0;
+        cart.items.forEach(item => {
+            const price = item.productId.salePrice || item.productId.regularPrice;
+            subtotal += price * item.quantity;
+        });
+
+        const tax = subtotal * 0.05;
+        const discountAmount = cart.discountAmount || 0;
+        const total = Math.round((subtotal + tax - discountAmount) * 100); // Convert to paise
+
+        const options = {
+            amount: total,
+            currency: "INR",
+            receipt: `order_${Date.now()}`
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        res.status(200).json({
+            success: true,
+            order
+        });
+    } catch (error) {
+        console.error('Error creating Razorpay order:', error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to create payment order"
+        });
+    }
+};
+
+const verifyPayment = async (req, res) => {
+    try {
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
+
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(sign.toString())
+            .digest("hex");
+
+        if (razorpay_signature !== expectedSign) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid payment verification"
+            });
+        }
+
+        // Update the order status
+        await Order.findOneAndUpdate(
+            { "paymentDetails.orderId": razorpay_order_id },
+            {
+                $set: {
+                    "paymentStatus": "Paid",
+                    "paymentDetails.paymentId": razorpay_payment_id,
+                    "paymentDetails.signature": razorpay_signature
+                }
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Payment verified successfully"
+        });
+    } catch (error) {
+        console.error('Error verifying payment:', error);
+        res.status(500).json({
+            success: false,
+            message: "Payment verification failed"
+        });
+    }
+};
+
 module.exports = {
     loadCheckout,
     placeOrder,
@@ -513,5 +613,7 @@ module.exports = {
     getOrderHistory,
     getOrderDetails,
     applyCoupon,
-    removeCoupon
+    removeCoupon,
+    createRazorpayOrder,
+    verifyPayment
 };

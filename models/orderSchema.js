@@ -50,13 +50,18 @@ const orderSchema=new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['COD', 'Online', 'WALLET'],
+        enum: ['COD', 'WALLET', 'RAZORPAY', 'Online'],
         required: true
     },
     paymentStatus: {
         type: String,
         enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
         default: 'Pending'
+    },
+    paymentDetails: {
+        orderId: String,
+        paymentId: String,
+        signature: String
     },
     status:{
         type:String,

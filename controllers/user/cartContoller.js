@@ -1,6 +1,6 @@
-const Cart = require("../../models/cartSchema");
-const User = require("../../models/userSchema");
-const Product = require("../../models/ProductSchema");
+const Cart = require("../../models/cartSchema.js");
+const User = require("../../models/userSchema.js");
+const Product = require("../../models/ProductSchema.js");
 
 const getCart = async (req, res) => {
   try {
