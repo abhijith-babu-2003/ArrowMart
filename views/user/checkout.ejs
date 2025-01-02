@@ -399,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    //remove coupon
     if (removeCouponBtn) {
         removeCouponBtn.addEventListener('click', async function() {
             try {
@@ -442,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
+   //message for coupon
     function showCouponMessage(message, className) {
         couponMessage.textContent = message;
         couponMessage.className = 'small ' + className;
@@ -494,8 +495,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const placeOrderBtn = document.getElementById('placeOrderBtn');
     const walletRadio = document.getElementById('wallet');
-    const cartTotal = <%= cart.finalAmount || cart.total  %>
-    const walletBalance = <%= typeof wallet !== 'undefined' && wallet ? wallet.balance : 0 %>;
+    const cartTotal = '<%= cart.finalAmount || cart.total  %>'
+    const walletBalance = "<%= typeof wallet !== 'undefined' && wallet ? wallet.balance : 0 %>"
 
     // Add event listener to wallet radio button
     if (walletRadio) {
@@ -539,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Disable button and show loading state
+            
             placeOrderBtn.disabled = true;
             placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 

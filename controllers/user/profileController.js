@@ -143,9 +143,8 @@ const newPassword=async(req,res)=>{
             { $set: { password: passwordHash } }
           );
          
-          req.session.message = "Password successfully changed";
-         res.redirect('/login',{message:"Password successfully changed"});
-
+        req.session.message = "Password successfully changed";
+         res.redirect('/login');
         }else{
             req.session.message = "Error updating password. Please try again.";
             res.redirect("/resetPassword",{message});

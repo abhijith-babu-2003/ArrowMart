@@ -70,7 +70,6 @@ const addToCart = async (req, res) => {
 
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity;
-
       if (newQuantity > 5) {
         return res.status(400).json({
           success: false,

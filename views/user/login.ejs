@@ -209,16 +209,6 @@
                         body: JSON.stringify({ email, password }),
                     });
 
-                    // console.log('response from fetch',response)
-                    //         result = await response.json(); 
-
-                    // // Safely handle different response types
-                    // const contentType = response.headers.get('content-type');
-                    // if (contentType && contentType.includes('application/json')) {
-                    //     console.log('first rewsult',result)
-                    // } else {
-                    //     result = { message: await response.text() }; 
-                    // }
                     const result=await response.json()
 
                     if (response.ok) {
