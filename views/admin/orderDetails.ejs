@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="text-end mt-4">
-                        <% if (!['Delivered', 'Cancelled'].includes(order.status)) { %>
+                        <% if (!['Delivered', 'Cancelled','Returned'].includes(order.status)) { %>
                             <button class="btn btn-danger cancel-order" data-order-id="<%= order._id %>">
                                 Cancel Order
                             </button>

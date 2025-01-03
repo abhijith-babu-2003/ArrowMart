@@ -60,7 +60,7 @@
                                                 </a>
 
 
-                                                <% if (!['Delivered', 'Cancelled' ].includes(order.status)) { %>
+                                                <% if (!['Delivered', 'Cancelled','Returned' ].includes(order.status)) { %>
                                                     <button class="btn btn-danger btn-sm cancel-order"
                                                         data-order-id="<%= order._id %>">
                                                         <i class="fas fa-times"></i> Cancel

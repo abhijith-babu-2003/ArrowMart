@@ -6,6 +6,7 @@ const categoryController=require("../controllers/admin/categoryController")
 const productController=require('../controllers/admin/productController')
 const orderController=require("../controllers/admin/orderController")
 const couponController=require("../controllers/admin/couponController")
+const salesReportController = require("../controllers/admin/salesReportController")
 
 const {userAuth,adminAuth}=require("../middileware/auth")
 const upload =require('../config/multer')
@@ -58,5 +59,11 @@ admin_Router.post("/createCoupon",adminAuth,couponController.createCoupon)
 admin_Router.get("/editCoupon", adminAuth, couponController.getEditCoupon);
 admin_Router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
 admin_Router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
+
+// Sales Report Routes
+
+admin_Router.get("/sales-report/data", adminAuth, salesReportController.getSalesReport)
+admin_Router.get("/sales-report/pdf", adminAuth, salesReportController.downloadPDF)
+admin_Router.get("/sales-report/excel", adminAuth, salesReportController.downloadExcel)
 
 module.exports =admin_Router
