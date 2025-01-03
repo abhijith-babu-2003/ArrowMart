@@ -9,6 +9,7 @@ const checkoutController=require("../controllers/user/checkoutController")
 const wishlistController=require("../controllers/user/wishlistController")
 const walletController = require('../controllers/user/walletController');
 
+
 const passport = require("passport");
 
 
@@ -81,6 +82,9 @@ user_Router.get('/order-success', userAuth, checkoutController.getOrderSuccess);
 user_Router.get('/orders', userAuth, checkoutController.getOrderHistory);
 user_Router.get('/order/:orderId', userAuth, checkoutController.getOrderDetails);
 user_Router.delete('/order/cancel/:orderId', userAuth, checkoutController.cancelOrder);
+
+// Order return
+user_Router.post('/order/return', userAuth, checkoutController.submitReturnRequest);
 
 // wishlist management
 

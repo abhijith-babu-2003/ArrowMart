@@ -122,9 +122,47 @@ const getOrderDetails = async (req, res) => {
     }
 };
 
+
+const processReturnRequest=async(req,res)=>{
+    try {
+        const { orderId, action } = req.params;
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        //  pending return request
+        if (!order.returnRequest || order.returnRequest.status !== 'Pending') {
+            return res.status(400).json({ message: 'No pending return request found' });
+        }
+
+        // Update return request status
+        order.returnRequest.status = action === 'approve' ? 'Approved' : 'Rejected';
+        order.returnRequest.processedDate = new Date();
+
+        // If approved, update order status to Returned
+        if (action === 'approve') {
+            order.status = 'Returned';
+        }
+
+        await order.save();
+
+        res.status(200).json({ 
+            message: `Return request ${action}ed successfully`,
+            order: order
+        });
+    } catch (error) {
+        console.error('Error in processReturnRequest:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     listOrders,
     updateOrderStatus,
     cancelOrder,
-    getOrderDetails
+    getOrderDetails,
+    processReturnRequest
 };

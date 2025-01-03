@@ -6,9 +6,9 @@ const categoryController=require("../controllers/admin/categoryController")
 const productController=require('../controllers/admin/productController')
 const orderController=require("../controllers/admin/orderController")
 const couponController=require("../controllers/admin/couponController")
+
 const {userAuth,adminAuth}=require("../middileware/auth")
 const upload =require('../config/multer')
-
 
 //login management
 admin_Router.get("/",adminController.loadLogin )
@@ -48,6 +48,9 @@ admin_Router.get("/orders",adminAuth,orderController.listOrders)
 admin_Router.post('/orders/status', adminAuth, orderController.updateOrderStatus);
 admin_Router.delete("/order/cancel/:orderId", adminAuth, orderController.cancelOrder);
 admin_Router.get('/orders/:orderId',adminAuth, orderController.getOrderDetails);
+
+// Return request processing routes
+admin_Router.post('/orders/:orderId/return/:action', adminAuth, orderController.processReturnRequest);
 
 //coupon management
 admin_Router.get("/coupon",adminAuth,couponController.getCoupon)

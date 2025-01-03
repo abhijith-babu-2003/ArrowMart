@@ -605,6 +605,47 @@ const verifyPayment = async (req, res) => {
     }
 };
 
+
+const  submitReturnRequest=async(req,res)=>{
+    try {
+        const { orderId, reason, details } = req.body;
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+      
+        if (order.status !== 'Delivered') {
+            return res.status(400).json({ message: 'Only delivered orders can be returned' });
+        }
+
+        if (order.status === 'Cancelled') {
+            return res.status(400).json({ message: 'Cancelled orders cannot be returned' });
+        }
+
+        //  return request already exists
+        if (order.returnRequest && order.returnRequest.status !== 'None') {
+            return res.status(400).json({ message: 'Return request already exists for this order' });
+        }
+
+        // Update order with return request
+        order.returnRequest = {
+            status: 'Pending',
+            reason: `${reason}: ${details}`,
+            requestDate: new Date()
+        };
+
+        await order.save();
+
+        res.status(200).json({ message: 'Return request submitted successfully' });
+    } catch (error) {
+        console.error('Error in submitReturnRequest:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     loadCheckout,
     placeOrder,
@@ -615,5 +656,6 @@ module.exports = {
     applyCoupon,
     removeCoupon,
     createRazorpayOrder,
-    verifyPayment
+    verifyPayment,
+    submitReturnRequest
 };
