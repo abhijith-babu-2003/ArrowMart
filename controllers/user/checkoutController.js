@@ -9,7 +9,7 @@ const User = require("../../models/userSchema.js");
 const razorpay = require("../../config/razorpay.js");
 const crypto = require("crypto");
 
-
+// Load checkout page
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -248,17 +248,87 @@ const cancelOrder = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.session.user;
 
-    // Find and update order status
-    const order = await Order.findOneAndUpdate(
-      { _id: orderId, userId, status: { $nin: ["Delivered", "Cancelled"] } },
-      { $set: { status: "Cancelled" } },
-      { new: true }
-    ).populate("orderedItems.product");
+    // Find the order to cancel
+    const order = await Order.findOne({
+      _id: orderId,
+      userId,
+      status: { $nin: ["Cancelled"] }, // Exclude already cancelled orders
+    }).populate("orderedItems.product");
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found or cannot be cancelled",
+      });
+    }
+
+    if (order.paymentMethod === "COD") {
+      // Update order status to Cancelled
+      order.status = "Cancelled";
+      await order.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Order cancelled successfully.",
+      });
+    } else if (["Wallet", "RAZORPAY"].includes(order.paymentMethod)) {
+      if (order.paymentMethod === "RAZORPAY" && order.paymentDetails.paymentId) {
+        try {
+          const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {
+            amount: order.finalAmount * 100, // Convert to paise
+          });
+
+          if (refund.status !== "processed") {
+            console.error("Razorpay refund failed:", refund);
+          }
+        } catch (error) {
+          console.error("Error processing Razorpay refund:", error);
+        }
+      }
+
+      // Refund to wallet
+      const wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+        const newWallet = new Wallet({
+          userId,
+          balance: order.finalAmount,
+          transactions: [
+            {
+              type: "credit",
+              amount: order.finalAmount,
+              description: `Refund for cancelled order - Order ID: ${order._id}`,
+            },
+          ],
+        });
+        await newWallet.save();
+      } else {
+        await Wallet.findOneAndUpdate(
+          { userId },
+          {
+            $inc: { balance: order.finalAmount },
+            $push: {
+              transactions: {
+                type: "credit",
+                amount: order.finalAmount,
+                description: `Refund for cancelled order - Order ID: ${order._id}`,
+              },
+            },
+          }
+        );
+      }
+    }
+
+    // Update order status
+    const updatedOrder = await Order.findByIdAndUpdate(
+      { _id: orderId },
+      { status: "Cancelled" },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to cancel the order",
       });
     }
 
@@ -269,68 +339,12 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    let razorpayRefundProcessed = false;
-
-    // Handle Razorpay refund
-    if (order.paymentMethod === "RAZORPAY" && order.paymentDetails.paymentId) {
-      try {
-        const refund = await razorpay.payments.refund(
-          order.paymentDetails.paymentId,
-          {
-            amount: order.finalAmount * 100,
-          }
-        );
-
-        if (refund.status === "processed") {
-          razorpayRefundProcessed = true;
-        } else {
-          console.error("Razorpay refund failed:", refund);
-        }
-      } catch (error) {
-        console.error("Error processing Razorpay refund:", error);
-      }
-    }
-
-    // Update refunded amount
-    const wallet = await Wallet.findOne({ userId });
-
-    if (!wallet) {
-      // Create a new wallet
-      const newWallet = new Wallet({
-        userId,
-        balance: order.finalAmount,
-        transactions: [
-          {
-            type: "credit",
-            amount: order.finalAmount,
-            description: `Refund for cancelled order - Order ID: ${order._id}`,
-          },
-        ],
-      });
-      await newWallet.save();
-    } else {
-      // Add refund to existing wallet
-      await Wallet.findOneAndUpdate(
-        { userId },
-        {
-          $inc: { balance: order.finalAmount },
-          $push: {
-            transactions: {
-              type: "credit",
-              amount: order.finalAmount,
-              description: `Refund for cancelled order - Order ID: ${order._id}`,
-            },
-          },
-        }
-      );
-    }
-
     res.status(200).json({
       success: true,
-      message: `Order cancelled successfully. ${
-        razorpayRefundProcessed
-          ? "Amount refunded via Razorpay and wallet."
-          : "Amount refunded to wallet."
+      message: `Order cancelled successfully. Refund ${
+        order.paymentMethod === "COD" && order.status !== "Delivered"
+          ? "not processed (COD non-delivered)."
+          : "processed to wallet."
       }`,
     });
   } catch (error) {
@@ -342,6 +356,7 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+// Load order success page
 const getOrderSuccess = async (req, res) => {
   try {
     const orderId = req.query.orderId;
@@ -365,14 +380,14 @@ const getOrderSuccess = async (req, res) => {
   }
 };
 
+// Load order history page
 const getOrderHistory = async (req, res) => {
   try {
     const userId = req.session.user;
-   
+
     const orders = await Order.find({ userId })
       .populate("orderedItems.product")
       .sort({ createdAt: -1 });
-  
 
     res.render("order-history", {
       orders,
@@ -386,6 +401,7 @@ const getOrderHistory = async (req, res) => {
   }
 };
 
+// Load order details page
 const getOrderDetails = async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -411,6 +427,7 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
+// Apply coupon
 const applyCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -488,6 +505,7 @@ const applyCoupon = async (req, res) => {
   }
 };
 
+// Remove coupon
 const removeCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -544,6 +562,7 @@ const removeCoupon = async (req, res) => {
   }
 };
 
+// List available coupons
 const listAvailableCoupons = async (req, res) => {
   try {
     const coupons = await Coupon.find({
@@ -572,6 +591,7 @@ const listAvailableCoupons = async (req, res) => {
   }
 };
 
+// Create Razorpay order
 const createRazorpayOrder = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -619,6 +639,7 @@ const createRazorpayOrder = async (req, res) => {
   }
 };
 
+// Verify payment
 const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -662,6 +683,7 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+// Submit return request
 const submitReturnRequest = async (req, res) => {
   try {
     const { orderId, reason, details } = req.body;
