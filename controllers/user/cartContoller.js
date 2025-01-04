@@ -83,7 +83,7 @@ const addToCart = async (req, res) => {
           message: "Exceeds available stock.",
         });
       }
-    //prodict exist in cart not present
+    
       existingItem.quantity = newQuantity;
       existingItem.totalPrice = existingItem.quantity * product.salePrice;
     } else {

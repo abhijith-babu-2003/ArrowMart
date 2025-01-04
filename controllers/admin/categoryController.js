@@ -39,8 +39,7 @@ const categoryinfo = async (req, res) => {
 
 const addCategory = async (req, res) => {
 
-  const { name: categoryName, description } = req.body;
-  const image = req.file ? `/${req.file.filename}` : null;
+  const { name: categoryName, description,offer } = req.body;
 
   try {
     const existingCategory = await category.findOne({ categoryName });
@@ -52,7 +51,7 @@ const addCategory = async (req, res) => {
     const newCategory = new category({
       categoryName: categoryName,
       description: description,
-      image,
+      categoryOffer:offer,
 
     });
 
@@ -107,9 +106,9 @@ const editCategory = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { categoryName, description } = req.body;
+    const { categoryName, description,offer } = req.body;
 
-    const existingCategory = await category.findOne({categoryName });
+    const existingCategory = await category.findOne({categoryName,_id: { $ne: id } });
 
     if (existingCategory) {
       return res.status(400).json({ error: 'Category with this name already exists.' });
@@ -117,7 +116,7 @@ const editCategory = async (req, res) => {
 
     const updatedCategory = await category.findByIdAndUpdate(
       id,
-      { categoryName: categoryName, description },
+      { categoryName: categoryName, description ,categoryOffer:offer},
       { new: true, runValidators: true }
     );  
 
