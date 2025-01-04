@@ -247,7 +247,7 @@ const pageNotFound = async (req, res) => {
 
 const loadLogin=async(req,res)=>{
   try {
-    if(!req.session.userId){
+    if(!req.session.user){
       return res.render("login")
     }else{
        res.redirect("/")
@@ -260,6 +260,7 @@ const loadLogin=async(req,res)=>{
 
 const login =async(req,res)=>{
   try {
+    
     const {email,password}=req.body
  
   

@@ -29,10 +29,11 @@ user_Router.get(
 );
 user_Router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    console.log("Authentication Successful, User:", req.user);
-    res.redirect("/");
+    req.session.user = req.user;
+    return res.redirect("/");
+   
   }
 );
 
