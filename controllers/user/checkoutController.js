@@ -252,7 +252,7 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findOne({
       _id: orderId,
       userId,
-      status: { $nin: ["Cancelled"] }, // Exclude already cancelled orders
+      status: { $nin: ["Cancelled"] }, 
     }).populate("orderedItems.product");
 
     if (!order) {
@@ -263,7 +263,6 @@ const cancelOrder = async (req, res) => {
     }
 
     if (order.paymentMethod === "COD") {
-      // Update order status to Cancelled
       order.status = "Cancelled";
       await order.save();
 
@@ -332,7 +331,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // Restore product quantities
+    
     for (const item of order.orderedItems) {
       await Product.findByIdAndUpdate(item.product, {
         $inc: { quantity: item.quantity },
