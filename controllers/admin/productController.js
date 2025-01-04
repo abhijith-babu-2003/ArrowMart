@@ -20,7 +20,7 @@ const getAllProduct = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 24;
+    const limit = 30;
 
     const productData = await Product.find({
       $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
@@ -40,12 +40,12 @@ const getAllProduct = async (req, res) => {
   
 
     const category = await Category.find({isListed:true});
-
+  const totalPages=Math.ceil(count/limit)
     if (category) {
       res.render("products", {
         data: productData,
         currentPage: page,
-        totalPages: Math.ceil(count / limit),
+        totalPages: totalPages,
         cat: category,
         search: search,
       });

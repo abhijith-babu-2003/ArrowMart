@@ -345,7 +345,8 @@ const cancelOrder = async (req, res) => {
 const getOrderSuccess = async (req, res) => {
   try {
     const orderId = req.query.orderId;
-    const order = await Order.findById(orderId).populate(
+    const userId = req.session.user;
+    const order = await Order.findById({_id: orderId, userId }).populate(
       "orderedItems.product"
     );
 
@@ -355,6 +356,7 @@ const getOrderSuccess = async (req, res) => {
 
     res.render("order-success", {
       order,
+      user: req.session.user,
       message: "Order placed successfully!",
     });
   } catch (error) {
@@ -366,9 +368,11 @@ const getOrderSuccess = async (req, res) => {
 const getOrderHistory = async (req, res) => {
   try {
     const userId = req.session.user;
+   
     const orders = await Order.find({ userId })
       .populate("orderedItems.product")
       .sort({ createdAt: -1 });
+  
 
     res.render("order-history", {
       orders,

@@ -1,12 +1,12 @@
 const Cart = require("../../models/cartSchema.js");
 const User = require("../../models/userSchema.js");
 const Product = require("../../models/ProductSchema.js");
+const { default: mongoose } = require("mongoose");
 
 const getCart = async (req, res) => {
   try {
     const user = req.session.user; 
-   
-    const cart = await Cart.findOne({ user: user._id }).populate(
+    const cart = await Cart.findOne({ userId:  user  }).populate(
       "items.productId",
       "productName productImage salePrice"
     );
@@ -16,8 +16,7 @@ const getCart = async (req, res) => {
         cart: { items: [] },
       });
     }
-
-    res.render("cart", { cart ,user:user});
+    res.render("cart", { cart , user});
   } catch (error) {
     console.error("Get cart error:", error);
     res.status(500).json({
@@ -33,14 +32,14 @@ const addToCart = async (req, res) => {
     const { productId, quantity = 1 } = req.body;
     const user = req.session.user;
 
-
+  
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "User not logged in. Please log in to add items to the cart.",
       });
     }
-
+    
     const product = await Product.findById(productId);
   
     
@@ -63,6 +62,8 @@ const addToCart = async (req, res) => {
     if (!cart) {
       cart = new Cart({ userId: user, items: [] });
     }
+   
+    
 
     const existingItem = cart.items.find(
       (item) => item.productId.toString() === productId
@@ -119,8 +120,8 @@ const removeFromCart = async (req, res) => {
       return res.status(400).json({ success: false, message: "Product ID is required" });
     }
 
-    const userId = req.session.user._id;
-    const cart = await Cart.findOne({ user: userId });
+    const user = req.session.user;
+    const cart = await Cart.findOne({ userId: user });
 
     if (!cart) {
       return res.status(404).json({ success: false, message: "Cart not found" });
