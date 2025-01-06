@@ -383,14 +383,26 @@ const getOrderHistory = async (req, res) => {
   try {
     const userId = req.session.user;
 
+    const page=parseInt(req.query.page)|| 1
+    const limit=7
+    const skip=(page-1)*limit
+
+    const totalOrder=await Order.countDocuments({userId})
+
     const orders = await Order.find({ userId })
       .populate("orderedItems.product")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+      const totalPages=Math.ceil(totalOrder/limit)
 
     res.render("order-history", {
       orders,
       user: req.session.user,
       title: "Order History",
+      currentPage:page,
+      totalPages
     });
   } catch (error) {
     console.error("Error in getOrderHistory:", error);

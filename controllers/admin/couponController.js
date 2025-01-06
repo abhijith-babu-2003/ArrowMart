@@ -3,8 +3,19 @@ const mongoose = require("mongoose");
 
 const getCoupon = async (req, res) => {
   try {
-    const findCoupons = await Coupon.find({});
-    return res.render("coupon", { coupons: findCoupons });
+
+    const page=parseInt(req.query.page) || 1;
+    const limit=3
+    const skip=(page-1)*limit
+
+    const totalCoupons=await Coupon.countDocuments()
+
+   const totalPages=Math.ceil(totalCoupons/limit)
+  
+    const findCoupons = await Coupon.find({}).skip(skip).limit(limit).sort({createdOn:-1});
+
+
+    return res.render("coupon", { coupons: findCoupons,currentPage:page,totalPages });
   } catch (error) {
     console.error("Error fetching coupons:", error);
     return res.redirect("/pageError");

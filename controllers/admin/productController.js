@@ -18,13 +18,10 @@ const getaddProducts = async (req, res) => {
 //get all products
 const getAllProduct = async (req, res) => {
   try {
-    const search = req.query.search || "";
-    const page = parseInt(req.query.page) || 1;
-    const limit = 30;
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 7; 
 
-    const productData = await Product.find({
-      $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
-    })
+    const productData = await Product.find({})
       .limit(limit)
       .skip((page - 1) * limit)
       .populate({
@@ -33,21 +30,20 @@ const getAllProduct = async (req, res) => {
       })
       .exec();
 
-      const count = await Product.countDocuments({
-        $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
-        "category.isListed": true,
-      })
-  
+   
+    const count = await Product.countDocuments({});
 
-    const category = await Category.find({isListed:true});
-  const totalPages=Math.ceil(count/limit)
+ 
+    const category = await Category.find({ isListed: true });
+
+    const totalPages = Math.ceil(count / limit); 
+
     if (category) {
       res.render("products", {
         data: productData,
         currentPage: page,
         totalPages: totalPages,
         cat: category,
-        search: search,
       });
     } else {
       res.render("pageError", { message: "Category data not found." });
@@ -57,6 +53,7 @@ const getAllProduct = async (req, res) => {
     res.render("pageError", { message: "Failed to load products." });
   }
 };
+
 //products adding
 const addProducts = async (req, res) => {
   try {

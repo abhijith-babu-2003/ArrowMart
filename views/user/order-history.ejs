@@ -1,6 +1,6 @@
 <%- include("../../views/partials/user/header") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<div class="container py-5">
+<<div class="container py-5">
     <div class="row">
         <div class="col-12">
             <div class="custom-card p-4">
@@ -42,57 +42,10 @@
                                             <a href="/order/<%= order._id %>" class="btn btn-sm btn-info">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            <% if (!['Delivered', 'Cancelled','Returned','Approved'].includes(order.status)) { %>
+                                            <% if (!['Delivered', 'Cancelled', 'Returned', 'Approved'].includes(order.status)) { %>
                                                 <button class="btn btn-sm btn-danger cancel-order" data-order-id="<%= order._id %>">
                                                     <i class="fas fa-times"></i> Cancel
                                                 </button>
-                                            <% } %>
-                                            <% if (order.status === 'Delivered' && (!order.returnRequest || order.returnRequest.status === 'None')) { %>
-                                                <button class="btn btn-sm btn-warning return-order" data-order-id="<%= order._id %>" data-bs-toggle="modal" data-bs-target="#returnModal<%= order._id %>">
-                                                    <i class="fas fa-undo"></i> Return
-                                                </button>
-                                                <!-- Return Modal -->
-                                                <div class="modal fade" id="returnModal<%= order._id %>" tabindex="-1" aria-labelledby="returnModalLabel<%= order._id %>" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="returnModalLabel<%= order._id %>">Return Order #<%= order.orderId %></h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <form id="returnForm<%= order._id %>">
-                                                                    <div class="mb-3">
-                                                                        <label for="returnReason<%= order._id %>" class="form-label">Reason for Return</label>
-                                                                        <select class="form-select" id="returnReason<%= order._id %>" required>
-                                                                            <option value="">Select a reason</option>
-                                                                            <option value="Damaged Product">Damaged Product</option>
-                                                                            <option value="Wrong Product">Wrong Product</option>
-                                                                            <option value="Not as Described">Not as Described</option>
-                                                                            <option value="Other">Other</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <div class="mb-3">
-                                                                        <label for="returnDetails<%= order._id %>" class="form-label">Additional Details</label>
-                                                                        <textarea class="form-control" id="returnDetails<%= order._id %>" rows="3" required></textarea>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                                <button type="button" class="btn btn-primary submit-return" data-order-id="<%= order._id %>">Submit Return Request</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <% } %>
-                                            <% if (order.returnRequest && order.returnRequest.status !== 'None') { %>
-                                                <% if (order.returnRequest.status === 'Pending') { %>
-                                                    <span class="badge bg-warning">Return Pending</span>
-                                                <% } else if (order.returnRequest.status === 'Approved') { %>
-                                                    <span class="badge bg-success">Return Approved</span>
-                                                <% } else if (order.returnRequest.status === 'Rejected') { %>
-                                                    <span class="badge bg-danger">Return Rejected</span>
-                                                <% } %>
                                             <% } %>
                                         </td>
                                     </tr>
@@ -100,6 +53,31 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    <!-- Pagination -->
+                    <nav aria-label="Order history pagination">
+                        <ul class="pagination justify-content-center">
+                            <% if (currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            <% } %>
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
                 <% } else { %>
                     <div class="text-center py-5">
                         <i class="fas fa-shopping-bag fa-3x mb-3 text-muted"></i>
@@ -114,6 +92,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
 .custom-card {

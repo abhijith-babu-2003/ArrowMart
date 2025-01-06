@@ -4,17 +4,35 @@ const Product = require("../../models/ProductSchema");
 // List all orders
 const listOrders = async (req, res) => {
   try {
+    
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 10; 
+    const skip = (page - 1) * limit;
+
+
+    const totalOrders = await Order.countDocuments();
+
+   
     const orders = await Order.find()
       .populate("userId", "name email phone")
       .populate("orderedItems.product", "productName productImage price")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.render("orders", { orders });
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render("orders", {
+      orders,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
     console.error("Error in listOrders:", error);
     res.redirect("/admin/dashboard");
   }
 };
+
 
 // Update order status
 const updateOrderStatus = async (req, res) => {

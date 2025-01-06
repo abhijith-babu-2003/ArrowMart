@@ -242,7 +242,7 @@
               </body>
             </form>
           </div>
-          <div class="col-md-7 ml-105">
+          <<div class="col-md-7 ml-105">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -258,32 +258,56 @@
                     </thead>
                     <tbody>
                         <% if (coupons && coupons.length > 0) { %>
-                            <% for (let i = 0; i < coupons.length; i++) { %>
+                            <% coupons.forEach(coupon => { %>
                                 <tr>
-                                    <td class="text-start"><%= coupons[i].name %></td>
-                                    <td class="text-start"><%= new Date(coupons[i].createdOn).toLocaleDateString('en-IN') %></td>
-                                    <td class="text-start"><%= new Date(coupons[i].expireOn).toLocaleDateString('en-IN') %></td>
-                                    <td class="text-start"><%= coupons[i].offerPrice %></td>
-                                    <td class="text-start"><%= coupons[i].minimumPrice %></td>
-                                    <td class="text-start"><%= coupons[i].isList || 'N/A' %></td>
+                                    <td class="text-start"><%= coupon.name %></td>
+                                    <td class="text-start"><%= new Date(coupon.createdOn).toLocaleDateString('en-IN') %></td>
+                                    <td class="text-start"><%= new Date(coupon.expireOn).toLocaleDateString('en-IN') %></td>
+                                    <td class="text-start"><%= coupon.offerPrice %></td>
+                                    <td class="text-start"><%= coupon.minimumPrice %></td>
+                                    <td class="text-start"><%= coupon.isList || 'N/A' %></td>
                                     <td class="text-start">
-                                        <a href="/admin/editCoupon?id=<%=coupons[i]._id%>" class="btn btn-primary btn-sm">Edit</a>
-
-                                        <button onclick="confirmDelete('<%=coupons[i]._id %>')" 
+                                        <a href="/admin/editCoupon?id=<%= coupon._id %>" class="btn btn-primary btn-sm">Edit</a>
+                                        <button onclick="confirmDelete('<%= coupon._id %>')" 
                                            class="btn btn-danger btn-sm">Delete</button>
                                     </td>
                                 </tr>
-                            <% } %>
+                            <% }); %>
                         <% } else { %>
                             <tr>
                                 <td colspan="7" class="text-center">No coupons available.</td>
                             </tr>
                         <% } %>
                     </tbody>
-                    
                 </table>
             </div>
+        
+            <!-- Pagination Controls -->
+            <nav aria-label="Coupon pagination">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
         </div>
+        
         </div>
       </div>
     </div>
