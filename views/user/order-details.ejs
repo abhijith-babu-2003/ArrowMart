@@ -62,8 +62,12 @@
                                     <td>₹<%= order.totalPrice %></td>
                                 </tr>
                                 <tr>
+                                    <td colspan="4" class="text-end"><strong>CouponOffer:</strong></td>
+                                    <td>₹<%= (order.discountAmount).toFixed(2) %></td>
+                                </tr>
+                                <tr>
                                     <td colspan="4" class="text-end"><strong>Tax (5%):</strong></td>
-                                    <td>₹<%= (order.finalAmount - order.totalPrice).toFixed(2) %></td>
+                                    <td>₹<%= (order.tax).toFixed(2) %></td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Total:</strong></td>

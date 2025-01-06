@@ -105,7 +105,7 @@ const placeOrder = async (req, res) => {
         success: false,
         message: "Cart is empty",
       });
-    }
+    }  
 
     let subtotal = 0;
     const orderItems = [];
@@ -260,8 +260,7 @@ const cancelOrder = async (req, res) => {
         success: false,
         message: "Order not found or cannot be cancelled",
       });
-    }
-
+    } 
     if (order.paymentMethod === "COD") {
       order.status = "Cancelled";
       await order.save();
@@ -274,7 +273,7 @@ const cancelOrder = async (req, res) => {
       if (order.paymentMethod === "RAZORPAY" && order.paymentDetails.paymentId) {
         try {
           const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {
-            amount: order.finalAmount * 100, // Convert to paise
+            amount: order.finalAmount * 100, 
           });
 
           if (refund.status !== "processed") {

@@ -215,7 +215,8 @@ const changePassword = async (req, res) => {
         if (!isMatchCurrent) {
             return res.status(400).json({ success: false, message: "Current password is incorrect" });
         }
-
+  
+   
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
 

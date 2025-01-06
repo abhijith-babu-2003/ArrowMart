@@ -10,10 +10,7 @@ const moment = require('moment');
 const getSalesReport = async (req, res) => {
     try {
         const data = await getReportData(req.query);
-        res.json({
-            success: true,
-            data
-        });
+        res.json({ success: true, data});
     } catch (error) {
         console.error('Error generating sales report:', error);
         res.status(500).json({
@@ -23,28 +20,28 @@ const getSalesReport = async (req, res) => {
     }
 };
 
-// Generate and download PDF report
+// Generate and download PDF 
 const downloadPDF = async (req, res) => {
     try {
         const { orders, summary } = await getReportData(req.query);
         const doc = new PDFDocument();
 
-        // Set response headers
+       
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
 
         doc.pipe(res);
 
-        // Add header
+     
         doc.fontSize(20).text('Sales Report', { align: 'center' });
         doc.moveDown();
 
-        // Add report period
+       
         const period = getReportPeriod(req.query);
         doc.fontSize(12).text(`Report Period: ${period}`, { align: 'center' });
         doc.moveDown();
 
-        // Add summary section
+        // Add summary 
         doc.fontSize(16).text('Summary', { underline: true });
         doc.moveDown();
         doc.fontSize(12)
@@ -58,7 +55,7 @@ const downloadPDF = async (req, res) => {
         
         doc.moveDown();
 
-        // Add orders table
+      
         doc.fontSize(16).text('Order Details', { underline: true });
         doc.moveDown();
 
@@ -122,7 +119,7 @@ const downloadPDF = async (req, res) => {
     }
 };
 
-// Generate and download Excel report
+// Generate and download Excel 
 const downloadExcel = async (req, res) => {
     try {
         const { orders, summary } = await getReportData(req.query);

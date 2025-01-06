@@ -259,62 +259,69 @@
     const errorMessages = {
         productName: "Product name is required.",
         description: "Description is required.",
-        regularPrice: "Regular price is required and should be a valid number.",
-        salePrice: "Sale price is required and should be a valid number.",
-        quantity: "Stock quantity is required and should be a valid number.",
+        regularPrice: "Regular price is required and should be a positive number.",
+        salePrice: "Sale price is required and should be a positive number.",
+        quantity: "Stock quantity is required and should be a positive number.",
         color: "Color is required.",
         category: "Category is required.",
         images: "At least one image is required."
     };
 
-   
+    // Clear existing error messages
     document.querySelectorAll(".error-message").forEach((errorElement) => {
         errorElement.textContent = '';
     });
 
-   
+    // Product Name Validation
     const productName = document.getElementById("product_name").value.trim();
     if (!productName) {
         document.getElementById("productName-error").textContent = errorMessages.productName;
         isValid = false;
     }
 
+    // Description Validation
     const description = document.getElementById("descriptionid").value.trim();
     if (!description) {
         document.getElementById("description-error").textContent = errorMessages.description;
         isValid = false;
     }
 
-    const regularPrice = document.querySelector('[name="regularPrice"]').value.trim();
-    if (!regularPrice || isNaN(regularPrice) || regularPrice <= 0) {
+    // Regular Price Validation
+    const regularPrice = Number(document.querySelector('[name="regularPrice"]').value.trim());
+    if (isNaN(regularPrice) || regularPrice <= 0) {
         document.getElementById("regularPrice-error").textContent = errorMessages.regularPrice;
         isValid = false;
     }
 
-    const salePrice = document.querySelector('[name="salePrice"]').value.trim();
-    if (!salePrice || isNaN(salePrice) || salePrice <= 0) {
+    // Sale Price Validation
+    const salePrice = Number(document.querySelector('[name="salePrice"]').value.trim());
+    if (isNaN(salePrice) || salePrice <= 0) {
         document.getElementById("salePrice-error").textContent = errorMessages.salePrice;
         isValid = false;
     }
 
-    const quantity = document.querySelector('[name="quantity"]').value.trim();
-    if (!quantity || isNaN(quantity) || quantity <= 0) {
+    // Quantity Validation
+    const quantity = Number(document.querySelector('[name="quantity"]').value.trim());
+    if (isNaN(quantity) || quantity <= 0) {
         document.getElementById("quantity-error").textContent = errorMessages.quantity;
         isValid = false;
     }
 
+    // Color Validation
     const color = document.querySelector('[name="color"]').value.trim();
     if (!color) {
         document.getElementById("color-error").textContent = errorMessages.color;
         isValid = false;
     }
 
+    // Category Validation
     const category = document.querySelector('[name="category"]').value.trim();
     if (!category) {
         document.getElementById("category-error").textContent = errorMessages.category;
         isValid = false;
     }
 
+    // Image Validation
     const imageInputs = document.querySelectorAll('[name="images"]');
     let imageUploaded = false;
     imageInputs.forEach((input) => {
@@ -326,6 +333,7 @@
         document.getElementById("imageError1").textContent = errorMessages.images;
         isValid = false;
     }
+
 
    
     if (isValid) {

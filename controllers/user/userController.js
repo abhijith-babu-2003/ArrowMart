@@ -328,12 +328,11 @@ const getShopPage=async(req,res)=>{
     const query = {
       isBlocked: false
     };
-
+    
     // Search text
     if (req.query.search) {
       query.$or = [
-        { productName: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } }
+        { productName: { $regex: req.query.search, $options: 'i' } }
       ];
     }
 

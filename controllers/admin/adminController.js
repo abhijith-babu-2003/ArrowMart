@@ -1,6 +1,7 @@
 const User=require("../../models/userSchema")
 const mongoose=require("mongoose")
-const bcrypt=require("bcrypt")
+const bcrypt=require("bcrypt");
+const status_codes = require("../../config/httpStatus");
 
 
 
@@ -25,7 +26,7 @@ const login =async (req,res)=>{
       const admin=await User.findOne({email, isAdmin:true})
       if(!admin){
 
-         return res.render("adminLogin",{message:"admin not found"})
+         return res.status(status_codes.SUCCESS).render("adminLogin",{message:"admin not found"})
       }
       const passwordMatch = await bcrypt.compare(password, admin.password);
       
