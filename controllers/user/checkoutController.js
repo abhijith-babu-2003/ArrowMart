@@ -9,6 +9,8 @@ const User = require("../../models/userSchema.js");
 const razorpay = require("../../config/razorpay.js");
 const {generateOrderId}=require("../../utils/orderIdGenerator.js")
 const crypto = require("crypto");
+const { generateOrderId } = require("../../config/generatorOrderId.js")
+
 
 // Load checkout page
 const loadCheckout = async (req, res) => {
@@ -118,7 +120,7 @@ const placeOrder = async (req, res) => {
       if (!product) {
         return res.status(400).json({
           success: false,
-          message: `Product not found: ${item.productId.productName}`,
+          message:` Product not found: ${item.productId.productName}`,
         });
       }
 
@@ -143,7 +145,10 @@ const placeOrder = async (req, res) => {
     const discountAmount = cart.discountAmount || 0;
     const total = subtotal + tax - discountAmount;
 
-    const orderId=generateOrderId()
+    const orderId = generateOrderId()
+  
+    
+    
     // Create order
     const order = new Order({
       orderId,
@@ -195,7 +200,7 @@ const placeOrder = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Order placed successfully",
-      orderId: order._id,
+      orderId: order.orderId
     });
   } catch (error) {
     console.error("Error in placeOrder:", error);
@@ -208,7 +213,6 @@ const placeOrder = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-   
     const orderId = req.params.orderId;
     const userId = req.session.user;
   
@@ -217,21 +221,17 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findOne({
       orderId: orderId,
       userId,
-      status: { $nin: ["Cancelled"] }, 
-    });
+      status: { $nin: ["Cancelled", "Delivered", "Returned"] }
+    }).populate("orderedItems.product");
 
-  
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found or cannot be cancelled",
       });
-    } 
+    }
 
-   
-    await order.populate("orderedItems.product");
-
-    
+    // Handle COD orders
     if (order.paymentMethod === "COD") {
       order.status = "Cancelled";
       await order.save();
@@ -247,15 +247,14 @@ const cancelOrder = async (req, res) => {
         success: true,
         message: "Order cancelled successfully.",
       });
-    } 
-    
+    }
+
     // Handle Razorpay refund and add to wallet
     if (order.paymentMethod === "RAZORPAY") {
-    
       if (order.paymentDetails?.paymentId) {
         try {
           const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {
-            amount: order.finalAmount * 100, 
+            amount: order.finalAmount * 100,
           });
           console.log("Razorpay refund response:", refund);
         } catch (error) {
@@ -308,13 +307,15 @@ const cancelOrder = async (req, res) => {
     console.log("Order cancellation completed successfully");
     res.status(200).json({
       success: true,
-      message: `Order cancelled successfully. Refund amount will be added to your wallet.`
+      message: order.paymentMethod === "RAZORPAY" 
+        ? "Order cancelled successfully. Refund amount will be added to your wallet"
+        : "Order cancelled successfully"
     });
   } catch (error) {
     console.error("Error in cancelOrder:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to cancel order",
+      message: "Failed to cancel order. Please try again later.",
     });
   }
 };
@@ -324,21 +325,23 @@ const getOrderSuccess = async (req, res) => {
   try {
     const orderId = req.query.orderId;
     const userId = req.session.user;
-    const order = await Order.findById({_id: orderId, userId }).populate(
+    const order = await Order.findOne({ orderId: orderId, userId }).populate(
       "orderedItems.product"
     );
 
     if (!order) {
-      return res.status(404).redirect("/orders");
+      req.session.error = "Order not found";
+      return res.redirect("/orders");
     }
 
     res.render("order-success", {
       order,
       user: req.session.user,
-      message: "Order placed successfully!",
+      message: "Order placed successfully!"
     });
   } catch (error) {
     console.error("Error in getOrderSuccess:", error);
+    req.session.error = "Error loading order details";
     res.redirect("/orders");
   }
 };
@@ -665,36 +668,45 @@ const verifyPayment = async (req, res) => {
 const submitReturnRequest = async (req, res) => {
   try {
     const { orderId, reason, details } = req.body;
+    const userId = req.session.user;
 
-    const order = await Order.findOne({ orderId: orderId });
+    // Validate input
+    if (!orderId || !reason || !details) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Find the order
+    const order = await Order.findOne({ orderId: orderId, userId });
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
     if (order.status !== "Delivered") {
-      return res
-        .status(400)
-        .json({ message: "Only delivered orders can be returned" });
+      return res.status(400).json({ message: "Only delivered orders can be returned" });
     }
 
     if (order.status === "Cancelled") {
-      return res
-        .status(400)
-        .json({ message: "Cancelled orders cannot be returned" });
+      return res.status(400).json({ message: "Cancelled orders cannot be returned" });
     }
 
-    //  return  already exists
     if (order.returnRequest && order.returnRequest.status !== "None") {
-      return res
-        .status(400)
-        .json({ message: "Return request already exists for this order" });
+      return res.status(400).json({ message: "Return request already exists for this order" });
+    }
+
+    // Check if within return window (7 days)
+    const deliveryDate = order.updatedAt;
+    const returnWindow = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    if (Date.now() - deliveryDate > returnWindow) {
+      return res.status(400).json({ message: "Return window has expired (7 days from delivery)" });
     }
 
     // Update order with return request
     order.returnRequest = {
       status: "Pending",
-      reason: `${reason}: ${details}`,
-      requestDate: new Date(),
+      reason: reason,
+      details: details,
+      requestDate: new Date()
     };
 
     await order.save();

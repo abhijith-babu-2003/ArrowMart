@@ -39,39 +39,29 @@
                                                 <%= order.status %>
                                             </span>
                                             <% if (order.returnRequest && order.returnRequest.status !== 'None') { %>
-                                                <br>
-                                                <small class="badge <%= 
-                                                    order.returnRequest.status === 'Pending' ? 'bg-warning' : 
+                                                <span class="badge <%= 
+                                                    order.returnRequest.status === 'Pending' ? 'bg-warning text-dark' : 
                                                     order.returnRequest.status === 'Approved' ? 'bg-success' : 
                                                     order.returnRequest.status === 'Rejected' ? 'bg-danger' : 
                                                     'bg-secondary' %>">
                                                     Return <%= order.returnRequest.status %>
-                                                </small>
+                                                </span>
                                             <% } %>
                                         </td>
                                         <td>
                                             <a href="/order/<%= order.orderId %>" class="btn btn-sm btn-info">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            <% if (!['Delivered', 'Cancelled', 'Returned', 'Approved'].includes(order.status)) { %>
+                                            <% if (!['Delivered', 'Cancelled', 'Returned'].includes(order.status)) { %>
                                                 <button class="btn btn-sm btn-danger cancel-order" data-order-id="<%= order.orderId %>">
                                                     <i class="fas fa-times"></i> Cancel
                                                 </button>
                                             <% } %>
-                                            <% 
-                                            if (order.status === 'Delivered' && 
-                                                (!order.returnRequest || order.returnRequest.status === 'None' || order.returnRequest.status === 'Rejected')) {
-                                                const deliveredDate = new Date(order.deliveredAt);
-                                                const currentDate = new Date();
-                                                const daysSinceDelivery = Math.floor((currentDate - deliveredDate) / (1000 * 60 * 60 * 24));
-                                                if (daysSinceDelivery <= 7) { 
-                                            %>
-                                                <button class="btn btn-sm btn-warning return-order" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#returnModal<%= order.orderId %>">
+                                            <% if (order.status === 'Delivered' && order.returnRequest.status === 'None') { %>
+                                                <button class="btn btn-sm btn-warning return-order" data-order-id="<%= order.orderId %>" data-bs-toggle="modal" data-bs-target="#returnModal<%= order.orderId %>">
                                                     <i class="fas fa-undo"></i> Return
                                                 </button>
-
+                                                
                                                 <!-- Return Modal -->
                                                 <div class="modal fade" id="returnModal<%= order.orderId %>" tabindex="-1">
                                                     <div class="modal-dialog">
@@ -86,10 +76,10 @@
                                                                         <label class="form-label">Return Reason</label>
                                                                         <select class="form-select" id="returnReason<%= order.orderId %>" required>
                                                                             <option value="">Select a reason</option>
-                                                                            <option value="Wrong Item">Wrong Item Received</option>
-                                                                            <option value="Defective">Product is Defective</option>
-                                                                            <option value="Not as Described">Product Not as Described</option>
-                                                                            <option value="Size Issue">Size/Fit Issue</option>
+                                                                            <option value="Damaged Product">Damaged Product</option>
+                                                                            <option value="Wrong Product">Wrong Product</option>
+                                                                            <option value="Quality Issue">Quality Issue</option>
+                                                                            <option value="Size/Fit Issue">Size/Fit Issue</option>
                                                                             <option value="Other">Other</option>
                                                                         </select>
                                                                     </div>
@@ -100,15 +90,15 @@
                                                                 </form>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="button" class="btn btn-primary submit-return" data-order="<%= order.orderId %>">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary submit-return" data-order-id="<%= order.orderId %>">
                                                                     Submit Return Request
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            <% } } %>
+                                            <% } %>
                                         </td>
                                     </tr>
                                 <% }); %>
@@ -155,7 +145,6 @@
     </div>
 </div>
 
-
 <style>
 .custom-card {
     background: #ffffff;
@@ -175,6 +164,34 @@
 .badge {
     padding: 0.5em 1em;
     font-weight: 500;
+    margin-right: 0.5em;
+}
+
+.badge.bg-warning {
+    color: #000 !important;
+}
+
+/* Return status badges */
+.badge[class*="return-"] {
+    border-radius: 20px;
+    font-size: 0.85em;
+    padding: 0.4em 1em;
+    margin-left: 0.5em;
+}
+
+.badge.return-pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge.return-approved {
+    background-color: #198754;
+    color: #fff;
+}
+
+.badge.return-rejected {
+    background-color: #dc3545;
+    color: #fff;
 }
 </style>
 
@@ -285,12 +302,12 @@ document.querySelectorAll('.submit-return').forEach(button => {
         const orderId = this.dataset.order;
         const reasonSelect = document.querySelector(`#returnReason${orderId}`);
         const details = document.querySelector(`#returnDetails${orderId}`).value;
-        
-        if (!reasonSelect.value || !details) {
+
+        if (!reasonSelect.value || !details.trim()) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Please fill in all fields'
+                text: 'Please fill in all required fields'
             });
             return;
         }
@@ -314,12 +331,14 @@ document.querySelectorAll('.submit-return').forEach(button => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Return request submitted successfully'
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
                 }).then(() => {
                     window.location.reload();
                 });
             } else {
-                throw new Error(data.message || 'Something went wrong');
+                throw new Error(data.message || 'Failed to submit return request');
             }
         } catch (error) {
             Swal.fire({
