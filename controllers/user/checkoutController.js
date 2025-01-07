@@ -9,8 +9,7 @@ const User = require("../../models/userSchema.js");
 const razorpay = require("../../config/razorpay.js");
 const {generateOrderId}=require("../../utils/orderIdGenerator.js")
 const crypto = require("crypto");
-const { generateOrderId } = require("../../config/generatorOrderId.js")
-
+  
 
 // Load checkout page
 const loadCheckout = async (req, res) => {

@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // Return order functionality
 document.querySelectorAll('.submit-return').forEach(button => {
     button.addEventListener('click', async function() {
-        const orderId = this.dataset.order;
+        const orderId = this.dataset.orderId;  
         const reasonSelect = document.querySelector(`#returnReason${orderId}`);
         const details = document.querySelector(`#returnDetails${orderId}`).value;
 
