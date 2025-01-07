@@ -160,7 +160,7 @@
                     <h3 class="fw-bold mb-4">Payment Method</h3>
                     <div class="payment-methods">
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD" checked>
                             <label class="form-check-label d-flex align-items-center" for="cod">
                                 <i class="fas fa-money-bill-wave me-2"></i>
                                 Cash on Delivery
@@ -168,8 +168,7 @@
                         </div>
 
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay"
-                                value="RAZORPAY">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="RAZORPAY">
                             <label class="form-check-label d-flex align-items-center" for="razorpay">
                                 <i class="fas fa-credit-card me-2"></i>
                                 Pay Online (Credit/Debit Card, UPI, Net Banking)
@@ -177,18 +176,6 @@
                                     class="ms-2">
                             </label>
                         </div>
-
-                        <% if (wallet && wallet.balance> 0) { %>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="wallet"
-                                    value="WALLET">
-                                <label class="form-check-label d-flex align-items-center" for="wallet">
-                                    <i class="fas fa-wallet me-2"></i>
-                                    Wallet Balance
-                                    <span class="badge bg-success ms-2">₹<%= wallet.balance %></span>
-                                </label>
-                            </div>
-                            <% } %>
                     </div>
                 </div>
 
@@ -346,7 +333,6 @@
                     this.classList.add('selected');
                 });
 
-
                 const radio = card.querySelector('input[type="radio"]');
                 if (radio.checked) {
                     card.classList.add('selected');
@@ -413,7 +399,7 @@
                     const response = await fetch('/apply-coupon', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({ couponCode: code })
                     });
@@ -459,7 +445,7 @@
                         const response = await fetch('/remove-coupon', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
                             },
                         });
 
@@ -544,11 +530,7 @@
             }
 
             const placeOrderBtn = document.getElementById('placeOrderBtn');
-            const walletRadio = document.getElementById('wallet');
             const cartTotal = '<%= cart.total %>'
-            const walletBalance = 'np<%= wallet ? wallet.balance : 0 %>'
-
-            // Initialize user details for Razorpay
             const userDetails = {
                 name: '<%= user.name %>',
                 email: '<%= user.email %>',
@@ -557,20 +539,6 @@
 
             // Initialize Razorpay key
             const RAZORPAY_KEY_ID = '<%= razorpayKey %>';
-
-            // Add event listener to wallet radio button
-            if (walletRadio) {
-                walletRadio.addEventListener('change', function () {
-                    if (this.checked && parseFloat(walletBalance) < parseFloat(cartTotal)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Insufficient Balance',
-                            text: `Your wallet balance (₹${walletBalance}) is less than the order total (₹${cartTotal})`
-                        });
-                        document.getElementById('cod').checked = true;
-                    }
-                });
-            }
 
             placeOrderBtn.addEventListener('click', async function (e) {
                 e.preventDefault();
@@ -694,7 +662,7 @@
                         placeOrderBtn.disabled = false;
                         placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
                     } else {
-                        // Handle other payment methods (COD, Wallet)
+                        // Handle other payment methods (COD)
                         const response = await fetch('/place-order', {
                             method: 'POST',
                             headers: {
@@ -727,7 +695,6 @@
                 }
             });
         });
-
 
         //lis coupons for checkout
         document.addEventListener('DOMContentLoaded', () => {
