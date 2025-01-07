@@ -477,17 +477,9 @@
                                 <option value="Kerala">Kerala</option>
                                 <option value="Tamil Nadu">Tamil Nadu</option>
                                 <option value="Karnataka">Karnataka</option>
-                                <option value="Maharashtra">Maharashtra</option>
-                                <option value="Goa">Goa</option>
-                                <option value="Delhi">Delhi</option>
-                                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                <option value="West Bengal">West Bengal</option>
-                                <option value="Gujarat">Gujarat</option>
-                                <option value="Rajasthan">Rajasthan</option>
-                                <!-- Add more states as needed -->
+                                <!-- Add other states -->
                             </select>
                         </div>
-
                         <div class="col-md-6">
                             <label for="pincode" class="form-label">Pincode</label>
                             <input type="number" class="form-control" id="pincode" name="pincode">
@@ -509,6 +501,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Edit Address Modal -->
 <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
@@ -595,233 +588,240 @@
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function () {
-    const editForm = document.getElementById('edit-user-form');
-    const modalElement = document.getElementById('editUserModal');
+    document.addEventListener('DOMContentLoaded', function () {
+        const editForm = document.getElementById('edit-user-form');
+        const modalElement = document.getElementById('editUserModal');
 
-    const validateUsername = username => /^[A-Za-z\s]+$/.test(username);
-    const validateEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    const validatePhone = phone => /^\d{10}$/.test(phone);
+        const validateUsername = username => /^[A-Za-z\s]+$/.test(username);
+        const validateEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        const validatePhone = phone => /^\d{10}$/.test(phone);
 
-    editForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+        editForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
 
-        const userId = document.getElementById('user-id').value.trim();
-        const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
+            const userId = document.getElementById('user-id').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
 
-        // Check if any field is empty
-        if (!userId || !username || !email || !phone) {
-            Swal.fire('Invalid input', 'Please fill all the fields', 'error');
+            // Check if any field is empty
+            if (!userId || !username || !email || !phone) {
+                Swal.fire('Invalid input', 'Please fill all the fields', 'error');
+                return;
+            }
+
+            // Validate each field
+            if (!validateUsername(username)) {
+                Swal.fire('Invalid username', 'Only alphabets and spaces are allowed.', 'error');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                Swal.fire('Invalid email', 'Please enter a valid email address.', 'error');
+                return;
+            }
+
+            if (!validatePhone(phone)) {
+                Swal.fire('Invalid phone number', 'Please enter a valid 10-digit phone number.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/userdetails/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, phone }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Update the UI dynamically
+                    document.getElementById('user-full-name').textContent = username;
+                    document.getElementById('user-email').textContent = email;
+                    document.getElementById('user-phone').textContent = phone;
+
+                    // Show a success message
+                    Swal.fire('Details updated successfully!', '', 'success');
+
+                    // Close the modal
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+                } else {
+                    Swal.fire(result.message || 'Failed to update user details', '', 'error');
+                }
+            } catch (error) {
+                Swal.fire('An error occurred while updating the user details.', '', 'error');
+            }
+        });
+    });
+
+    //change password
+    document.getElementById("change-password-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Clear all error messages
+        document.querySelectorAll(".error-message").forEach((element) => {
+            element.textContent = "";
+        });
+
+        // Get input values
+        const currentPassword = document.getElementById("current-password").value.trim();
+        const newPassword = document.getElementById("new-password").value.trim();
+        const confirmPassword = document.getElementById("confirm-password").value.trim();
+
+        let isValid = true;
+
+        // Validate current password
+        if (!currentPassword) {
+            document.getElementById("current-password-error").textContent = "Current password is required.";
+            isValid = false;
+        } else if (typeof user !== "undefined" && user.password !== currentPassword) {
+            // This assumes `user.password` exists and holds the correct password.
+            document.getElementById("current-password-error").textContent = "Current password is incorrect.";
+            isValid = false;
+        }
+
+        // Validate new password
+        if (!newPassword) {
+            document.getElementById("new-password-error").textContent = "New password is required.";
+            isValid = false;
+        } else if (newPassword.length < 6) {
+            document.getElementById("new-password-error").textContent = "New password must be at least 6 characters long.";
+            isValid = false;
+        } else if (!/^[A-Za-z0-9]+$/.test(newPassword)) {
+            document.getElementById("new-password-error").textContent =
+                "New password must contain only letters and numbers.";
+            isValid = false;
+        }
+
+        // Validate confirm password
+        if (!confirmPassword) {
+            document.getElementById("confirm-password-error").textContent = "Confirm password is required.";
+            isValid = false;
+        } else if (newPassword !== confirmPassword) {
+            document.getElementById("confirm-password-error").textContent =
+                "New password and confirm password do not match.";
+            isValid = false;
+        }
+
+        // If validation fails, stop form submission
+        if (!isValid) {
             return;
         }
 
-        // Validate each field
-        if (!validateUsername(username)) {
-            Swal.fire('Invalid username', 'Only alphabets and spaces are allowed.', 'error');
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            Swal.fire('Invalid email', 'Please enter a valid email address.', 'error');
-            return;
-        }
-
-        if (!validatePhone(phone)) {
-            Swal.fire('Invalid phone number', 'Please enter a valid 10-digit phone number.', 'error');
-            return;
-        }
-
+        // Proceed with password change request
         try {
-            const response = await fetch(`/userdetails/${userId}`, {
-                method: 'PUT',
+            const response = await fetch("/changePassword", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ username, email, phone }),
+                body: JSON.stringify({ currentPassword, newPassword }),
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                // Update the UI dynamically
-                document.getElementById('user-full-name').textContent = username;
-                document.getElementById('user-email').textContent = email;
-                document.getElementById('user-phone').textContent = phone;
-
-                // Show a success message
-                Swal.fire('Details updated successfully!', '', 'success');
-
-                // Close the modal
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                modalInstance.hide();
+                Swal.fire(result.message || "Password changed successfully");
+                setTimeout(() => {
+                    document.getElementById("change-password-form").reset();
+                    location.reload();
+                }, 2000);
             } else {
-                Swal.fire(result.message || 'Failed to update user details', '', 'error');
+                Swal.fire(result.message, "", "error"); // Server-side error message
             }
         } catch (error) {
-            Swal.fire('An error occurred while updating the user details.', '', 'error');
+            console.error("Error changing password:", error);
+            Swal.fire("Something went wrong. Please try again.", "", "error");
         }
     });
-});
-
-    //change password
-    document.getElementById("change-password-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // Clear all error messages
-    document.querySelectorAll(".error-message").forEach((element) => {
-        element.textContent = "";
-    });
-
-    // Get input values
-    const currentPassword = document.getElementById("current-password").value.trim();
-    const newPassword = document.getElementById("new-password").value.trim();
-    const confirmPassword = document.getElementById("confirm-password").value.trim();
-
-    let isValid = true;
-
-    // Validate current password
-    if (!currentPassword) {
-        document.getElementById("current-password-error").textContent = "Current password is required.";
-        isValid = false;
-    } else if (typeof user !== "undefined" && user.password !== currentPassword) {
-        // This assumes `user.password` exists and holds the correct password.
-        document.getElementById("current-password-error").textContent = "Current password is incorrect.";
-        isValid = false;
-    }
-
-    // Validate new password
-    if (!newPassword) {
-        document.getElementById("new-password-error").textContent = "New password is required.";
-        isValid = false;
-    } else if (newPassword.length < 6) {
-        document.getElementById("new-password-error").textContent = "New password must be at least 6 characters long.";
-        isValid = false;
-    } else if (!/^[A-Za-z0-9]+$/.test(newPassword)) {
-        document.getElementById("new-password-error").textContent =
-            "New password must contain only letters and numbers.";
-        isValid = false;
-    }
-
-    // Validate confirm password
-    if (!confirmPassword) {
-        document.getElementById("confirm-password-error").textContent = "Confirm password is required.";
-        isValid = false;
-    } else if (newPassword !== confirmPassword) {
-        document.getElementById("confirm-password-error").textContent =
-            "New password and confirm password do not match.";
-        isValid = false;
-    }
-
-    // If validation fails, stop form submission
-    if (!isValid) {
-        return;
-    }
-
-    // Proceed with password change request
-    try {
-        const response = await fetch("/changePassword", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ currentPassword, newPassword }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            Swal.fire(result.message, "", "success");
-            location.reload();
-            document.getElementById("change-password-form").reset();
-
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById("changePasswordModal"));
-            modal.hide();
-        } else {
-            Swal.fire(result.message, "", "error"); // Server-side error message
-        }
-    } catch (error) {
-        console.error("Error changing password:", error);
-        Swal.fire("Something went wrong. Please try again.", "", "error");
-    }
-});
 
 
 
 
     //address management
 
-    document.getElementById("addressForm").addEventListener('submit', async (event) => {
-        event.preventDefault()
+    document.getElementById("addressForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-        const addressType = document.getElementById('address_type');
-        const name = document.getElementById('name');
-        const city = document.getElementById('city');
-        const landMark = document.getElementById('landMark');
-        const state = document.getElementById('state');
-        const pincode = document.getElementById('pincode');
-        const phone = document.getElementById('phone');
-        const altPhone = document.getElementById('altPhone');
+        const addressType = document.getElementById("address_type");
+        const name = document.getElementById("name");
+        const city = document.getElementById("city");
+        const landMark = document.getElementById("landMark");
+        const state = document.getElementById("state");
+        const pincode = document.getElementById("pincode");
+        const phone = document.getElementById("phone");
+        const altPhone = document.getElementById("altPhone");
 
-        let isValid = true
+        let isValid = true;
 
-
-        document.querySelectorAll('.error-message').forEach(el => el.remove())
+        document.querySelectorAll(".error-message").forEach((el) => el.remove());
 
         const showError = (field, message) => {
-            const error = document.createElement("div")
-            error.className = 'text-danger error-message';
+            const error = document.createElement("div");
+            error.className = "text-danger error-message";
             error.innerText = message;
             field.parentElement.appendChild(error);
             isValid = false;
-        }
-        if (!addressType.value.trim()) showError(addressType, 'Address Type is required.');
-        if (!name.value.trim()) showError(name, 'Name is required.');
-        if (!city.value.trim()) showError(city, 'City is required.');
-        if (!landMark.value.trim()) showError(landMark, 'Landmark is required.');
-        if (!state.value.trim()) showError(state, 'State is required.');
-        if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim())) showError(pincode, 'Pincode must be a 6-digit number.');
-        if (!phone.value || !/^\d{10}$/.test(phone.value.trim())) showError(phone, 'Phone must be a 10-digit number.');
-        if (!altPhone.value || !/^\d{10}$/.test(altPhone.value.trim())) showError(altPhone, 'Alternate Phone must be a 10-digit number.');
+        };
+
+        if (!addressType.value.trim()) showError(addressType, "Address Type is required.");
+        if (!name.value.trim()) showError(name, "Name is required.");
+        if (!city.value.trim()) showError(city, "City is required.");
+        if (!landMark.value.trim()) showError(landMark, "Landmark is required.");
+        if (!state.value.trim()) showError(state, "State is required.");
+        if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim()))
+            showError(pincode, "Pincode must be a 6-digit number.");
+        if (!phone.value || !/^\d{10}$/.test(phone.value.trim()))
+            showError(phone, "Phone must be a 10-digit number.");
+        if (!altPhone.value || !/^\d{10}$/.test(altPhone.value.trim()))
+            showError(altPhone, "Alternate Phone must be a 10-digit number.");
 
         if (isValid) {
-            console.log('form is valid .submitting..');
-
-            const formData = new FormData(event.target)
-
-            const addressData = Object.fromEntries(formData.entries())
+            const formData = new FormData(event.target);
+            const addressData = Object.fromEntries(formData.entries());
 
             try {
                 const response = await fetch("/addAddress", {
-                    method: 'POST',
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(addressData)
+                    body: JSON.stringify(addressData),
+                });
 
-                })
-
-                const result = await response.json()
+                const result = await response.json();
 
                 if (response.ok) {
-                    Swal.fire(result.message)
-                    location.reload()
-                    document.getElementById("addressForm").reset()
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addAddressModal'));
-                    modal.hide();
+                    
+                    Swal.fire(result.message).then(() => {
+                        setTimeout(() => {
+                            location.reload(); 
+                        }, 1000);
+                    });
+
+                    // document.getElementById("addressForm").reset();
+
+                    // const modal = bootstrap.Modal.getInstance(
+                    //     document.getElementById("addAddressModal")
+                    // );
+                    // modal.hide();
                 } else {
-                    Swal.fire(result.message)
+                    
+                    Swal.fire(result.message);
                 }
             } catch (error) {
-                console.error("error adding address", error);
-                Swal.fire("something went wrong .please try again")
-
+          
+                console.error("Error adding address:", error);
+                Swal.fire("Something went wrong. Please try again.");
             }
-        }
 
+        }
     });
+
 
     //address edit management
     document.addEventListener("DOMContentLoaded", function () {
@@ -849,8 +849,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const result = await response.json();
                 if (response.ok) {
-                    Swal.fire(result.message); // Show success message
-                    location.reload(); // Reload the page
+                    setTimeout(() => {
+                        Swal.fire(result.message).then(() => {
+
+                            location.reload();
+                        }, 2000);
+                    });
                 } else {
                     Swal.fire(result.message || "Failed to update details"); // Show error message
                 }
@@ -901,8 +905,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
 
                 if (response.ok) {
-                    Swal.fire("Address deleted successfully")
-                    window.location.href = "/userProfile"
+                    setTimeout(() => {
+                        Swal.fire("Address deleted successfully")
+                        window.location.href = "/userProfile"
+                    }, 2000);
                 } else {
                     const result = await response.json()
                     Swal.fire(result.message)

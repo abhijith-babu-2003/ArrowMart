@@ -34,9 +34,20 @@
                                         <td>
                                             <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : 
                                                                   order.status === 'Cancelled' ? 'bg-danger' : 
+                                                                  order.status === 'Returned' ? 'bg-info' :
                                                                   'bg-primary' %>">
                                                 <%= order.status %>
                                             </span>
+                                            <% if (order.returnRequest && order.returnRequest.status !== 'None') { %>
+                                                <br>
+                                                <small class="badge <%= 
+                                                    order.returnRequest.status === 'Pending' ? 'bg-warning' : 
+                                                    order.returnRequest.status === 'Approved' ? 'bg-success' : 
+                                                    order.returnRequest.status === 'Rejected' ? 'bg-danger' : 
+                                                    'bg-secondary' %>">
+                                                    Return <%= order.returnRequest.status %>
+                                                </small>
+                                            <% } %>
                                         </td>
                                         <td>
                                             <a href="/order/<%= order.orderId %>" class="btn btn-sm btn-info">
@@ -48,7 +59,8 @@
                                                 </button>
                                             <% } %>
                                             <% 
-                                            if (order.status === 'Delivered') {
+                                            if (order.status === 'Delivered' && 
+                                                (!order.returnRequest || order.returnRequest.status === 'None' || order.returnRequest.status === 'Rejected')) {
                                                 const deliveredDate = new Date(order.deliveredAt);
                                                 const currentDate = new Date();
                                                 const daysSinceDelivery = Math.floor((currentDate - deliveredDate) / (1000 * 60 * 60 * 24));

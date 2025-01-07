@@ -206,17 +206,24 @@ const changePassword = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "Both current and new passwords are required" });
+        }
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        if (!user.password) {
+            return res.status(500).json({ success: false, message: "Password not found for the user" });
         }
 
         const isMatchCurrent = await bcrypt.compare(currentPassword, user.password);
         if (!isMatchCurrent) {
             return res.status(400).json({ success: false, message: "Current password is incorrect" });
         }
-  
-   
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
 
@@ -236,6 +243,8 @@ const postAddAddresss=async(req,res)=>{
 
      const {addressType,name,city,landMark,state,pincode,phone,altPhone}=req.body
  
+
+     
      const userAddress=await Address.findOne({userId: UserData._id})
 
      if(!userAddress){

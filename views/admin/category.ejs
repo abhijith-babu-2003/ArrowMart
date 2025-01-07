@@ -209,7 +209,7 @@
                                             <th>No</th>
                                             <th>categoryName</th>
                                             <th>Description</th>
-                                            <th>Offer (%)</th>
+                                            <th>Offer </th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -226,7 +226,7 @@
                                                     <%= category.description %>
                                                 </td>
                                                 <td>
-                                                    <%= category.categoryOffer %>%
+                                                    <%= category.categoryOffer %>
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="action-buttons d-flex justify-content-center">
@@ -283,9 +283,9 @@
                                         style="display: none;"></span>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="categoryOffer" class="form-label">Category Offer (%)</label>
+                                    <label for="categoryOffer" class="form-label">Category Offer</label>
                                     <input type="number" name="offer" placeholder="Enter offer percentage"
-                                        class="form-control" id="categoryOffer" min="0" max="100" />
+                                        class="form-control" id="categoryOffer" />
                                     <span id="offer-error" class="error-message text-danger"
                                         style="display: none;"></span>
                                 </div>
@@ -326,9 +326,9 @@
                                         style="display: none;"></span>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="editCategoryOffer" class="form-label">Category Offer (%)</label>
+                                    <label for="editCategoryOffer" class="form-label">Category Offer</label>
                                     <input type="number" id="editCategoryOffer" name="offer"
-                                        placeholder="Enter offer percentage" class="form-control" min="0" max="100" />
+                                        placeholder="Enter offer percentage" class="form-control" />
                                     <span id="edit-offer-error" class="error-message text-danger"
                                         style="display: none;"></span>
                                 </div>

@@ -168,7 +168,8 @@
                         </div>
 
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="RAZORPAY">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay"
+                                value="RAZORPAY">
                             <label class="form-check-label d-flex align-items-center" for="razorpay">
                                 <i class="fas fa-credit-card me-2"></i>
                                 Pay Online (Credit/Debit Card, UPI, Net Banking)
@@ -219,7 +220,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">City</label>
-                                <input type="text" name="city" class="form-control" >
+                                <input type="text" name="city" class="form-control">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">State</label>
@@ -233,7 +234,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Address Type</label>
-                                <select name="addressType" class="form-select" >
+                                <select name="addressType" class="form-select">
                                     <option value="Home">Home</option>
                                     <option value="Work">Work</option>
                                     <option value="Other">Other</option>
@@ -341,44 +342,119 @@
             });
 
             // Handle address form submission
+            
             const saveAddressBtn = document.getElementById('saveAddressBtn');
-            if (saveAddressBtn) {
-                saveAddressBtn.addEventListener('click', async function () {
-                    const form = document.getElementById('addressForm');
+    const addressForm = document.getElementById('addressForm');
 
-                    if (!form.checkValidity()) {
-                        form.reportValidity();
-                        return;
-                    }
+    if (saveAddressBtn && addressForm) {
+        saveAddressBtn.addEventListener('click', async function () {
+            // Clear previous error messages
+            addressForm.querySelectorAll('.error-message').forEach(error => error.remove());
 
-                    try {
-                        saveAddressBtn.disabled = true;
-                        saveAddressBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            let isValid = true;
 
-                        const formData = new FormData(form);
-                        const addressData = Object.fromEntries(formData);
-
-                        const response = await fetch('/addAddress', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(addressData)
-                        });
-
-                        const data = await response.json();
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            throw new Error(data.message || 'Failed to add address');
-                        }
-                    } catch (error) {
-                        Swal.fire(error.message);
-                        saveAddressBtn.disabled = false;
-                        saveAddressBtn.innerHTML = 'Save Address';
-                    }
-                });
+            // Helper function to display an error message
+            function showError(input, message) {
+                const error = document.createElement('div');
+                error.className = 'error-message text-danger mt-1';
+                error.textContent = message;
+                input.parentElement.appendChild(error);
+                isValid = false;
             }
+
+            // Validate each field
+            const nameInput = addressForm.querySelector('input[name="name"]');
+            const phoneInput = addressForm.querySelector('input[name="phone"]');
+            const altPhoneInput = addressForm.querySelector('input[name="altPhone"]');
+            const landMarkInput = addressForm.querySelector('input[name="landMark"]');
+            const cityInput = addressForm.querySelector('input[name="city"]');
+            const stateInput = addressForm.querySelector('input[name="state"]');
+            const pincodeInput = addressForm.querySelector('input[name="pincode"]');
+
+            if (!nameInput.value.trim()) {
+                showError(nameInput, "Full Name is required.");
+            }
+
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneInput.value.trim()) {
+                showError(phoneInput, "Phone Number is required.");
+            } else if (!phoneRegex.test(phoneInput.value.trim())) {
+                showError(phoneInput, "Enter a valid 10-digit Phone Number.");
+            }
+
+            if (altPhoneInput.value.trim() && !phoneRegex.test(altPhoneInput.value.trim())) {
+                showError(altPhoneInput, "Enter a valid 10-digit Alternate Phone Number.");
+            }
+
+            if (!landMarkInput.value.trim()) {
+                showError(landMarkInput, "Landmark/Street is required.");
+            }
+
+            if (!cityInput.value.trim()) {
+                showError(cityInput, "City is required.");
+            }
+
+            if (!stateInput.value.trim()) {
+                showError(stateInput, "State is required.");
+            }
+
+            const pinRegex = /^[0-9]{6}$/;
+            if (!pincodeInput.value.trim()) {
+                showError(pincodeInput, "PIN Code is required.");
+            } else if (!pinRegex.test(pincodeInput.value.trim())) {
+                showError(pincodeInput, "Enter a valid 6-digit PIN Code.");
+            }
+
+            if (!altPhoneInput.value.trim()) {
+                showError(altPhoneInput, "Alternate Phone Number is required.");
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Submit form if validation passes
+            try {
+                saveAddressBtn.disabled = true;
+                saveAddressBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+                const formData = new FormData(addressForm);
+                const addressData = Object.fromEntries(formData);
+
+                const response = await fetch('/addAddress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(addressData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        timer: 1500
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to add address');
+                }
+            } catch (error) {
+                console.error('Address submission error:', error); // Debug log
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            } finally {
+                saveAddressBtn.disabled = false;
+                saveAddressBtn.innerHTML = 'Save Address';
+            }
+        });
+    }
 
             // Coupon handling
             const applyCouponBtn = document.getElementById('applyCouponBtn');
