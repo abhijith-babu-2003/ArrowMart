@@ -1,11 +1,11 @@
 const mongoose=require("mongoose")
 const {Schema}=mongoose
-const { v4: uuidv4 } = require("uuid")
+const {generateOrderId} = require("../utils/orderIdGenerator")
 
 const orderSchema=new Schema({
     orderId:{
         type:String,
-        default:()=>uuidv4(),
+        default: generateOrderId,
         unique:true
     },
     userId: {
@@ -50,24 +50,28 @@ const orderSchema=new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['COD', 'WALLET', 'RAZORPAY', 'Online'],
+        enum: ['COD', 'RAZORPAY'],
         required: true
     },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+        enum: ['Pending', 'Paid', 'Failed'],
         default: 'Pending'
-    },
-    paymentDetails: {
-        orderId: String,
-        paymentId: String,
-        signature: String
     },
     status:{
         type:String,
         required:true,
         enum:['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
         default: 'Pending'
+    },
+    deliveredAt: {
+        type: Date,
+        default: null
+    },
+    paymentDetails: {
+        orderId: String,
+        paymentId: String,
+        signature: String
     },
     returnRequest: {
         status: {

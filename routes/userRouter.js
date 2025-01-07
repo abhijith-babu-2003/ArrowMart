@@ -88,16 +88,8 @@ user_Router.get("/checkout", userAuth, checkoutController.loadCheckout);
 user_Router.post("/place-order", userAuth, checkoutController.placeOrder);
 user_Router.get("/order-success", userAuth, checkoutController.getOrderSuccess);
 user_Router.get("/orders", userAuth, checkoutController.getOrderHistory);
-user_Router.get(
-  "/order/:orderId",
-  userAuth,
-  checkoutController.getOrderDetails
-);
-user_Router.delete(
-  "/order/cancel/:orderId",
-  userAuth,
-  checkoutController.cancelOrder
-);
+user_Router.get("/order/:orderId",userAuth,checkoutController.getOrderDetails);
+user_Router.delete("/order/cancel/:orderId",userAuth,checkoutController.cancelOrder);
 
 // Order return
 user_Router.post(

@@ -46,8 +46,8 @@ const downloadPDF = async (req, res) => {
         doc.moveDown();
         doc.fontSize(12)
             .text(`Total Orders: ${summary.totalOrders}`)
-            .text(`Total Amount: $${summary.totalAmount.toFixed(2)}`)
-            .text(`Total Discount: $${summary.totalDiscount.toFixed(2)}`)
+            .text(`Total Amount: ₹${summary.totalAmount.toFixed(2)}`)
+            .text(`Total Discount: ₹${summary.totalDiscount.toFixed(2)}`)
             .text(`Total Returns: ${summary.totalReturns}`)
             .text(`Total Products: ${summary.totalProducts}`)
             .text(`Total Categories: ${summary.totalCategories}`)
@@ -144,8 +144,8 @@ const downloadExcel = async (req, res) => {
         // Add summary section
         worksheet.addRow(['Summary']);
         worksheet.addRow(['Total Orders', summary.totalOrders]);
-        worksheet.addRow(['Total Amount', `$${summary.totalAmount.toFixed(2)}`]);
-        worksheet.addRow(['Total Discount', `$${summary.totalDiscount.toFixed(2)}`]);
+        worksheet.addRow(['Total Amount', `₹${summary.totalAmount.toFixed(2)}`]);
+        worksheet.addRow(['Total Discount', `₹${summary.totalDiscount.toFixed(2)}`]);
         worksheet.addRow(['Total Returns', summary.totalReturns]);
         worksheet.addRow(['Total Products', summary.totalProducts]);
         worksheet.addRow(['Total Categories', summary.totalCategories]);
