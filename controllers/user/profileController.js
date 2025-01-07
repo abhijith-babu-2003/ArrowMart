@@ -236,34 +236,37 @@ const changePassword = async (req, res) => {
 };
 
 
-const postAddAddresss=async(req,res)=>{
+const postAddAddresss = async (req, res) => {
     try {
-        const userId=req.session.user
-        const UserData=await User.findOne({_id:userId})
+        const userId = req.session.user;
+        const UserData = await User.findOne({ _id: userId });
 
-     const {addressType,name,city,landMark,state,pincode,phone,altPhone}=req.body
- 
+        const { addressType, name, city, landMark, state, pincode, phone, altPhone } = req.body;
 
-     
-     const userAddress=await Address.findOne({userId: UserData._id})
+        // Validate that all fields are present
+        if (!addressType || !name || !city || !landMark || !state || !pincode || !phone || !altPhone) {
+            return res.status(400).json({ success: false, message: "All fields are required." });
+        }
 
-     if(!userAddress){
-        const newAddress= new Address({
-            userId:  UserData._id,
-            address:[{addressType,name,city,landMark,state,pincode,phone,altPhone}]
-        })
-        await newAddress.save()
-     }else{
-        userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone})
-        await userAddress.save()
-     }
-     res.json({ success: true, message: "Address added successfully" });
+        const userAddress = await Address.findOne({ userId: UserData._id });
+
+        if (!userAddress) {
+            const newAddress = new Address({
+                userId: UserData._id,
+                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone }],
+            });
+            await newAddress.save();
+        } else {
+            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altPhone });
+            await userAddress.save();
+        }
+
+        res.json({ success: true, message: "Address added successfully" });
     } catch (error) {
-        console.error("error adding address",error);
-        res.redirect("/pageNotFound")
-        
+        console.error("Error adding address:", error);
+        res.status(500).json({ success: false, message: "Failed to add address." });
     }
-}
+};
 
 const editAddress =async(req,res)=>{
     try {

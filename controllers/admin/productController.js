@@ -24,6 +24,7 @@ const getAllProduct = async (req, res) => {
     const productData = await Product.find({})
       .limit(limit)
       .skip((page - 1) * limit)
+      .sort({ createdAt: -1 })
       .populate({
         path: "category",
         match: { isListed: true }, 

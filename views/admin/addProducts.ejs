@@ -295,7 +295,7 @@
 
     // Sale Price Validation
     const salePrice = Number(document.querySelector('[name="salePrice"]').value.trim());
-    if (isNaN(salePrice) || salePrice <= 0 || salePrice < regularPrice) {
+    if (isNaN(salePrice) || salePrice <= 0 ) {
         document.getElementById("salePrice-error").textContent = errorMessages.salePrice;
         isValid = false;
     }
