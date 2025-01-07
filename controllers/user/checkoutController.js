@@ -666,7 +666,7 @@ const submitReturnRequest = async (req, res) => {
   try {
     const { orderId, reason, details } = req.body;
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ orderId: orderId });
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }

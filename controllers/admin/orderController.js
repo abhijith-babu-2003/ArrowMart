@@ -62,6 +62,11 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
+    // Set deliveredAt timestamp when order is marked as delivered
+    if (status === "Delivered" && order.status !== "Delivered") {
+      order.deliveredAt = new Date();
+    }
+
     order.status = status;
     await order.save();
 
