@@ -241,30 +241,59 @@ const postAddAddresss = async (req, res) => {
         const userId = req.session.user;
         const UserData = await User.findOne({ _id: userId });
 
-        const { addressType, name, city, landMark, state, pincode, phone, altPhone } = req.body;
-
-        // Validate that all fields are present
-        if (!addressType || !name || !city || !landMark || !state || !pincode || !phone || !altPhone) {
-            return res.status(400).json({ success: false, message: "All fields are required." });
-        }
-
-        const userAddress = await Address.findOne({ userId: UserData._id });
-
-        if (!userAddress) {
-            const newAddress = new Address({
-                userId: UserData._id,
-                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone }],
+        const requiredFields = ['addressType', 'name', 'city', 'landMark', 'state', 'pincode', 'phone', 'altPhone'];
+        const missingFields = requiredFields.filter(field => !req.body[field] || req.body[field].trim() === '');
+        
+        if (missingFields.length > 0) {
+            console.log("Missing or empty fields:", missingFields);
+            return res.status(400).json({ 
+                success: false, 
+                message: `Missing or empty required fields: ${missingFields.join(', ')}` 
             });
-            await newAddress.save();
-        } else {
-            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altPhone });
-            await userAddress.save();
         }
 
-        res.json({ success: true, message: "Address added successfully" });
+        // Create a new address object with trimmed values
+        const newAddressData = {
+            addressType: req.body.addressType.trim(),
+            name: req.body.name.trim(),
+            city: req.body.city.trim(),
+            landMark: req.body.landMark.trim(),
+            state: req.body.state.trim(),
+            pincode: req.body.pincode.trim(),
+            phone: req.body.phone.trim(),
+            altPhone: req.body.altPhone.trim()
+        };
+
+        // console.log("New address data:", newAddressData);
+
+        try {
+            const userAddress = await Address.findOne({ userId: UserData._id });
+
+            if (!userAddress) {
+                const newAddress = new Address({
+                    userId: UserData._id,
+                    address: [newAddressData]
+                });
+                await newAddress.save();
+            } else {
+                userAddress.address.push(newAddressData);
+                await userAddress.save();
+            }
+
+            res.json({ success: true, message: "Address added successfully" });
+        } catch (error) {
+            console.error("Error adding address:", error);
+            res.status(500).json({ 
+                success: false, 
+                message: error.message || "Failed to add address." 
+            });
+        }
     } catch (error) {
         console.error("Error adding address:", error);
-        res.status(500).json({ success: false, message: "Failed to add address." });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || "Failed to add address." 
+        });
     }
 };
 
@@ -307,6 +336,7 @@ const editAddress =async(req,res)=>{
 }
 
 
+
 const deleteAddress=async(req,res)=>{
     try {
        const addressId=req.params.id 
@@ -333,9 +363,6 @@ const deleteAddress=async(req,res)=>{
 
 
 
-
-
-
 module.exports={
     userProfile, 
     updateDetails,
@@ -350,15 +377,3 @@ module.exports={
     editAddress,
     deleteAddress
 }
-
-
-
-
-
-
-
-
-
-
-
-

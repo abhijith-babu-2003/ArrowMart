@@ -92,8 +92,8 @@ const downloadPDF = async (req, res) => {
             doc.text(order.orderId.slice(-6), startX, currentY);
             doc.text(moment(order.createdAt).format('DD/MM/YYYY'), startX + columnWidth, currentY);
             doc.text(order.userId?.name || 'N/A', startX + (columnWidth * 2), currentY);
-            doc.text(`$${order.finalAmount.toFixed(2)}`, startX + (columnWidth * 3), currentY);
-            doc.text(`$${(order.discountAmount || 0).toFixed(2)}`, startX + (columnWidth * 4), currentY);
+            doc.text(`₹${order.finalAmount.toFixed(2)}`, startX + (columnWidth * 3), currentY);
+            doc.text(`₹${(order.discountAmount || 0).toFixed(2)}`, startX + (columnWidth * 4), currentY);
             doc.text(order.status, startX + (columnWidth * 5), currentY);
 
             currentY += 20;

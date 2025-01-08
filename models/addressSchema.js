@@ -14,12 +14,11 @@ const addressSchema=new Schema({
         },
         name:{
             type:String,
-            required:true,
-
+            required:true
         },
         city:{
             type:String,
-            required:true,
+            required:true
         },
         landMark:{
             type:String,
@@ -30,7 +29,7 @@ const addressSchema=new Schema({
             required:true
         },
         pincode:{
-            type:Number,
+            type:String,
             required:true
         },
         phone:{
@@ -41,9 +40,27 @@ const addressSchema=new Schema({
             type:String,
             required:true
         }
-
     }]
+}, {
+    validateBeforeSave: false // Disable automatic validation
 })
+
+// Custom validation middleware
+addressSchema.pre('save', function(next) {
+    if (this.isModified('address')) {
+        // Only validate the last address if we're adding a new one
+        const lastAddress = this.address[this.address.length - 1];
+        if (lastAddress) {
+            const requiredFields = ['addressType', 'name', 'city', 'landMark', 'state', 'pincode', 'phone', 'altPhone'];
+            const missingFields = requiredFields.filter(field => !lastAddress[field]);
+            if (missingFields.length > 0) {
+                next(new Error(`Missing required fields in new address: ${missingFields.join(', ')}`));
+                return;
+            }
+        }
+    }
+    next();
+});
 
 const Address=mongoose.model("Address",addressSchema)
 

@@ -245,7 +245,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
-                    aria-controls="address" ><i class="fi-rs-marker mr-10"></i>My Address</a>
+                    aria-controls="address"><i class="fi-rs-marker mr-10"></i>My Address</a>
             </li>
 
             <li class="nav-item">
@@ -377,7 +377,7 @@
             <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                    data-bs-target="#addAddressModal">Add New Address</a>
+                        data-bs-target="#addAddressModal">Add New Address</a>
                 </div>
                 <div class="row">
                     <% if (userAddress && userAddress.address.length> 0) { %>
@@ -490,12 +490,13 @@
                             </select>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" >Save Address</button>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="saveAddressBtn">Save Address</button>
-            </div>
+          
         </div>
     </div>
 </div>
@@ -582,6 +583,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="path/to/your/script.js"></script>
 
 
 <script>
@@ -740,75 +742,103 @@
 
 
 
-    //address management
+    document.addEventListener("DOMContentLoaded", () => {
+    const addressForm = document.getElementById("addressForm");
+    
+    if (addressForm) {
+        addressForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            console.log("Form submission triggered"); // Debug log
 
-    document.getElementById("addressForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
+            const addressType = document.getElementById("address_type");
+            const name = document.getElementById("name");
+            const city = document.getElementById("city");
+            const landMark = document.getElementById("landMark");
+            const state = document.getElementById("state");
+            const pincode = document.getElementById("pincode");
+            const phone = document.getElementById("phone");
+            const altPhone = document.getElementById("altPhone");
 
-    const addressType = document.getElementById("address_type");
-    const name = document.getElementById("name");
-    const city = document.getElementById("city");
-    const landMark = document.getElementById("landMark");
-    const state = document.getElementById("state");
-    const pincode = document.getElementById("pincode");
-    const phone = document.getElementById("phone");
-    const altPhone = document.getElementById("altPhone");
+            let isValid = true;
 
-    let isValid = true;
+            // Clear previous error messages
+            document.querySelectorAll(".error-message").forEach((el) => el.remove());
 
-    // Clear previous error messages
-    document.querySelectorAll(".error-message").forEach((el) => el.remove());
+            // Helper function to show errors
+            const showError = (field, message) => {
+                const error = document.createElement("div");
+                error.className = "text-danger error-message";
+                error.innerText = message;
+                field.parentElement.appendChild(error);
+                isValid = false;
+            };
 
-    // Helper function to show errors
-    const showError = (field, message) => {
-        const error = document.createElement("div");
-        error.className = "text-danger error-message";
-        error.innerText = message;
-        field.parentElement.appendChild(error);
-        isValid = false;
-    };
+            // Validation checks
+            if (!addressType.value.trim()) showError(addressType, "Address Type is required.");
+            if (!name.value.trim()) showError(name, "Name is required.");
+            if (!city.value.trim()) showError(city, "City is required.");
+            if (!landMark.value.trim()) showError(landMark, "Landmark is required.");
+            if (!state.value.trim()) showError(state, "State is required.");
+            if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim()))
+                showError(pincode, "Pincode must be a 6-digit number.");
+            if (!phone.value || !/^\d{10}$/.test(phone.value.trim()))
+                showError(phone, "Phone must be a 10-digit number.");
+            if (!altPhone.value || !/^\d{10}$/.test(altPhone.value.trim()))
+                showError(altPhone, "Alternate Phone must be a 10-digit number.");
 
-    // Validation checks
-    if (!addressType.value.trim()) showError(addressType, "Address Type is required.");
-    if (!name.value.trim()) showError(name, "Name is required.");
-    if (!city.value.trim()) showError(city, "City is required.");
-    if (!landMark.value.trim()) showError(landMark, "Landmark is required.");
-    if (!state.value.trim()) showError(state, "State is required.");
-    if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim()))
-        showError(pincode, "Pincode must be a 6-digit number.");
-    if (!phone.value || !/^\d{10}$/.test(phone.value.trim()))
-        showError(phone, "Phone must be a 10-digit number.");
-    if (!altPhone.value || !/^\d{10}$/.test(altPhone.value.trim()))
-        showError(altPhone, "Alternate Phone must be a 10-digit number.");
+            if (isValid) {
+                const formData = {
+                    addressType: addressType.value.trim(),
+                    name: name.value.trim(),
+                    city: city.value.trim(),
+                    landMark: landMark.value.trim(),
+                    state: state.value.trim(),
+                    pincode:pincode.value.trim(),
+                    phone: phone.value.trim(),
+                    altPhone: altPhone.value.trim()
+                };
 
-    // Submit if valid
-    if (isValid) {
-        const formData = new FormData(document.getElementById("addressForm"));
-        const addressData = Object.fromEntries(formData.entries());
-        try {
-            const response = await fetch("/addAddress", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(addressData),
-            });
+                try {
+                    console.log("Sending data:", formData); // Debug log
+                    const response = await fetch("/addAddress", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(formData),
+                    });
 
-            const result = await response.json();
+                    const result = await response.json();
+                    console.log("Response:", result); // Debug log
 
-            if (response.ok) {
-                Swal.fire(result.message).then(() => {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                });
-            } else {
-                Swal.fire(result.message);
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: result.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: result.message || 'Something went wrong!'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error adding address:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again.'
+                    });
+                }
             }
-        } catch (error) {
-            console.error("Error adding address:", error);
-            Swal.fire("Something went wrong. Please try again.");
-        }
+        });
+    } else {
+        console.error("Address form not found!");
     }
 });
 
