@@ -9,8 +9,8 @@ const productDetails=async(req,res)=>{
         const userData=await User.findById(UserId)
         const productId=req.query.id
       
-        
-        const product=await Product.findById(productId).populate('category')
+        const category=await Category.find({isBlocked:false})
+        const product = await Product.findById(productId).populate('category');
         if(!product){
             throw new Error("product not found")
         }
@@ -21,9 +21,9 @@ const productDetails=async(req,res)=>{
 
       
 
-         const relatedProducts = await Product.find({
+        const relatedProducts = await Product.find({
             category: product.category,
-            _id: { $ne: productId }, 
+            _id: { $ne: productId },
         });
     
         
@@ -31,13 +31,14 @@ const productDetails=async(req,res)=>{
         res.render("productDetails",{
             user:userData,
             product:product,
+            category:category,
             quantity:product.quantity,
             totalOffer:totalOffer,
             category:findCategory,
             relatedProduct: relatedProducts
         })
     } catch (error) {
-        console.error("error for fetching details",error);
+        console.error("Error fetching product details:",error);
         res.redirect("/pageNotFound")
         
     }
@@ -47,7 +48,7 @@ const productDetails=async(req,res)=>{
 
 
 module.exports={
-    productDetails,
+    productDetails
 
 
 }

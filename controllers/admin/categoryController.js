@@ -1,4 +1,5 @@
-const category = require("../../models/categorySchema");
+  const category = require("../../models/categorySchema");
+
 
 
 const categoryinfo = async (req, res) => {
@@ -68,17 +69,13 @@ const addCategory = async (req, res) => {
 
 
 const listCategory = async (req, res) => {
-
   try {
-
     let id = req.query.id;
-    await category.updateOne({ _id: id }, { $set: { isListed: false } });
+    await category.updateOne({ _id: id }, { $set: { isListed: true } });
     res.redirect("/admin/category");
-
   } catch (error) {
     res.redirect("/pageError");
   }
-
 };
 
 
@@ -86,9 +83,8 @@ const listCategory = async (req, res) => {
 const unlistCategory = async (req, res) => {
   try {
     let id = req.query.id;
-    await category.updateOne({ _id: id }, { $set: { isListed: true } });
+    await category.updateOne({ _id: id }, { $set: { isListed: false } });
     res.redirect("/admin/category");
-
   } catch (error) {
     res.redirect("/pageError");
 
@@ -132,16 +128,53 @@ const editCategory = async (req, res) => {
 
 };
 
+const updateOffer = async (req, res) => {
+    try {
+        const { categoryId } = req.params;
+        const { offer } = req.body;
 
+        // Validate offer percentage
+        const offerValue = parseInt(offer);
+        if (isNaN(offerValue) || offerValue < 0 || offerValue > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid offer percentage. Must be between 0 and 100'
+            });
+        }
 
+        // Update category offer
+        const updatedCategory = await category.findByIdAndUpdate(
+            categoryId,
+            { categoryOffer: offerValue },
+            { new: true }
+        );
 
+        if (!updatedCategory) {
+            return res.status(404).json({
+                success: false,
+                message: 'Category not found'
+            });
+        }
 
-module.exports = {
-  categoryinfo,
-  addCategory,
-  listCategory,
-  unlistCategory,
-  editCategory,
+        res.json({
+            success: true,
+            message: 'Offer updated successfully',
+            category: updatedCategory
+        });
+    } catch (error) {
+        console.error('Error updating offer:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update offer'
+        });
+    }
 };
 
-  
+module.exports = {
+    categoryinfo,
+    addCategory,
+    listCategory,
+    unlistCategory,
+    editCategory,
+    updateOffer
+};

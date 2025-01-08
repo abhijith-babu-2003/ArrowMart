@@ -321,6 +321,31 @@
             justify-content: flex-start;
             font-size: 14px;
         }
+
+        .category-offer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .offer-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .offer-details {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .fa-tag {
+            margin-right: 5px;
+        }
     </style>
 
 
@@ -391,6 +416,18 @@
                                 Rs. <%= product.salePrice %>
                             </span>
                         </div>
+
+                        <% if (category && category.categoryOffer > 0) { %>
+                            <div class="category-offer mb-4">
+                                <div class="offer-badge">
+                                    <i class="fas fa-tag"></i>
+                                    <%= category.categoryOffer %>% Category Offer
+                                </div>
+                                <div class="offer-details mt-2">
+                                    Save extra with <%= category.categoryName %> category offer
+                                </div>
+                            </div>
+                        <% } %>
 
                         <!-- Review Star Section -->
                         <div class="review-stars mt-3 mb-4">

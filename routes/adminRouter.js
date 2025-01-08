@@ -31,6 +31,7 @@ admin_Router.post("/addCategory",adminAuth,upload.single('image'),categoryContro
 admin_Router.get("/listCategory",adminAuth,categoryController.listCategory)
 admin_Router.get("/unlistCategory",adminAuth,categoryController.unlistCategory)
 admin_Router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
+admin_Router.post('/categories/:categoryId/offer',adminAuth,categoryController.updateOffer)
 
 //porduct management
 admin_Router.post("/addProducts", adminAuth, upload.array('images',4), productController.addProducts)

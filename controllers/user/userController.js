@@ -379,22 +379,22 @@ const getShopPage=async(req,res)=>{
       }
     }
 
-    const products = await Product.find(query)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit);
+  
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
-    const categoriesWithIds = categories.map(category => ({
-      _id: category._id,
-      categoryName: category.categoryName
-    }));
+
+    // Fetch products with populated category data
+    const products = await Product.find(query)
+      .populate('category')  
+      .skip(skip)
+      .limit(limit)
+      .sort(sortOption);
 
     res.render("shop", {
       user: userData,
       products: products,
-      categories: categoriesWithIds,
+      categories: categories,
       totalProducts: totalProducts,
       currentPage: page,
       totalPages: totalPages,
@@ -404,13 +404,12 @@ const getShopPage=async(req,res)=>{
       selectedSort: req.query.sortBy || '',
       selectedAvailability: req.query.availability || ''
     });
-    
-  } catch (error) {
-    console.error('Shop page error:', error);
-    res.status(500).send("Internal server error");
-  }
-}
 
+  } catch (error) {
+    console.log("error in shop page", error);
+    res.redirect("/pageNotFound");
+  }
+};
 
 
 

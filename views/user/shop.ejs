@@ -104,6 +104,13 @@
                                         <span class="original-price">₹<%= products[i].regularPrice %></span>
                                         <% } %>
                                 </div>
+                                <% if (products[i].category && products[i].category.categoryOffer > 0) { %>
+                                    <div class="category-offer">
+                                        <span class="offer-badge">
+                                            <%= products[i].category.categoryOffer %>% Category Offer
+                                        </span>
+                                    </div>
+                                <% } %>
                                 <div class="stock-status">
                                     <% if (products[i].quantity> 0) { %>
                                         <span class="in-stock">In Stock (<%= products[i].quantity %> left)</span>
@@ -216,6 +223,17 @@
 
         .product-actions .btn {
             font-size: 0.8rem;
+        }
+
+        .category-offer {
+            margin: 8px 0;
+        }
+        .offer-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
         }
 
         /* Responsive adjustments */
