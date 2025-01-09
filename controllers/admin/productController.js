@@ -58,43 +58,45 @@ const getAllProduct = async (req, res) => {
 //products adding
 const addProducts = async (req, res) => {
   try {
+    if (req.fileValidationError) {
+      return res.status(400).json({ success: false, message: req.fileValidationError });
+    }
+
     const products = req.body;
 
-    
     const productExists = await Product.findOne({
       productName: products.productName,
     });
 
     if (productExists) {
-      return res.status(400).json({ success:false, message:"Product already exists" });
+      return res.status(400).json({ success: false, message: "Product already exists" });
     }
 
     // Handle image upload and resizing
     const images = [];
+    
+    
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
         const resizedImageName = `resized-${Date.now()}-${req.files[i].filename}`;
-        const resizedImagePath = path.join("public", "uploads", resizedImageName);
-
+        const resizedImagePath = path.join("public", "uploads", resizedImageName);      
         const outputDir = path.dirname(resizedImagePath);
+       
+        
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
 
-       
         await sharp(originalImagePath)
           .resize({ width: 440, height: 440 })
           .toFile(resizedImagePath);
 
-        
         images.push(resizedImageName);
-
         fs.unlinkSync(originalImagePath);
       }
     }
 
-   
     const category = await Category.findOne({
       isListed: true,
       categoryName: products.category,
@@ -104,7 +106,6 @@ const addProducts = async (req, res) => {
       return res.status(400).json({ message: "Invalid category name" });
     }
 
-    // Create the new product
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
@@ -119,13 +120,13 @@ const addProducts = async (req, res) => {
 
     await newProduct.save();
 
-    // Return success message
-    return res.status(200).json({success:true, message: "Product added successfully!" ,product:newProduct});
+    return res.status(200).json({ success: true, message: "Product added successfully!", product: newProduct });
   } catch (error) {
     console.error("Error in saving products", error);
-    return res.status(500).json({ success:false, messaeg: "An error occurred while saving the product" });
+    return res.status(500).json({ success: false, message: "An error occurred while saving the product" });
   }
 };
+
 
 
 //block and unblock 
@@ -210,11 +211,14 @@ const editproduct = async (req, res) => {
       ];
     }
 
+
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id, 
       { $set: updateData }, 
       { new: true }
     );
+
 
 
     if (!updatedProduct) {
@@ -234,7 +238,9 @@ const editproduct = async (req, res) => {
 const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameToServer, productIdToServer } = req.body;
+ 
 
+    
     const product = await Product.findByIdAndUpdate(
       productIdToServer,
       {
@@ -243,6 +249,10 @@ const deleteSingleImage = async (req, res) => {
       { new: true }
     );
 
+    if (!imageNameToServer || !productIdToServer) {
+      return res.status(400).send({ status: false, message: "Invalid input" });
+    }
+    
     if (!product) {
       return res
         .staus(404)
@@ -257,6 +267,8 @@ const deleteSingleImage = async (req, res) => {
       "re-image",
       imageNameToServer
     );
+   
+
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
       if (!err) {

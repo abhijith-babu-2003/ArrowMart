@@ -251,6 +251,8 @@ function submitForm(event) {
       const fileInput = document.getElementById(`input${i}`);
       if (fileInput && fileInput.files.length > 0) {
         formData.append('images', fileInput.files[0]);
+        console.log(fileInput);
+        
       }
     }
 

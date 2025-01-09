@@ -352,16 +352,16 @@ const getShopPage=async(req,res)=>{
       }
     }
 
-    // Availability filter - only apply if specifically requested
+  
     if (req.query.availability === 'inStock') {
       query.quantity = { $gt: 0 };
     } else if (req.query.availability === 'outOfStock') {
       query.quantity = 0;
     }
-    // If no availability filter is selected, show all products
+   
 
     // Sort options
-    let sortOption = { createdOn: -1 }; // default sort
+    let sortOption = { createdOn: -1 }; 
     if (req.query.sortBy) {
       switch (req.query.sortBy) {
         case 'nameAsc':

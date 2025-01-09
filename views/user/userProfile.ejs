@@ -229,7 +229,66 @@
             margin: 1rem 0;
         }
     }
+
+    .main-header {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .main-nav {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+        color: var(--primary-color);
+        background-color: var(--background-color);
+    }
+
+    .nav-link.active {
+        color: var(--primary-color);
+        background-color: var(--background-color);
+    }
+
+    /* Adjust existing body style to account for header */
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: var(--background-color);
+        margin: 0;
+        min-height: 100vh;
+        padding-top: 0;
+    }
 </style>
+
 
 
 
