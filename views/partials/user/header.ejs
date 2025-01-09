@@ -56,88 +56,76 @@
                     </a>
     
                     <!-- Menu desktop -->
-                    <div class="menu-desktop">
-                        <ul class="main-menu">
-                            <li class="active-menu">
-                                <a href="/">Home</a>
-                            </li>
-    
-                            <li>
-                                <a href="/shop">Shop</a>
-                            </li>
-    
-                            <li>
-                                <a href="#">About</a>
-                            </li>
-    
-                            <li>
-                                <a href="#">Contact</a>
-                            </li>
-                        </ul>
-                    </div>
-    
+                    
                     <!-- Icon header -->
-                    <div class="wrap-icon-header flex-w flex-r-m">
-                        <!-- Wishlist Icon -->
-                         <a href="/wishlist">
-                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-wishlist">
-                                <i class="fa-regular fa-heart"></i>
+                    <div class="wrap-icon-header">
+                    
+                    
+                        <!-- Navigation Menu on the Right -->
+                        <div class="wrap-icon-header">
+                            <!-- Navigation Menu -->
+                            <div class="menu-desktop">
+                                <ul class="main-menu list-unstyled d-flex mb-0">
+                                    <li>
+                                        <a href="/" class="text-decoration-none">Home</a>
+                                    </li>
+                                    <li>
+                                        <a href="/shop" class="text-decoration-none">Shop</a>
+                                    </li>
+                                </ul>
                             </div>
-                         </a>
-                       
-    
-                        <!-- Cart Icon -->
-                         <a href="/cart">
-                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-14">
-                                <i class="fa-solid fa-cart-shopping"></i>
-                             </div>
-                         </div>
-                         </a>
                         
-    
-                    <div>
-                        <% if(locals.user) { %>
-    
-                            <div class="dropdown">
-                                <a class=" icon-header-item btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-user"></i>
-                                </a>
-                            
-                                <ul class="dropdown-menu dropdown-menu-end text-center" aria-labelledby="authDropdown">
-                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/userprofile">Account</a></li>
-                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/orders">Orders</a></li>
-                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/wallet">Wallet</a></li>
-                                    <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/logout">Logout</a></li>
-                                </ul>
-                            </div>
-                            
-    
-                        <% } else { %>
-                            <!-- Login and Signup Dropdown -->
-                            <div class="dropdown">
-                                <a class=" icon-header-item btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-user"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
-                                    <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
-                                    <li><a class="dropdown-item" href="/login">Login</a></li>
-                                </ul>
-                            </div>
-                            
-                        <% } %>
-                    </div>
-    
-                </nav>
+                            <!-- Wishlist Icon -->
+                            <a href="/wishlist" class="d-flex align-items-center text-decoration-none">
+                                <div class="icon-header-item cl2 hov-cl1 trans-04">
+                                    <i class="fa-regular fa-heart"></i>
+                                </div>
+                            </a>
+                        
+                            <!-- Cart Icon -->
+                            <a href="/cart" class="d-flex align-items-center text-decoration-none">
+                                <div class="icon-header-item cl2 hov-cl1 trans-04">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                </div>
+                            </a>
+                            <% if (locals.user) { %>
+                                <div class="dropdown ms-4"> <!-- Add margin to move right -->
+                                    <a class="icon-header-item btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-user"></i>
+                                    </a>
+                        
+                                    <ul class="dropdown-menu dropdown-menu-end text-center" aria-labelledby="authDropdown">
+                                        <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/userprofile">Account</a></li>
+                                        <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/orders">Orders</a></li>
+                                        <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/wallet">Wallet</a></li>
+                                        <li class="dropdown-item"><a class="text-decoration-none text-dark" href="/logout">Logout</a></li>
+                                    </ul>
+                                </div>
+                            <% } else { %>
+                                <!-- Login and Signup Dropdown -->
+                                <div class="dropdown ms-4"> <!-- Add margin to move right -->
+                                    <a class="icon-header-item btn btn-google text-dark" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa-solid fa-user"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
+                                        <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+                                        <li><a class="dropdown-item" href="/login">Login</a></li>
+                                    </ul>
+                                </div>
+                            <% } %>
+                        </div>
+</nav>
             </div>
         </div>
     
        
-    
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     </header>
+       
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     
-
     <script src="/js/cart.js"></script>
 </body>
+
+
 </html>

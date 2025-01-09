@@ -37,7 +37,7 @@
 
     .sidebar {
         width: 280px;
-        background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+        background: linear-gradient(--background-color);
         padding: 2rem;
         color: white;
         min-height: calc(100vh - 128px);
@@ -46,14 +46,14 @@
     .sidebar a {
         display: flex;
         align-items: center;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(6, 4, 4, 0.8);
         text-decoration: none;
         margin-bottom: 1rem;
         font-weight: 500;
         transition: all 0.2s ease;
         border-radius: 12px;
         padding: 1rem 1.25rem;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgb(255, 254, 254);
     }
 
     .sidebar a i {
@@ -64,8 +64,8 @@
 
     .sidebar a:hover,
     .sidebar a.active {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
+        background: rgba(6, 24, 20, 0.2);
+        color: rgb(30, 26, 26);
         transform: translateX(5px);
     }
 
@@ -277,12 +277,12 @@
     }
 
     .nav-link:hover {
-        color: var(--primary-color);
+        color: var(--text-primary);
         background-color: var(--background-color);
     }
 
     .nav-link.active {
-        color: var(--primary-color);
+        color: var(--);
         background-color: var(--background-color);
     }
 </style>
