@@ -2,7 +2,7 @@ const Cart = require("../../models/cartSchema.js");
 const User = require("../../models/userSchema.js");
 const Product = require("../../models/ProductSchema.js");
 const { default: mongoose } = require("mongoose");
-
+const HttpStatus = require('../../config/httpStatus');
 const getCart = async (req, res) => {
   try {
     const user = req.session.user; 
@@ -19,7 +19,7 @@ const getCart = async (req, res) => {
     res.render("cart", { cart , user});
   } catch (error) {
     console.error("Get cart error:", error);
-    res.status(500).json({
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Failed to get cart",
     });
@@ -34,7 +34,7 @@ const addToCart = async (req, res) => {
 
   
     if (!user) {
-      return res.status(401).json({
+      return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: "User not logged in. Please log in to add items to the cart.",
       });
@@ -44,14 +44,14 @@ const addToCart = async (req, res) => {
   
     
     if (!product) {
-      return res.status(404).json({
+      return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: "Product not found.",
       });
     }
 
     if (product.quantity < quantity) {    
-      return res.status(400).json({
+      return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "Not enough stock available.",
       });
@@ -72,14 +72,14 @@ const addToCart = async (req, res) => {
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity;
       if (newQuantity > 5) {
-        return res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: `You can only add up to 5 units of this product.`,
         });
       }
 
       if (newQuantity > product.quantity) {
-        return res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "Exceeds available stock.",
         });
@@ -105,7 +105,7 @@ const addToCart = async (req, res) => {
     });
   } catch (error) {
     console.error("Add to cart error:", error);
-    res.status(500).json({
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Internal Server Error. Please try again later.",
     });
@@ -117,14 +117,14 @@ const removeFromCart = async (req, res) => {
     const { productId } = req.body;
 
     if (!productId) {
-      return res.status(400).json({ success: false, message: "Product ID is required" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Product ID is required" });
     }
 
     const user = req.session.user;
     const cart = await Cart.findOne({ userId: user });
 
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Cart not found" });
     }
    //locate index base product in cart
     const itemIndex = cart.items.findIndex(
@@ -139,11 +139,11 @@ const removeFromCart = async (req, res) => {
       await cart.save();  
       return res.json({ success: true, message: "Item removed successfully" });
     } else {
-      return res.status(404).json({ success: false, message: "Item not found in cart" });
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Item not found in cart" });
     }
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -174,10 +174,10 @@ const updateQuantity = async (req, res) => {
 
         //fetch all products details in cart
         const [cart, product] = await Promise.all([
-            Cart.findOne({ user: userId }),
+            Cart.findOne({ userId }),
             Product.findById(productId)
         ]);
-
+       
       
         if (!cart) {
             return res.status(404).json({
