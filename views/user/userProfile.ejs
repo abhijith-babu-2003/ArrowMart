@@ -18,10 +18,7 @@
         background-color: var(--background-color);
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem 0;
+        padding-top: 64px;
         color: var(--text-primary);
     }
 
@@ -29,6 +26,7 @@
         display: flex;
         width: 95%;
         max-width: 1400px;
+        margin: 2rem auto;
         background: linear-gradient(145deg, #ffffff, #f8fafc);
         border-radius: 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -42,6 +40,7 @@
         background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
         padding: 2rem;
         color: white;
+        min-height: calc(100vh - 128px);
     }
 
     .sidebar a {
@@ -213,11 +212,13 @@
         .container {
             flex-direction: column;
             width: 100%;
+            margin: 1rem auto;
             border-radius: 0;
         }
 
         .sidebar {
             width: 100%;
+            min-height: auto;
             padding: 1rem;
         }
 
@@ -234,8 +235,10 @@
         background: white;
         padding: 1rem 2rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        position: sticky;
+        position: fixed;
         top: 0;
+        left: 0;
+        right: 0;
         z-index: 1000;
     }
 
@@ -245,6 +248,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        position: relative;
     }
 
     .brand {
@@ -255,6 +259,9 @@
     }
 
     .main-nav {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
         gap: 2rem;
         align-items: center;
@@ -278,20 +285,18 @@
         color: var(--primary-color);
         background-color: var(--background-color);
     }
-
-    /* Adjust existing body style to account for header */
-    body {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        background-color: var(--background-color);
-        margin: 0;
-        min-height: 100vh;
-        padding-top: 0;
-    }
 </style>
 
-
-
-
+<header class="main-header">
+    <div class="nav-container">
+        <a href="/" class="brand">ArrowMart</a>
+        <nav class="main-nav">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/shop" class="nav-link">Shop</a> 
+            <a href="/userProfile" class="nav-link active">Profile</a>
+        </nav>
+    </div>
+</header>
 
 <div class="container">
     <!-- Sidebar -->

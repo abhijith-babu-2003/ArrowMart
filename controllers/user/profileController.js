@@ -297,68 +297,90 @@ const postAddAddresss = async (req, res) => {
     }
 };
 
-const editAddress =async(req,res)=>{
+const editAddress = async (req, res) => {
     try {
         const { id } = req.params;
-        const user=req.session.id   
-        const data=req.body
-    
-   const findAddress=await Address.findOne({
-    "address._id":id
-   })
-    
-   if(!findAddress){
-    return res.redirect("/pageNotFound")
-   }
-   
-    await Address.updateOne(
-        {"address._id":id},
-        {$set:{"address.$":{
-         _id:id,
-         addressType:data.addressType,
-         name:data.name,
-         city:data.city,
-         landMark:data.landMark,
-         state:data.state,
-         pincode:data.pincode,
-         phone:data.phone,
-         altPhone:data.altPhone
+        const user = req.session.id;
+        const data = req.body;
+
+        // Validation: Check for empty fields
+        const requiredFields = [
+            'addressType',
+            'name',
+            'city',
+            'landMark',
+            'state',
+            'pincode',
+            'phone',
+            'altPhone',
+        ];
+        const missingFields = requiredFields.filter((field) => !data[field] || data[field].trim() === '');
+        
+        if (missingFields.length > 0) {
+            return res.json({
+                success: false,
+                message: `Please fill in all required fields: ${missingFields.join(', ')}`,
+            });
         }
-    }}
-    )
-    res.json({success:true,message:"Address edited successfully"})
+
+        // Find the address
+        const findAddress = await Address.findOne({ "address._id": id });
+
+        if (!findAddress) {
+            return res.redirect("/pageNotFound");
+        }
+
+        // Update the address
+        await Address.updateOne(
+            { "address._id": id },
+            {
+                $set: {
+                    "address.$": {
+                        _id: id,
+                        addressType: data.addressType,
+                        name: data.name,
+                        city: data.city,
+                        landMark: data.landMark,
+                        state: data.state,
+                        pincode: data.pincode,
+                        phone: data.phone,
+                        altPhone: data.altPhone,
+                    },
+                },
+            }
+        );
+
+        res.json({ success: true, message: "Address edited successfully" });
 
     } catch (error) {
         console.error(error.message);
-        
-        res.json({success:false,message:"Failed to update address"})
+        res.json({ success: false, message: "Failed to update address" });
     }
-}
+};
 
 
 
-const deleteAddress=async(req,res)=>{
+const deleteAddress = async (req, res) => {
     try {
-       const addressId=req.params.id 
-       const findAddress=await Address.findOne({"address._id":addressId})
-       if(!findAddress){
-        res.status(404).json({success:false,message:"address not found"})
-       }
-       await Address.updateOne({
-        "address._id":addressId
-       },
-       {
-        $pull:{address:{_id:addressId}}
-       }
-    )
+        const addressId = req.params.id;
+        const findAddress = await Address.findOne({ "address._id": addressId });
 
-    res.status(200).json({success:true,message:"address deleted successfully"})
+        if (!findAddress) {
+            return res.status(404).json({ success: false, message: "Address not found" });
+        }
+
+        await Address.updateOne(
+            { "address._id": addressId },
+            { $pull: { address: { _id: addressId } } }
+        );
+
+        return res.status(200).json({ success: true, message: "Address deleted successfully" });
     } catch (error) {
-         console.error("error in delete addresss",error);
-         res.redirect("/pageNotFound")
-         
+        console.error("Error in delete address:", error);
+       
+        return res.redirect("/pageNotFound");
     }
-}
+};
 
 
 
