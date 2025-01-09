@@ -982,29 +982,38 @@
     });
 
     async function deleteAddress(addressId) {
-        if (confirm("Are you sure you want to delete this address?")) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to delete this address?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
             try {
                 const response = await fetch(`/deleteAddress/${addressId}`, {
                     method: 'DELETE'
-                })
+                });
 
                 if (response.ok) {
-                    setTimeout(() => {
-                        Swal.fire("Address deleted successfully")
-                        window.location.href = "/userProfile"
-                    }, 2000);
+                    Swal.fire("Deleted!", "Address deleted successfully.", "success")
+                        .then(() => {
+                            window.location.href = "/userProfile";
+                        });
                 } else {
-                    const result = await response.json()
-                    Swal.fire(result.message)
+                    const result = await response.json();
+                    Swal.fire("Error!", result.message, "error");
                 }
             } catch (error) {
-                console.error("error deleting address", error);
-                Swal.fire("An error occurred.Please try again")
-
+                console.error("Error deleting address", error);
+                Swal.fire("Error!", "An error occurred. Please try again.", "error");
             }
         }
-
-    }
+    });
+}
 
 
 
