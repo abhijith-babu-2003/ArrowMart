@@ -391,6 +391,8 @@ const getShopPage=async(req,res)=>{
       .limit(limit)
       .sort(sortOption);
 
+            
+
     res.render("shop", {
       user: userData,
       products: products,

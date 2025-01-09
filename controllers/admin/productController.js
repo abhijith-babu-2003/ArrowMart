@@ -105,13 +105,13 @@ const addProducts = async (req, res) => {
     if (!category) {
       return res.status(400).json({ message: "Invalid category name" });
     }
-
+    
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
       category: category._id,
       regularPrice: products.regularPrice,
-      salePrice: products.salePrice,
+      salePrice:products.salePrice,
       quantity: products.quantity,
       color: products.color,
       productImage: images,
