@@ -391,7 +391,16 @@ const getShopPage=async(req,res)=>{
       .limit(limit)
       .sort(sortOption);
 
-            
+      products.forEach(product => {
+        const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
+        const productOfferAmount = (product.regularPrice -  product.salePrice) || 0;
+        const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+        
+        if(categoryOfferAmount > productOfferAmount)product.categoryOfferApplied = true
+        product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
+  
+        
+      });
 
     res.render("shop", {
       user: userData,

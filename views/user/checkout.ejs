@@ -21,14 +21,14 @@
                                 </h6>
                                 <p class="text-muted mb-0">Quantity: <%= item.quantity %>
                                 </p>
-                                <p class="text-primary mb-0">₹<%= item.productId.salePrice %>
+                                <p class="text-primary mb-0">₹<%= item.productId.effectiveSalePrice %>
                                 </p>
                             </div>
                             <div class="col-3 text-end">
-                                <h6 class="fw-semibold mb-0">₹<%= item.productId.salePrice * item.quantity %>
+                                <h6 class="fw-semibold mb-0">₹<%= item.productId.effectiveSalePrice * item.quantity %>
                                 </h6>
                             </div>
-                        </div>
+                        </div>  
                         <% }); %>
 
                             <div class="divider"></div>

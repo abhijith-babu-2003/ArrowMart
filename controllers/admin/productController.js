@@ -210,6 +210,7 @@ const editproduct = async (req, res) => {
         ...newImages
       ];
     }
+    
 
 
 

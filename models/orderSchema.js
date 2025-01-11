@@ -13,6 +13,10 @@ const orderSchema=new Schema({
         ref: "User",
         required: true
     },
+    couponApplied: { 
+        type: Schema.Types.ObjectId,
+        ref: "Coupon"
+    },
     orderedItems:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -90,7 +94,8 @@ const orderSchema=new Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    
 }, {
     timestamps: true
 });

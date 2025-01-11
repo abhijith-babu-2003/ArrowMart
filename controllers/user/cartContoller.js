@@ -3,23 +3,39 @@ const User = require("../../models/userSchema.js");
 const Product = require("../../models/ProductSchema.js");
 const { default: mongoose } = require("mongoose");
 const HttpStatus = require('../../config/httpStatus');
+const { userAuth } = require("../../middileware/auth.js");
+
+
 const getCart = async (req, res) => {
   try {
-    const user = req.session.user; 
-    const cart = await Cart.findOne({ userId:  user  }).populate(
-      "items.productId",
-      "productName productImage salePrice"
-    );
+    const user = req.session.user;
+      const cart = await Cart.findOne({userId:user}).populate({
+        path:"items.productId",
+        populate:{path:"category" }
+      })
+
 
     if (!cart) {
       return res.render("cart", {
         cart: { items: [] },
       });
     }
-    res.render("cart", { cart , user});
+
+    cart.items.forEach(item => {
+      const product = item.productId;
+      const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
+      const productOfferAmount = product.salePrice ? (product.regularPrice - product.salePrice) : 0;
+      const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+
+      if (categoryOfferAmount > productOfferAmount) product.categoryOfferApplied = true;
+      product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
+    });
+   
+   
+    res.render("cart", { cart, user });
   } catch (error) {
     console.error("Get cart error:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    res.status(500).json({
       success: false,
       message: "Failed to get cart",
     });
@@ -92,7 +108,7 @@ const addToCart = async (req, res) => {
         productId,
         quantity,
         price: product.salePrice,
-        totalPrice: product.salePrice * quantity,
+        totalPrice: product.effectiveSalePrice * quantity,
       });
     }
 

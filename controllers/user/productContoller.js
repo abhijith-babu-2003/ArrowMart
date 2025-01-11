@@ -14,6 +14,7 @@ const productDetails=async(req,res)=>{
         if(!product){
             throw new Error("product not found")
         }
+        
         const findCategory = product.category|| {};
         const categoryOffer = findCategory?.categoryOffer || 0;
         const productOffer = product.productOffer || 0;
@@ -27,6 +28,16 @@ const productDetails=async(req,res)=>{
         });
     
         
+     
+        const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
+        const productOfferAmount = (product.regularPrice -  product.salePrice) || 0;
+        const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+        
+        if(categoryOfferAmount > productOfferAmount)product.categoryOfferApplied = true
+        product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
+  
+        
+    
 
         res.render("productDetails",{
             user:userData,

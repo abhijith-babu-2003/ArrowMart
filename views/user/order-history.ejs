@@ -13,7 +13,7 @@
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Date</th>
-                                    <th>Items</th>
+                                    <th>Quantity</th>
                                     <th>Total</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -26,7 +26,8 @@
                                         <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
                                         <td>
                                             <% order.orderedItems.forEach((item, index) => { %>
-                                                <%= item.product.productName %>
+                                                <%= item.productName %>
+                                                <%= item.quantity %>
                                                 <% if (index < order.orderedItems.length - 1) { %>, <% } %>
                                             <% }); %>
                                         </td>

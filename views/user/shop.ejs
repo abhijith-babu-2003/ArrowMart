@@ -83,58 +83,56 @@
 
             </div>
 
-            <div class="row g-3" id="product-list">
-                <% for(let i=0;i<products.length;i++){%>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="product-card">
-                            <div class="product-image">
-                                <a href="/productDetails?id=<%= products[i]._id %>">
-                                    <img src="/uploads/<%= products[i].productImage[0] %>"
-                                        alt="<%= products[i].productName %>">
-                                </a>
-                                
-                            </div>
-                            <div class="product-details">
-                                <h5 class="product-title">
-                                    <%= products[i].productName %>
-                                </h5>
-                                <div class="product-price">
-                                    <span class="price">₹<%= products[i].salePrice %></span>
-                                    <% if (products[i].regularPrice> products[i].salePrice) { %>
-                                        <span class="original-price">₹<%= products[i].regularPrice %></span>
-                                        <% } %>
-                                </div>
-                                <% if (products[i].category && products[i].category.categoryOffer > 0) { %>
-                                    <div class="category-offer">
-                                        <span class="offer-badge">
-                                            <%= products[i].category.categoryOffer %>% Category Offer
-                                        </span>
-                                    </div>
-                                <% } %>
-                                <div class="stock-status">
-                                    <% if (products[i].quantity> 0) { %>
-                                        <span class="in-stock">In Stock (<%= products[i].quantity %> left)</span>
-                                        <% } else { %>
-                                            <span class="out-of-stock">Out of Stock</span>
-                                            <% } %>
-                                </div>
-                                <div class="product-actions">
-                                    <% if (products[i].quantity> 0) { %>
-                                        <button onclick="addToCart('<%= products[i]._id %>')"
-                                            class="btn btn-primary">Add to Cart</button>
-                                        <% } else { %>
-                                            <button disabled class="btn btn-secondary">Out of Stock</button>
-                                            <% } %>
-
-                                    <button class="btn btn-instagram "  onclick="addToWishlist('<%= products[i]._id%>')">
-                                        <img class="icon-heart1 " src="/assets/images/icons/icon-heart-01.png " alt="ICON">
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <% } %>
+           <div class="row g-3" id="product-list">
+  <% for(let i=0;i<products.length;i++){%>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="product-card">
+        <div class="product-image">
+          <a href="/productDetails?id=<%= products[i]._id %>">
+            <img src="/uploads/<%= products[i].productImage[0] %>"
+              alt="<%= products[i].productName %>">
+          </a>
+        </div>
+        <div class="product-details">
+          <h5 class="product-title">
+            <%= products[i].productName %>
+          </h5>
+          <div class="product-price">
+            <span class="price">₹<%= products[i].effectiveSalePrice %></span>
+            <% if (products[i].regularPrice > products[i].effectiveSalePrice) { %>
+              <span class="original-price">₹<%= products[i].regularPrice %></span>
+            <% } %>
+          </div>
+          <% if (products[i].category && products[i].category.categoryOffer > 0 && products[i].categoryOfferApplied) { %>
+            <div class="category-offer">
+              <span class="offer-badge">
+                <%= products[i].category.categoryOffer %>% Category Offer
+              </span>
             </div>
+          <% } %>
+          <div class="stock-status">
+            <% if (products[i].quantity > 0) { %>
+              <span class="in-stock">In Stock (<%= products[i].quantity %> left)</span>
+            <% } else { %>
+              <span class="out-of-stock">Out of Stock</span>
+            <% } %>
+          </div>
+          <div class="product-actions">
+            <% if (products[i].quantity > 0) { %>
+              <button onclick="addToCart('<%= products[i]._id %>')"
+                class="btn btn-primary">Add to Cart</button>
+            <% } else { %>
+              <button disabled class="btn btn-secondary">Out of Stock</button>
+            <% } %>
+            <button class="btn btn-instagram" onclick="addToWishlist('<%= products[i]._id %>')">
+              <img class="icon-heart1" src="/assets/images/icons/icon-heart-01.png" alt="ICON">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
 
             <!-- Load more -->
        
@@ -294,69 +292,6 @@
                     });
                 });
         }
-
-        //sorting
-            // async function fetchProducts() {
-
-            //     const selectElement = document.querySelector('select[name="sort"]');
-
-            //     // Get the selected value
-            //     const sort = selectElement.value;
-
-            //     try {
-            //         const response = await fetch(`/Products?sort=${sort}`);
-            //         const products = await response.json();
-
-            //         const productList = document.getElementById('product-list');
-            //         productList.innerHTML = '';
-
-            //         products.forEach(product => {
-            //             const productHTML = `
-            //         <div class="col-6 col-md-4 col-lg-3">
-            //             <div class="product-card">
-            //                 <div class="product-image">
-            //                     <a href="/productDetails?id=${product._id}">
-            //                         <img src="/uploads/${product.productImage[0]}" 
-            //                              alt="${product.productName}" 
-            //                              class="product-img">
-            //                     </a>
-            //                     <div class="quick-view">
-            //                         <a href="/productDetails?id=${product._id}" 
-            //                            class="btn btn-sm btn-light">Quick View</a>
-            //                     </div>
-            //                 </div>
-            //                 <div class="product-info">
-            //                     <h6 class="product-title text-truncate mb-1">
-            //                         ${product.productName}
-            //                     </h6>
-            //                     <div class="product-price mb-1">
-            //                         <span class="sale-price">Rs. ${product.salePrice}</span>
-            //                         <small class="original-price">Rs. ${product.regularPrice}</small>
-            //                     </div>
-            //                     <div class="d-flex justify-content-between align-items-center mb-2">
-            //                         <div class="rating">★★★★☆</div>
-            //                         <small class="stock">Stock: ${product.quantity}</small>
-            //                     </div>
-            //                     <div class="product-actions">
-            //                         <button onclick="addToCart('${product._id}')" 
-            //                                 class="btn btn-sm btn-primary w-100 mb-1">
-            //                             Add to Cart
-            //                         </button>
-            //                         <button class="btn btn-sm btn-outline-secondary w-100">
-            //                             <i class="far fa-heart"></i> Wishlist
-            //                         </button>
-            //                     </div>
-                                
-            //                 </div>
-            //             </div>
-            //         </div>
-            //     `;
-            //             productList.insertAdjacentHTML('beforeend', productHTML);
-            //         });
-            //     } catch (error) {
-            //         console.error('Error:', error);
-            //     }
-            // }       
 
         //add to wiahlist
 

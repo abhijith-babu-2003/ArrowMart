@@ -10,14 +10,29 @@ const razorpay = require("../../config/razorpay.js");
 const {generateOrderId}=require("../../utils/orderIdGenerator.js")
 const crypto = require("crypto");
 const HttpStatus = require('../../config/httpStatus');
+const { path } = require("pdfkit");
+
 
 // Load checkout page
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
-    const cart = await Cart.findOne({ userId })
-      .populate("items.productId")
+    const cart = await Cart.findOne({ userId }) 
+      .populate({
+        path: "items.productId",
+        populate: { path: "category" }
+      })
       .populate("couponApplied");
+
+    cart.items.forEach(item => {
+      const product = item.productId;
+      const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
+      const productOfferAmount = product.salePrice ? (product.regularPrice - product.salePrice) : 0;
+      const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+
+      if (categoryOfferAmount > productOfferAmount) product.categoryOfferApplied = true;
+      product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
+    });
 
     const addresses = await Address.findOne({ userId });
     const wallet = await Wallet.findOne({ userId });
@@ -32,7 +47,7 @@ const loadCheckout = async (req, res) => {
     let itemCount = 0;
 
     cart.items.forEach((item) => {
-      const price = item.productId.salePrice || item.productId.regularPrice;
+      const price = item.productId.effectiveSalePrice || item.productId.regularPrice;
       subtotal += price * item.quantity;
       itemCount += item.quantity;
     });
@@ -46,7 +61,7 @@ const loadCheckout = async (req, res) => {
         productId: item.productId,
         quantity: item.quantity,
         total:
-          (item.productId.salePrice || item.productId.regularPrice) *
+          (item.productId.effectiveSalePrice|| item.productId.regularPrice) *
           item.quantity,
       })),
       subtotal,
@@ -99,8 +114,11 @@ const placeOrder = async (req, res) => {
 
     // Get cart with coupon details
     const cart = await Cart.findOne({ userId })
-      .populate("items.productId")
-      .populate("couponApplied");
+      .populate({
+        path: "items.productId",
+        populate: { path: "category" }
+      }) 
+      .populate("couponApplied").lean();
 
     if (!cart || cart.items.length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -113,14 +131,14 @@ const placeOrder = async (req, res) => {
     const orderItems = [];
 
     // Validate products and calculate total
-    for (const item of cart.items) {
+    for (const item of cart.items) {  
       const product = await Product.findById(item.productId._id);
 
       if (!product) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message:` Product not found: ${item.productId.productName}`,
-        });
+        }); 
       }
 
       if (product.quantity < item.quantity) {
@@ -130,15 +148,24 @@ const placeOrder = async (req, res) => {
         });
       }
 
-      const price = product.salePrice || product.regularPrice;
-      subtotal += price * item.quantity;
+      // Calculate best offer price for this item
+      const categoryOfferAmount = (item.productId.category.categoryOffer / 100) * item.productId.regularPrice;
+      const productOfferAmount = item.productId.salePrice ? (item.productId.regularPrice - item.productId.salePrice) : 0;
+      const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+      
+      // Calculate effective price for this item
+      const effectivePrice = parseFloat((item.productId.regularPrice - greaterOfferAmount).toFixed(2));
+      
+      // Add to subtotal and order items
+      subtotal += effectivePrice * item.quantity;
 
       orderItems.push({
         product: product._id,
         quantity: item.quantity,
-        price: price,
+        price: effectivePrice,
       });
     }
+
 
     const tax = subtotal * 0.05;
     const discountAmount = cart.discountAmount || 0;
@@ -250,6 +277,9 @@ const cancelOrder = async (req, res) => {
 
     // Handle Razorpay refund and add to wallet
     if (order.paymentMethod === "RAZORPAY") {
+
+
+      
       if (order.paymentDetails?.paymentId) {
         try {
           const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {
@@ -577,7 +607,10 @@ const createRazorpayOrder = async (req, res) => {
     const { addressId } = req.body;
 
     const cart = await Cart.findOne({ userId })
-      .populate("items.productId")
+      .populate({
+        path: "items.productId",
+        populate: { path: "category" }
+      })
       .populate("couponApplied");
 
     if (!cart || cart.items.length === 0) {

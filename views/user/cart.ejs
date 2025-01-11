@@ -336,7 +336,7 @@
                                     <td class="column-2">
                                         <span class="product-name"><%= item.productId.productName %></span>
                                     </td>
-                                    <td class="column-3">Rs.<%= item.price %></td>
+                                    <td class="column-3">Rs.<%=item.productId.effectiveSalePrice %></td>
                                     <td class="column-4">
                                         <% if(item.productId.quantity != 0) { %>
                                             <div class="quantity-control">
@@ -363,7 +363,7 @@
                                             <span class="text-danger">Out of Stock</span>
                                         <% } %>
                                     </td>
-                                    <td class="column-5">Rs.<%= item.totalPrice %></td>
+                                    <td class="column-5">Rs.<%= (item.productId.effectiveSalePrice *item.quantity).toFixed(2) %></td>
                                     <td class="column-6">
                                         <button type="button" 
                                                 class="btn-remove-item" 
