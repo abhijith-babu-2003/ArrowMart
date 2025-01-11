@@ -32,18 +32,19 @@
                                 <div class="col-md-6 mb-3">
                                     <select name="category" class="form-control">
                                         <option value="">All Categories</option>
-                                        <% if(typeof categories !== 'undefined') { %>
-                                            <% categories.forEach(category => { %>
-                                                <option value="<%= category._id %>" 
-                                                    <%= (typeof selectedCategory !== 'undefined' && selectedCategory == category._id) ? 'selected' : '' %>>
+                                        <% if(typeof categories !=='undefined' ) { %>
+                                            <% categories.forEach(category=> { %>
+                                                <option value="<%= category._id %>" <%=(typeof selectedCategory
+                                                    !=='undefined' && selectedCategory==category._id) ? 'selected' : ''
+                                                    %>>
                                                     <%= category.categoryName %>
                                                 </option>
-                                            <% }) %>
-                                        <% } %>
+                                                <% }) %>
+                                                    <% } %>
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <select name="priceRange" class="form-control">               
+                                    <select name="priceRange" class="form-control">
                                         <option value="">Price Range</option>
                                         <option value="0-500">Under ₹500</option>
                                         <option value="500-5000">₹500 - ₹5000</option>
@@ -83,61 +84,61 @@
 
             </div>
 
-           <div class="row g-3" id="product-list">
-  <% for(let i=0;i<products.length;i++){%>
-    <div class="col-6 col-md-4 col-lg-3">
-      <div class="product-card">
-        <div class="product-image">
-          <a href="/productDetails?id=<%= products[i]._id %>">
-            <img src="/uploads/<%= products[i].productImage[0] %>"
-              alt="<%= products[i].productName %>">
-          </a>
-        </div>
-        <div class="product-details">
-          <h5 class="product-title">
-            <%= products[i].productName %>
-          </h5>
-          <div class="product-price">
-            <span class="price">₹<%= products[i].effectiveSalePrice %></span>
-            <% if (products[i].regularPrice > products[i].effectiveSalePrice) { %>
-              <span class="original-price">₹<%= products[i].regularPrice %></span>
-            <% } %>
-          </div>
-          <% if (products[i].category && products[i].category.categoryOffer > 0 && products[i].categoryOfferApplied) { %>
-            <div class="category-offer">
-              <span class="offer-badge">
-                <%= products[i].category.categoryOffer %>% Category Offer
-              </span>
+            <div class="row g-3" id="product-list">
+                <% for(let i=0;i<products.length;i++){%>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="product-card">
+                            <div class="product-image">
+                                <a href="/productDetails?id=<%= products[i]._id %>">
+                                    <img src="/uploads/<%= products[i].productImage[0] %>"
+                                        alt="<%= products[i].productName %>">
+                                </a>
+                            </div>
+                            <div class="product-details">
+                                <h5 class="product-title">
+                                    <%= products[i].productName %>
+                                </h5>
+                                <div class="product-price">
+                                    <span class="price">₹<%= products[i].effectiveSalePrice %></span>
+                                    <% if (products[i].regularPrice> products[i].effectiveSalePrice) { %>
+                                        <span class="original-price">₹<%= products[i].regularPrice %></span>
+                                        <% } %>
+                                </div>
+                                <% if (products[i].category && products[i].category.categoryOffer> 0 &&
+                                    products[i].categoryOfferApplied) { %>
+                                    <div class="category-offer">
+                                        <span class="offer-badge">
+                                            <%= products[i].category.categoryOffer %>% Category Offer
+                                        </span>
+                                    </div>
+                                    <% } %>
+                                        <div class="stock-status">
+                                            <% if (products[i].quantity> 0) { %>
+                                                <span class="in-stock">In Stock (<%= products[i].quantity %>
+                                                        left)</span>
+                                                <% } else { %>
+                                                    <span class="out-of-stock">Out of Stock</span>
+                                                    <% } %>
+                                        </div>
+                                        <div class="product-actions">
+                                            <% if (products[i].quantity> 0) { %>
+                                                <button onclick="addToCart('<%= products[i]._id %>')"
+                                                    class="btn btn-primary">Add to Cart</button>
+                                                <% } else { %>
+                                                    <button disabled class="btn btn-secondary">Out of Stock</button>
+                                                    <% } %>
+                                                        <button class="btn btn-instagram"
+                                                            onclick="addToWishlist('<%= products[i]._id %>')">
+                                                            <img class="icon-heart1"
+                                                                src="/assets/images/icons/icon-heart-01.png" alt="ICON">
+                                                        </button>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
             </div>
-          <% } %>
-          <div class="stock-status">
-            <% if (products[i].quantity > 0) { %>
-              <span class="in-stock">In Stock (<%= products[i].quantity %> left)</span>
-            <% } else { %>
-              <span class="out-of-stock">Out of Stock</span>
-            <% } %>
-          </div>
-          <div class="product-actions">
-            <% if (products[i].quantity > 0) { %>
-              <button onclick="addToCart('<%= products[i]._id %>')"
-                class="btn btn-primary">Add to Cart</button>
-            <% } else { %>
-              <button disabled class="btn btn-secondary">Out of Stock</button>
-            <% } %>
-            <button class="btn btn-instagram" onclick="addToWishlist('<%= products[i]._id %>')">
-              <img class="icon-heart1" src="/assets/images/icons/icon-heart-01.png" alt="ICON">
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% } %>
-</div>
 
-            <!-- Load more -->
-       
-     
-        
         </div>
     </div>
 
@@ -226,6 +227,7 @@
         .category-offer {
             margin: 8px 0;
         }
+
         .offer-badge {
             background-color: #28a745;
             color: white;
@@ -251,11 +253,11 @@
     </style>
 
     <script>
-        document.querySelector('select[name="priceRange"]').value = "<%=selectedPriceRange%>";            
-        document.querySelector('select[name="search"]').value = "<%=query%>";   
-        document.querySelector('select[name="category"]').value = "<%=selectedCategory%>";   
-        document.querySelector('select[name="sortBy"]').value = "<%=selectedSort%>";   
-        document.querySelector('select[name="availability"]').value = "<%=selectedAvailability%>";   document.querySelector('select[name="search"]').value = "<%=selectedPriceRange%>";   
+        document.querySelector('select[name="priceRange"]').value = "<%=selectedPriceRange%>";
+        document.querySelector('select[name="search"]').value = "<%=query%>";
+        document.querySelector('select[name="category"]').value = "<%=selectedCategory%>";
+        document.querySelector('select[name="sortBy"]').value = "<%=selectedSort%>";
+        document.querySelector('select[name="availability"]').value = "<%=selectedAvailability%>"; document.querySelector('select[name="search"]').value = "<%=selectedPriceRange%>";
         function addToCart(productId) {
             fetch('/addCart', {
                 method: 'POST',
@@ -295,13 +297,13 @@
 
         //add to wiahlist
 
-        function addToWishlist(productId){
+        function addToWishlist(productId) {
             $.ajax({
                 url: '/addWishlist',
                 type: 'POST',
-                data: {productId},
-                success:(response)=>{
-                    if(response.status){
+                data: { productId },
+                success: (response) => {
+                    if (response.status) {
                         Swal.fire({
                             title: "added to wishlist",
                             text: 'Product added to wishlist successfully!',
@@ -310,7 +312,7 @@
                         });
                     }
                 },
-                error:(error)=>{
+                error: (error) => {
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Product already in wishlist',

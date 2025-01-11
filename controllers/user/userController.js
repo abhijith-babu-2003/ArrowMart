@@ -408,7 +408,7 @@ const getShopPage=async(req,res)=>{
       categories: categories,
       totalProducts: totalProducts,
       currentPage: page,
-      totalPages: totalPages,
+      totalPages,
       query: req.query.search || '',
       selectedCategory: req.query.category || '',
       selectedPriceRange: req.query.priceRange || '',

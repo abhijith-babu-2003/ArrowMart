@@ -3,7 +3,6 @@ const User = require("../../models/userSchema.js");
 const Product = require("../../models/ProductSchema.js");
 const { default: mongoose } = require("mongoose");
 const HttpStatus = require('../../config/httpStatus');
-const { userAuth } = require("../../middileware/auth.js");
 
 
 const getCart = async (req, res) => {
