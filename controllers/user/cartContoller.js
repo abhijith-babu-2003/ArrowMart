@@ -5,6 +5,8 @@ const { default: mongoose } = require("mongoose");
 const HttpStatus = require('../../config/httpStatus');
 
 
+
+
 const getCart = async (req, res) => {
   try {
     const user = req.session.user;
@@ -31,6 +33,7 @@ const getCart = async (req, res) => {
     });
    
    
+   
     res.render("cart", { cart, user });
   } catch (error) {
     console.error("Get cart error:", error);
@@ -47,17 +50,15 @@ const addToCart = async (req, res) => {
     const { productId, quantity = 1 } = req.body;
     const user = req.session.user;
 
-  
     if (!user) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: "User not logged in. Please log in to add items to the cart.",
       });
     }
-    
+
     const product = await Product.findById(productId);
-  
-    
+
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
@@ -65,51 +66,36 @@ const addToCart = async (req, res) => {
       });
     }
 
-    if (product.quantity < quantity) {    
+    if (product.quantity < quantity) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "Not enough stock available.",
       });
     }
 
-    let cart = await Cart.findOne({ userId: user});
+    let cart = await Cart.findOne({ userId: user });
 
     if (!cart) {
       cart = new Cart({ userId: user, items: [] });
     }
-   
-    
 
     const existingItem = cart.items.find(
       (item) => item.productId.toString() === productId
     );
 
     if (existingItem) {
-      const newQuantity = existingItem.quantity + quantity;
-      if (newQuantity > 5) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: `You can only add up to 5 units of this product.`,
-        });
-      }
-
-      if (newQuantity > product.quantity) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Exceeds available stock.",
-        });
-      }
-    
-      existingItem.quantity = newQuantity;
-      existingItem.totalPrice = existingItem.quantity * product.salePrice;
-    } else {
-      cart.items.push({
-        productId,
-        quantity,
-        price: product.salePrice,
-        totalPrice: product.effectiveSalePrice * quantity,
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Product is already in the cart.",
       });
     }
+
+    cart.items.push({
+      productId,
+      quantity,
+      price: product.salePrice,
+      totalPrice: product.salePrice * quantity,
+    });
 
     await cart.save();
 
@@ -228,12 +214,13 @@ const updateQuantity = async (req, res) => {
         cartItem.quantity = quantity;
         cartItem.totalPrice = quantity * product.salePrice;
 
-    
-        await cart.save();
+     
+      
+      await cart.save();
 
     
         const cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-
+          
         return res.json({
             success: true,
             message: "Quantity updated successfully",
@@ -242,7 +229,7 @@ const updateQuantity = async (req, res) => {
             cartTotal: cartTotal,
             maxQuantity: 5
         });
-
+   
     } catch (error) {
         console.error('Cart quantity update error:', error);
         return res.status(500).json({

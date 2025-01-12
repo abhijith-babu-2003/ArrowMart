@@ -55,7 +55,7 @@ const forgotPassword =async(req,res)=>{
     try {
         res.render("forgotPassword")
     } catch (error) {
-        res.status(400).json("page not renderig")
+        res.status(400).json("page is not found")
     }
 }
 
@@ -186,7 +186,7 @@ const updateDetails =async(req,res)=>{
         if (updatedDetails.modifiedCount > 0) {
             res.json({ success: true, message: "User details updated successfully!" });
         } else {
-            res.status(400).json({ success: false, message: "Failed to update user details" });
+            res.status(400).json({ success: false, message: "User details are not updated.....!" });
         }
     } catch (error) {
         console.error(error.message);

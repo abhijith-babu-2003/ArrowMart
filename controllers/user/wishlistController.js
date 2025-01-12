@@ -52,14 +52,13 @@ const addToWishlist = async (req, res) => {
         let wishlist = await Wishlist.findOne({ userId });
 
         if (!wishlist) {
-            //  no wishlist , create a new one
             wishlist = new Wishlist({
                 userId,
                 products: []
             });
         }
 
-        // Check if the product is already in the wishlist
+      
         const productExists = wishlist.products.some(
             (product) => product.productId.toString() === productId
         );

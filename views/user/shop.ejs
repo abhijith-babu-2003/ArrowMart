@@ -73,7 +73,7 @@
                                     <button type="submit" class="btn btn-primary px-4">
                                         Search
                                     </button>
-                                    <button type="reset" class="btn btn-secondary px-4 ms-2">
+                                    <button type="reset"  class="btn btn-secondary px-4 ms-2">
                                         Reset
                                     </button>
                                 </div>
@@ -85,59 +85,67 @@
             </div>
 
             <div class="row g-3" id="product-list">
-                <% for(let i=0;i<products.length;i++){%>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="product-card">
-                            <div class="product-image">
-                                <a href="/productDetails?id=<%= products[i]._id %>">
-                                    <img src="/uploads/<%= products[i].productImage[0] %>"
-                                        alt="<%= products[i].productName %>">
-                                </a>
-                            </div>
-                            <div class="product-details">
-                                <h5 class="product-title">
-                                    <%= products[i].productName %>
-                                </h5>
-                                <div class="product-price">
-                                    <span class="price">₹<%= products[i].effectiveSalePrice %></span>
-                                    <% if (products[i].regularPrice> products[i].effectiveSalePrice) { %>
-                                        <span class="original-price">₹<%= products[i].regularPrice %></span>
-                                        <% } %>
+                <% if (products.length > 0) { %>
+                    <% for (let i = 0; i < products.length; i++) { %>
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <a href="/productDetails?id=<%= products[i]._id %>">
+                                        <img src="/uploads/<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                                    </a>
                                 </div>
-                                <% if (products[i].category && products[i].category.categoryOffer> 0 &&
-                                    products[i].categoryOfferApplied) { %>
-                                    <div class="category-offer">
-                                        <span class="offer-badge">
-                                            <%= products[i].category.categoryOffer %>% Category Offer
-                                        </span>
+                                <div class="product-details">
+                                    <h5 class="product-title">
+                                        <%= products[i].productName %>
+                                    </h5>
+                                    <div class="product-price">
+                                        <span class="price">₹<%= products[i].effectiveSalePrice %></span>
+                                        <% if (products[i].regularPrice > products[i].effectiveSalePrice) { %>
+                                            <span class="original-price">₹<%= products[i].regularPrice %></span>
+                                        <% } %>
                                     </div>
+                                    <% if (products[i].category && products[i].category.categoryOffer > 0 && products[i].categoryOfferApplied) { %>
+                                        <div class="category-offer">
+                                            <span class="offer-badge">
+                                                <%= products[i].category.categoryOffer %>% Category Offer
+                                            </span>
+                                        </div>
                                     <% } %>
-                                        <div class="stock-status">
-                                            <% if (products[i].quantity> 0) { %>
-                                                <span class="in-stock">In Stock (<%= products[i].quantity %>
-                                                        left)</span>
-                                                <% } else { %>
-                                                    <span class="out-of-stock">Out of Stock</span>
-                                                    <% } %>
-                                        </div>
-                                        <div class="product-actions">
-                                            <% if (products[i].quantity> 0) { %>
-                                                <button onclick="addToCart('<%= products[i]._id %>')"
-                                                    class="btn btn-primary">Add to Cart</button>
-                                                <% } else { %>
-                                                    <button disabled class="btn btn-secondary">Out of Stock</button>
-                                                    <% } %>
-                                                        <button class="btn btn-instagram"
-                                                            onclick="addToWishlist('<%= products[i]._id %>')">
-                                                            <img class="icon-heart1"
-                                                                src="/assets/images/icons/icon-heart-01.png" alt="ICON">
-                                                        </button>
-                                        </div>
+                                    <div class="stock-status">
+                                        <% if (products[i].quantity > 0) { %>
+                                            <span class="in-stock">In Stock (<%= products[i].quantity %> left)</span>
+                                        <% } else { %>
+                                            <span class="out-of-stock">Out of Stock</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="product-actions">
+                                        <% if (products[i].quantity > 0) { %>
+                                            <button onclick="addToCart('<%= products[i]._id %>')" class="btn btn-primary">Add to Cart</button>
+                                        <% } else { %>
+                                            <button disabled class="btn btn-secondary">Out of Stock</button>
+                                        <% } %>
+                                        <button class="btn btn-instagram" onclick="addToWishlist('<%= products[i]._id %>')">
+                                            <img class="icon-heart1" src="/assets/images/icons/icon-heart-01.png" alt="ICON">
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <% } %>
+                <% } else { %>
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-warning shadow-lg p-4" role="alert">
+                            <h3 class="display-6 text-secondary mb-3">No Products Found</h3>
+                            <p class="fs-5 text-muted mb-4">We couldn't find any products matching your search criteria. Try different filters or keywords.</p>
+                            <a href="/shop" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-left me-2"></i> Go Back to Shop
+                            </a>
+                        </div>
+                    </div>
+                    
+                <% } %>
             </div>
+            
 
         </div>
     </div>

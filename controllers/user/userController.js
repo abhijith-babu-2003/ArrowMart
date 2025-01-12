@@ -320,13 +320,14 @@ const getShopPage=async(req,res)=>{
     const user=req.session.user;
     const userData=await User.findOne({_id:user});
     const categories=await Category.find({isListed:true});
+
     const page=parseInt(req.query.page) || 1;
     const limit=22;
     const skip=(page-1)*limit;
 
     // Build query object based on filters
     const query = {
-      isBlocked: false
+      isBlocked: false,
     };
     
     // Search text
@@ -401,7 +402,7 @@ const getShopPage=async(req,res)=>{
   
         
       });
-
+      
     res.render("shop", {
       user: userData,
       products: products,

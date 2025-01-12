@@ -33,7 +33,7 @@ const login =async (req,res)=>{
          if(!passwordMatch){
            return res.render("adminLogin",{message:"invalid password"})
 
-      }
+         }
 
       req.session.admin=true
       return res.redirect("/admin/dashboard")

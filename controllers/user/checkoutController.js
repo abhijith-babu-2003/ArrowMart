@@ -140,7 +140,7 @@ const placeOrder = async (req, res) => {
           message:` Product not found: ${item.productId.productName}`,
         }); 
       }
-
+     
       if (product.quantity < item.quantity) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -148,15 +148,14 @@ const placeOrder = async (req, res) => {
         });
       }
 
-      // Calculate best offer price for this item
       const categoryOfferAmount = (item.productId.category.categoryOffer / 100) * item.productId.regularPrice;
       const productOfferAmount = item.productId.salePrice ? (item.productId.regularPrice - item.productId.salePrice) : 0;
       const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
       
-      // Calculate effective price for this item
+     
       const effectivePrice = parseFloat((item.productId.regularPrice - greaterOfferAmount).toFixed(2));
       
-      // Add to subtotal and order items
+  
       subtotal += effectivePrice * item.quantity;
 
       orderItems.push({
@@ -274,12 +273,9 @@ const cancelOrder = async (req, res) => {
         message: "Order cancelled successfully.",
       });
     }
-
+ 
     // Handle Razorpay refund and add to wallet
-    if (order.paymentMethod === "RAZORPAY") {
-
-
-      
+    if (order.paymentMethod === "RAZORPAY") {  
       if (order.paymentDetails?.paymentId) {
         try {
           const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {

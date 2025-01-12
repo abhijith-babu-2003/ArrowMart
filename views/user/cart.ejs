@@ -376,8 +376,16 @@
                             <% }); %>
                         <% } else { %>
                             <tr>
-                                <td colspan="6" class="text-center">Your cart is empty</td>
-                            </tr>
+                                <td colspan="6" class="text-center">
+                                    <div class="alert alert-info p-4 shadow-sm" role="alert">
+                                        <h5 class="text-primary mb-3">Your Cart is Empty</h5>
+                                        <p class="text-muted mb-4">Browse our products and add items to your cart.</p>
+                                        <a href="/shop" class="btn btn-success btn-sm">
+                                            <i class="bi bi-cart-plus me-2"></i> Start Shopping
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>                            
                         <% } %>
                     </tbody>
                 </table>
@@ -420,6 +428,7 @@
                     const price = parseFloat(priceElement.textContent.replace('Rs.', '')) || 0;
                     const quantity = parseInt(quantityElement.value) || 0;
                     subtotal += price * quantity;
+                    
                 }
             });
 

@@ -25,7 +25,7 @@ const productDetails=async(req,res)=>{
         const relatedProducts = await Product.find({
             category: product.category,
             _id: { $ne: productId },
-        });
+        }).limit(4)
     
         
      

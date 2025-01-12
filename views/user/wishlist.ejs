@@ -182,11 +182,17 @@
                             </tr>
                             <%}%>
                             <% }else{%>
-                            <tr class="empty-wishlist">
-                                <td colspan="5" class="text-center">
-                                    <p class="lead">No items found in Wishlist</p>
-                                </td>
-                            </tr>
+                                <tr class="empty-wishlist">
+                                    <td colspan="5" class="text-center">
+                                        <div class="alert alert-warning p-4 shadow-sm" role="alert">
+                                            <p class="lead text-danger mb-3">No items found in your Wishlist</p>
+                                            <p class="text-muted mb-4">Start adding items to your wishlist for future purchase!</p>
+                                            <a href="/shop" class="btn btn-primary btn-sm">
+                                                <i class="bi bi-heart-plus me-2"></i> Start Shopping
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>                                
                             <%}%>
                         </tbody>
                     </table>
