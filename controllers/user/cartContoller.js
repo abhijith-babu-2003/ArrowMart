@@ -7,6 +7,7 @@ const HttpStatus = require('../../config/httpStatus');
 
 
 
+
 const getCart = async (req, res) => {
   try {
     const user = req.session.user;
@@ -32,7 +33,7 @@ const getCart = async (req, res) => {
       product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
     });
    
-   
+
    
     res.render("cart", { cart, user });
   } catch (error) {
@@ -131,7 +132,7 @@ const removeFromCart = async (req, res) => {
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId
     );
-
+   
   
   
     if (itemIndex !== -1) {

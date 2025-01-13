@@ -7,7 +7,7 @@ const getCoupon = async (req, res) => {
     const page=parseInt(req.query.page) || 1;
     const limit=3
     const skip=(page-1)*limit
-
+ 
     const totalCoupons=await Coupon.countDocuments()
 
    const totalPages=Math.ceil(totalCoupons/limit)
@@ -63,7 +63,7 @@ const getEditCoupon = async (req, res) => {
 
 const updateCoupon = async (req, res) => {
   try {
-    couponId = req.body.couponId;
+    couponId = req.body.couponId;  
     const oid = new mongoose.Types.ObjectId(couponId);
     const selectedCoupon = await Coupon.findById({ _id: oid });
     if (selectedCoupon) {

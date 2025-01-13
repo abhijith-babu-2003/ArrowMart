@@ -276,6 +276,7 @@ const cancelOrder = async (req, res) => {
  
     // Handle Razorpay refund and add to wallet
     if (order.paymentMethod === "RAZORPAY") {  
+      
       if (order.paymentDetails?.paymentId) {
         try {
           const refund = await razorpay.payments.refund(order.paymentDetails.paymentId, {
@@ -358,6 +359,7 @@ const getOrderSuccess = async (req, res) => {
       req.session.error = "Order not found";
       return res.redirect("/orders");
     }
+    
 
     res.render("order-success", {
       order,
@@ -452,8 +454,23 @@ const applyCoupon = async (req, res) => {
       });
     }
 
+
+    const previousOrder = await Order.findOne({
+      userId,
+      'couponApplied': coupon._id
+    });
+    
+    if (previousOrder) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "You have already used this coupon",
+      });
+    }
+
+
     // FIND user cart
     const cart = await Cart.findOne({ userId }).populate("items.productId");
+
     if (!cart || cart.items.length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,

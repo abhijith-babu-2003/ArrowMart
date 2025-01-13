@@ -104,10 +104,11 @@ const cancelOrder = async (req, res) => {
     // Restore product quantities
     for (const item of order.orderedItems) {
       await Product.findByIdAndUpdate(item.product, {
+  
         $inc: { quantity: item.quantity },
       });
     }
-
+    
     order.status = "Cancelled";
     await order.save();
 
