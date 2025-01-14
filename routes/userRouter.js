@@ -8,6 +8,7 @@ const cartController = require("../controllers/user/cartContoller");
 const checkoutController = require("../controllers/user/checkoutController");
 const wishlistController = require("../controllers/user/wishlistController");
 const walletController = require("../controllers/user/walletController");
+const orderController = require("../controllers/user/orderController");
 
 const passport = require("passport");
 
@@ -89,6 +90,7 @@ user_Router.post("/place-order", userAuth, checkoutController.placeOrder);
 user_Router.get("/order-success", userAuth, checkoutController.getOrderSuccess);
 user_Router.get("/orders", userAuth, checkoutController.getOrderHistory);
 user_Router.get("/order/:orderId",userAuth,checkoutController.getOrderDetails);
+user_Router.get("/order/:orderId/invoice",userAuth,orderController.downloadInvoice);
 user_Router.delete("/order/cancel/:orderId",userAuth,checkoutController.cancelOrder);
 
 // Order return

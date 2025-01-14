@@ -44,7 +44,7 @@
                                     <tr>
                                         <td><%= item.product ? item.product.productName : 'Product Unavailable' %></td>
                                         <td>
-                                            <% if (item.product && item.product. productImage && item.product.productImage.length > 0) { %>
+                                            <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
                                                 <img src="/uploads/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 50px; height: 50px; object-fit: cover;">
                                             <% } else { %>
                                                 <img src="/uploads/default.jpg" alt="No image" style="width: 50px; height: 50px; object-fit: cover;">
@@ -78,6 +78,9 @@
                     </div>
 
                     <div class="text-end mt-4">
+                        <a href="/order/<%= order._id %>/invoice" class="btn btn-primary me-2">
+                            <i class="fas fa-download"></i> Download Invoice
+                        </a>
                         <a href="/orders" class="btn btn-secondary">Back to Orders</a>
                         <% if (!['Delivered', 'Cancelled'].includes(order.status)) { %>
                             <button class="btn btn-danger cancel-order" data-order-id="<%= order._id %>">

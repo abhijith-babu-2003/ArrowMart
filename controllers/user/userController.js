@@ -349,7 +349,7 @@ const getShopPage=async(req,res)=>{
     const wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
 
     const page=parseInt(req.query.page) || 1;
-    const limit=22;
+    const limit=12;
     const skip=(page-1)*limit;
 
     // Build query object based on filters
@@ -431,6 +431,14 @@ const getShopPage=async(req,res)=>{
         product.isInWishlist = wishlistProductIds.includes(product._id.toString());
       });
       
+      // Build search parameters for pagination links
+      let searchParams = '';
+      if (req.query.search) searchParams += `&search=${req.query.search}`;
+      if (req.query.category) searchParams += `&category=${req.query.category}`;
+      if (req.query.priceRange) searchParams += `&priceRange=${req.query.priceRange}`;
+      if (req.query.sortBy) searchParams += `&sortBy=${req.query.sortBy}`;
+      if (req.query.availability) searchParams += `&availability=${req.query.availability}`;
+      
     res.render("shop", {
       user: userData,
       products: products,
@@ -438,6 +446,7 @@ const getShopPage=async(req,res)=>{
       totalProducts: totalProducts,
       currentPage: page,
       totalPages,
+      searchParams,
       query: req.query.search || '',
       selectedCategory: req.query.category || '',
       selectedPriceRange: req.query.priceRange || '',

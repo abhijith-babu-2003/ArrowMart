@@ -148,6 +148,40 @@
                     </div>
                     
                 <% } %>
+                <% if (products.length > 0) { %>
+                    <div class="container mt-5">
+                        <nav aria-label="Product pagination">
+                            <ul class="pagination justify-content-center">
+                                <% if (currentPage > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage - 1 %><%= searchParams %>" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                <% } %>
+                                
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %><%= searchParams %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                
+                                <% if (currentPage < totalPages) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage + 1 %><%= searchParams %>" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">Showing <%= products.length %> of <%= totalProducts %> products</small>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        
             </div>
         </div>
          
