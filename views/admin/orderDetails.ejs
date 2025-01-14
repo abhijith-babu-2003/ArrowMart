@@ -29,7 +29,6 @@
                             </p>
                             <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
                             <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
-                            
                             <% if (order.returnRequest && order.returnRequest.status !== 'None') { %>
                                 <div class="mt-4">
                                     <h5 class="mb-3">Return Request Information</h5>

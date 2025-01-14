@@ -255,10 +255,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
                 icon: 'warning',
+                input:'text',
+                inputPlaceholder:'enter your reason',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
+                confirmButtonText: 'Yes, cancel it!',
+                preConfirm:(reason)=>{
+                    if(!reason){
+                        Swal.showValidationMessage('Please provide a reason'); 
+                    }
+                }
             });
 
             if (result.isConfirmed) {

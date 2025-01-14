@@ -7,7 +7,7 @@ const couponSchema= new mongoose.Schema({
         required:true,
         unique:true
        },
-       cratedOn:{
+       createdOn:{
         type:Date,
         default:Date.now,
         required:true

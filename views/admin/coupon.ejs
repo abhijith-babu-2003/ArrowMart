@@ -1,4 +1,3 @@
-
 <%- include("../../views/partials/admin/header") %>
 
 <style>
@@ -261,7 +260,13 @@
                             <% coupons.forEach(coupon => { %>
                                 <tr>
                                     <td class="text-start"><%= coupon.name %></td>
-                                    <td class="text-start"><%= new Date(coupon.createdOn).toLocaleDateString('en-IN') %></td>
+                                    <td class="text-start">
+                                        <% if (coupon.createdOn) { %> <%= new Date(coupon.createdOn).toLocaleDateString('en-IN', { 
+                                                year: 'numeric',   month: '2-digit',   day: '2-digit'  }) %>
+                                        <% } else { %>
+                                            N/A
+                                        <% } %>
+                                    </td>
                                     <td class="text-start"><%= new Date(coupon.expireOn).toLocaleDateString('en-IN') %></td>
                                     <td class="text-start"><%= coupon.offerPrice %></td>
                                     <td class="text-start"><%= coupon.minimumPrice %></td>
