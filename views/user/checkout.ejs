@@ -160,14 +160,13 @@
                     <h3 class="fw-bold mb-4">Payment Method</h3>
                     <div class="payment-methods">
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD"
-                                checked>
-                            <label class="form-check-label d-flex align-items-center" for="cod">
-                                <i class="fas fa-money-bill-wave me-2"></i>
-                                Cash on Delivery
+                            <input class="form-check-input payment-method-radio" type="radio" name="paymentMethod" id="cod" value="COD" 
+                                   data-limit="5000">
+                            <label class="form-check-label" for="cod">
+                                Cash on Delivery (COD)
+                                <small class="text-muted d-block">Not available for orders above ₹5000</small>
                             </label>
                         </div>
-
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay"
                                 value="RAZORPAY">
@@ -800,9 +799,38 @@
     }
 });
 
+        // Handle payment method selection based on order total
+        const paymentMethodInputs = document.querySelectorAll('.payment-method-radio');
+        const codInput = document.getElementById('cod');
+        const razorpayInput = document.getElementById('razorpay');
         
+        function updatePaymentMethods() {
+            const totalAmount = parseFloat(document.querySelector('[data-summary="total"]').textContent.replace('₹', ''));
+            const codLimit = parseFloat(codInput.dataset.limit);
 
+            if (totalAmount > codLimit) {
+                codInput.disabled = true;
+                codInput.checked = false;
+                razorpayInput.checked = true;
+            } else {
+                codInput.disabled = false;
+            }
+        }
 
+        // Update payment methods on page load
+        updatePaymentMethods();
+
+        // Update payment methods when total changes (e.g., after applying coupon)
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'characterData') {
+                    updatePaymentMethods();
+                }
+            });
+        });
+
+        const totalElement = document.querySelector('[data-summary="total"]');
+        observer.observe(totalElement, { characterData: true, subtree: true });
     </script>
 
     <%- include("../../views/partials/user/footer") %>

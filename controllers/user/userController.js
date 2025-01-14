@@ -24,24 +24,49 @@ const securePassword = async (password) => {
 
 const loadHomePage = async (req, res) => {
   try {
-   
-    const user=req.session.user
-    const categories=await Category.find({isListed:true})
-    let productData=await Product.find(
-     {isBlocked:false,
-       category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
-     }
-    )
+    const user = req.session.user;
+    const categories = await Category.find({isListed: true});
+    
+    // Get user's wishlist if logged in
+    let wishlistProductIds = [];
+    if (user) {
+      const wishlist = await Wishlist.findOne({ userId: user });
+      wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
+    }
 
-    productData.sort((a,b)=>new Date(b.createdOn) - new Date(a.createdOn))
-    productData=productData.slice(0,4)
+    let productData = await Product.find(
+      {
+        isBlocked: false,
+        category: {$in: categories.map(category => category._id)},
+        quantity: {$gt: 0}
+      }
+    ).populate('category');
 
+    // Calculate effective prices and add wishlist info
+    productData.forEach(product => {
+      const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
+      const productOfferAmount = (product.regularPrice - product.salePrice) || 0;
+      const greaterOfferAmount = Math.max(categoryOfferAmount, productOfferAmount);
+      
+      if (categoryOfferAmount > productOfferAmount) {
+        product.categoryOfferApplied = true;
+        product.offerPercentage = product.category.categoryOffer;
+      }
+      product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
+      
+      // Add wishlist status
+      product.isInWishlist = wishlistProductIds.includes(product._id.toString());
+    });
 
-    if(user){
-      const userData=await User.findOne({ _id:user})
-     res.render("home", { user:userData ,products:productData });
-    }else{
-       return res.render("home",{ user:null,products:productData});
+    // Sort by creation date and get latest 4 products
+    productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+    productData = productData.slice(0, 4);
+
+    if (user) {
+      const userData = await User.findOne({_id: user});
+      res.render("home", { user: userData, products: productData });
+    } else {
+      return res.render("home", { user: null, products: productData });
     }
   } catch (error) {
     console.log("home page not found");

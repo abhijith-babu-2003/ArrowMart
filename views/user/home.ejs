@@ -143,12 +143,28 @@
 									<a href="product-detail.html" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
 										<%=product.productName %>
 									</a>
-									<span class="stext-105 cl3">
-										Rs. <del style="font-size: small;"><%= product.regularPrice %></del>
-									</span>
-									<span class="stext-105 cl3">
-										<span style="color: red; font-size: 20px;">Rs.<%= product.salePrice %></span><span> stock:<%=product.quantity %></span>
-									</span>
+									<div class="price-section">
+										<% if (product.regularPrice > product.effectiveSalePrice) { %>
+											<span class="original-price">
+												₹<del><%= product.regularPrice %></del>
+											</span>
+											<span class="sale-price">
+												₹<%= product.effectiveSalePrice %>
+											</span>
+											<% if (product.categoryOfferApplied) { %>
+												<span class="offer-badge">
+													<%= product.offerPercentage %>% Category Offer
+												</span>
+											<% } %>
+										<% } else { %>
+											<span class="regular-price">
+												₹<%= product.regularPrice %>
+											</span>
+										<% } %>
+										<span class="stock-info">
+											Stock: <%= product.quantity %>
+										</span>
+									</div>
 								</div>
 								<div class="review-stars">
 									&#9733;&#9733;&#9733;&#9733;&#9734; <!-- 4 filled stars, 1 empty -->
@@ -183,6 +199,42 @@
 			</div>
 		</div>
 	</section>
+
+<style>
+    .price-section {
+        margin-top: 10px;
+    }
+    .original-price {
+        color: #999;
+        margin-right: 10px;
+        font-size: 14px;
+    }
+    .sale-price {
+        color: #e4573d;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .regular-price {
+        color: #333;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .stock-info {
+        display: block;
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    .offer-badge {
+        display: inline-block;
+        background-color: #28a745;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+</style>
 
 <script>
 	  $('.js-show-modal1').on('click',function(e){
@@ -314,7 +366,6 @@ function toggleWishlist(productId, button) {
 
 
 </script>
-
 
 
 <%- include("../../views/partials/user/footer") %>

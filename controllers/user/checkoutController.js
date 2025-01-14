@@ -90,6 +90,8 @@ const loadCheckout = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
+
+    const COD_LIMIT = 5000; 
     const userId = req.session.user;
     const { addressId, paymentMethod, razorpayOrderId } = req.body;
 
@@ -170,6 +172,20 @@ const placeOrder = async (req, res) => {
     const discountAmount = cart.discountAmount || 0;
     const total = subtotal + tax - discountAmount;
 
+    // Calculate final total with coupon discount
+    let finalTotal = total;
+    if (cart.couponApplied) {
+      finalTotal -= cart.couponApplied.offerPrice;
+    }
+
+    // Check if COD is allowed for this order amount
+    if (paymentMethod === 'COD' && finalTotal < COD_LIMIT) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: `Cash on Delivery is not available for orders above ₹${COD_LIMIT}. Please choose a different payment method.`
+      });
+    }
+
     const orderId = generateOrderId()
   
     
@@ -182,7 +198,7 @@ const placeOrder = async (req, res) => {
       totalPrice: subtotal,
       tax: tax,
       discountAmount: discountAmount,
-      finalAmount: total,
+      finalAmount: finalTotal,
       couponApplied: cart.couponApplied,
       shippingAddress: selectedAddress,
       paymentMethod: paymentMethod,
