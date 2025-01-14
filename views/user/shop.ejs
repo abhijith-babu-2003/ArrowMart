@@ -124,8 +124,12 @@
                                         <% } else { %>
                                             <button disabled class="btn btn-secondary">Out of Stock</button>
                                         <% } %>
-                                        <button class="btn btn-instagram" onclick="addToWishlist('<%= products[i]._id %>')">
-                                            <img class="icon-heart1" src="/assets/images/icons/icon-heart-01.png" alt="ICON">
+                                        <button class="btn btn-instagram wishlist-btn" onclick="toggleWishlist('<%= products[i]._id %>', this)">
+                                            <% if (products[i].isInWishlist) { %>
+                                                <img class="icon-heart1" src="/assets/images/icons/icon-heart-02.png" alt="ICON">
+                                            <% } else { %>
+                                                <img class="icon-heart1" src="/assets/images/icons/icon-heart-01.png" alt="ICON">
+                                            <% } %>
                                         </button>
                                     </div>
                                 </div>
@@ -302,30 +306,58 @@
                 });
         }
 
-        //add to wiahlist
-
-        function addToWishlist(productId) {
+        function toggleWishlist(productId, button) {
+            const img = button.querySelector('img');
+            const isInWishlist = img.src.includes('icon-heart-02.png');
+            
+            // Determine if we're adding or removing from wishlist
+            const url = isInWishlist ? '/removeitem' : '/addWishlist';
+            const method = isInWishlist ? 'GET' : 'POST';
+            const data = isInWishlist ? { productId } : { productId };
+            
+            // Disable the button temporarily to prevent double-clicks
+            button.disabled = true;
+            
             $.ajax({
-                url: '/addWishlist',
-                type: 'POST',
-                data: { productId },
-                success: (response) => {
+                url: url,
+                type: method,
+                data: data,
+                success: function(response) {
                     if (response.status) {
+                        // Toggle heart icon
+                        img.src = isInWishlist 
+                            ? '/assets/images/icons/icon-heart-01.png'
+                            : '/assets/images/icons/icon-heart-02.png';
+                        
+                        // Show success message
                         Swal.fire({
-                            title: "added to wishlist",
-                            text: 'Product added to wishlist successfully!',
                             icon: 'success',
-                            confirmButtonText: 'OK'
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        // If operation failed, don't toggle the icon
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.message || 'Operation failed',
+                            showConfirmButton: false,
+                            timer: 1500
                         });
                     }
                 },
-                error: (error) => {
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
                     Swal.fire({
-                        title: 'Oops!',
-                        text: 'Product already in wishlist',
                         icon: 'error',
-                        confirmButtonText: 'Close'
+                        title: xhr.responseJSON?.message || 'Something went wrong',
+                        showConfirmButton: false,
+                        timer: 1500
                     });
+                },
+                complete: function() {
+                    // Re-enable the button
+                    button.disabled = false;
                 }
             });
         }

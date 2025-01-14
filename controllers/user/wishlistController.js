@@ -1,7 +1,9 @@
 const User=require("../../models/userSchema")
 const Product=require("../../models/ProductSchema")
 const Wishlist=require("../../models/wishlistSchema")   
-
+/**
+ * Wishlist Controller
+ */
 const getWishlist = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -105,10 +107,22 @@ const removeFromWishlist = async (req, res) => {
 
         wishlist.products.splice(index, 1);
         await wishlist.save();
-        res.redirect('/wishlist');  
+
+        // Check if it's an AJAX request
+        const isAjax = req.xhr || req.headers.accept.indexOf('json') > -1;
+        
+        if (isAjax) {
+            res.json({ status: true, message: "Product removed from wishlist" });
+        } else {
+            res.redirect('/wishlist');
+        }
     } catch (error) {
         console.error("Error in removeFromWishlist:", error);
-        res.status(500).json({ status: false, message: "Internal Server Error" });
+        if (req.xhr) {
+            res.status(500).json({ status: false, message: "Internal Server Error" });
+        } else {
+            res.redirect('/wishlist');
+        }
     }
 };
 

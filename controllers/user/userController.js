@@ -2,14 +2,12 @@ const User = require("../../models/userSchema");
 const nodemailer = require("nodemailer");
 const Category=require("../../models/categorySchema")
 const Product=require("../../models/ProductSchema")
+const Wishlist = require("../../models/wishlistSchema")
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
+const path = require("path");
 const mongoose=require("mongoose");
-
-
-
-
 
 // secure passsword
 
@@ -320,6 +318,10 @@ const getShopPage=async(req,res)=>{
     const user=req.session.user;
     const userData=await User.findOne({_id:user});
     const categories=await Category.find({isListed:true});
+    
+    // Get user's wishlist
+    const wishlist = await Wishlist.findOne({ userId: user });
+    const wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
 
     const page=parseInt(req.query.page) || 1;
     const limit=22;
@@ -399,8 +401,9 @@ const getShopPage=async(req,res)=>{
         
         if(categoryOfferAmount > productOfferAmount)product.categoryOfferApplied = true
         product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
-  
         
+        // Add wishlist status
+        product.isInWishlist = wishlistProductIds.includes(product._id.toString());
       });
       
     res.render("shop", {
