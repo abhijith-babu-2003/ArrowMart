@@ -179,7 +179,7 @@ const placeOrder = async (req, res) => {
     }
 
     // Check if COD is allowed for this order amount
-    if (paymentMethod === 'COD' && finalTotal < COD_LIMIT) {
+    if (paymentMethod === 'COD' && finalTotal > COD_LIMIT) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: `Cash on Delivery is not available for orders above ₹${COD_LIMIT}. Please choose a different payment method.`

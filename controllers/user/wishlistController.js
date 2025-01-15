@@ -108,7 +108,7 @@ const removeFromWishlist = async (req, res) => {
         wishlist.products.splice(index, 1);
         await wishlist.save();
 
-        // Check if it's an AJAX request
+      
         const isAjax = req.xhr || req.headers.accept.indexOf('json') > -1;
         
         if (isAjax) {

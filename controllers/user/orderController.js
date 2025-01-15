@@ -18,14 +18,17 @@ const downloadInvoice = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Create PDF document with better page format and pure white background
+        if (order.status === 'delivered') {
+         return res.status(403).json({ success: false, message: 'Invoice is only available for delivered orders.' });
+     }
+
+       
         const doc = new PDFDocument({
             size: 'A4',
             margin: 50,
             layout: 'portrait'
         });
 
-        // Set pure white background
         doc.rect(0, 0, doc.page.width, doc.page.height).fill('#FFFFFF');
 
         const invoiceName = `invoice-${order.orderId}.pdf`;
@@ -215,54 +218,10 @@ const downloadInvoice = async (req, res) => {
     }
 };
 
-// Get order details
-const getOrderDetails = async (req, res) => {
-    try {
-        const orderId = req.params.orderId;
-        const order = await Order.findById(orderId)
-            .populate('userId')
-            .populate({
-                path: 'orderedItems.product',
-                select: 'productName salePrice productImage'
-            });
 
-        if (!order) {
-            req.flash('error', 'Order not found');
-            return res.redirect('/orders');
-        }
-
-        // Format the order for template
-        const formattedOrder = {
-            ...order.toObject(),
-            orderDate: order.createdAt || new Date(),
-            formattedDate: (order.createdAt || new Date()).toLocaleDateString('en-IN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }),
-            orderedItems: order.orderedItems.map(item => ({
-                ...item,
-                product: {
-                    ...item.product,
-                    productName: item.product?.productName || 'Product Unavailable'
-                }
-            }))
-        };
-
-        res.render('order-details', { 
-            order: formattedOrder,
-            user: req.session.user,
-            cartCount: res.locals.cartCount,
-            page: 'Order Details'
-        });
-    } catch (error) {
-        console.error('Error fetching order details:', error);
-        req.flash('error', 'Error fetching order details');
-        res.redirect('/orders');
-    }
-};
 
 module.exports = {
     downloadInvoice,
-    getOrderDetails
+   
 };
+
