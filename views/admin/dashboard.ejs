@@ -1,4 +1,5 @@
 <%- include("../../views/partials/admin/header") %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <section class="content-main">
     <div class="content-header mb-4">
@@ -77,6 +78,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let salesChart = null;
+            let categoryChart = null;
             const chartLoading = document.getElementById('chartLoading');
             const initialData = <%- JSON.stringify(salesData) %>;
 
@@ -95,26 +97,17 @@
                     salesChart.destroy();
                 }
 
-                const gradient = ctx.createLinearGradient(0, 0, 0, 380);
-                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
-                gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-
                 salesChart = new Chart(ctx, {
-                    type: 'line',
+                    type: 'bar',
                     data: {
                         labels: chartData.labels,
                         datasets: [{
-                            label: 'Sales',
+                            label: 'Revenue',
                             data: chartData.data,
-                            borderColor: '#6366f1',
-                            backgroundColor: gradient,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#6366f1',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
+                            backgroundColor: '#6366f1',
+                            borderRadius: 4,
+                            maxBarThickness: 40,
+                            borderWidth: 0
                         }]
                     },
                     options: {
@@ -165,6 +158,61 @@
                 });
             }
 
+            function initCategoryChart() {
+                const ctx = document.getElementById('categoryPieChart');
+                if (!ctx) return;
+
+                const categoryData = <%- JSON.stringify(categories) %>;
+                if (!categoryData || !categoryData.length) return;
+
+                if (categoryChart) {
+                    categoryChart.destroy();
+                }
+
+                const colors = [
+                    '#6366f1', '#10b981', '#3b82f6', '#f59e0b', 
+                    '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'
+                ];
+
+                categoryChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: categoryData.map(cat => cat.name),
+                        datasets: [{
+                            data: categoryData.map(cat => cat.totalRevenue),
+                            backgroundColor: categoryData.map((_, index) => colors[index % colors.length]),
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const percentage = categoryData[context.dataIndex].percentage;
+                                        return `₹${Math.round(value).toLocaleString()} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
             // Handle filter clicks
             document.querySelectorAll('[data-filter]').forEach(button => {
                 button.addEventListener('click', async function() {
@@ -193,8 +241,16 @@
                 });
             });
 
-            // Initialize with default data
+            // Initialize charts
             createSalesChart(initialData);
+            initCategoryChart();
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (categoryChart) {
+                    categoryChart.resize();
+                }
+            });
         });
     </script>
 
@@ -243,27 +299,28 @@
                     <h5 class="card-title mb-0">Category Distribution</h5>
                 </div>
                 <div class="card-body">
-                    <% if (categories && categories.length > 0) { %>
-                        <% categories.forEach(category => { %>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-medium"><%= category.name %></span>
-                                    <span class="text-muted"><%= category.productCount %> products</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" 
-                                         style="width: <%= category.percentage %>%;" 
-                                         aria-valuenow="<%= category.percentage %>" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
+                    <div style="height: 300px; position: relative; margin-bottom: 20px;">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                    <div class="mt-4">
+                        <% if (categories && categories.length > 0) { %>
+                            <% categories.forEach(category => { %>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-medium"><%= category.name %></span>
+                                        <div class="text-end">
+                                            <div>₹<%= Math.round(category.totalRevenue).toLocaleString() %></div>
+                                            <small class="text-muted">
+                                                <%= category.totalQuantity %> items | <%= category.orderCount %> orders
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
-                                <small class="text-muted"><%= category.percentage %>%</small>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p class="text-center text-muted">No category data available</p>
-                    <% } %>
+                            <% }); %>
+                        <% } else { %>
+                            <p class="text-center text-muted">No category data available</p>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>
@@ -389,7 +446,5 @@
     z-index: 1;
 }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <%- include("../../views/partials/admin/footer") %>
