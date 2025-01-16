@@ -5,6 +5,7 @@ const Category = require('../../models/categorySchema');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const moment = require('moment');
+const adminController = require('./adminController'); // Assuming adminController is in the same directory
 
 // Get sales report data based on date range
 const getSalesReport = async (req, res) => {
@@ -214,6 +215,18 @@ const downloadExcel = async (req, res) => {
     }
 };
 
+// Get sales data
+const getSalesData = async (req, res) => {
+    try {
+        const filter = req.query.filter || 'daily';
+        const salesData = await adminController.getTotalSales(filter);
+        res.json(salesData);
+    } catch (error) {
+        console.error('Error fetching sales data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 // Helper function to get report data
 async function getReportData(params) {
     const { startDate, endDate, reportType } = params;
@@ -303,5 +316,6 @@ function getReportPeriod(params) {
 module.exports = {
     getSalesReport,
     downloadPDF,
-    downloadExcel
+    downloadExcel,
+    getSalesData
 };

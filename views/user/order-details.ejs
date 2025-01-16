@@ -59,7 +59,7 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                                    <td>₹<%= order.totalPrice %></td>
+                                    <td>₹<%= order.totalPrice.toFixed(2) %></td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>CouponOffer:</strong></td>
@@ -71,7 +71,7 @@
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong>₹<%= order.finalAmount %></strong></td>
+                                    <td><strong>₹<%= order.finalAmount.toFixed(2) %></strong></td>
                                 </tr>
                             </tfoot>
                         </table>

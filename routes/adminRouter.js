@@ -15,6 +15,8 @@ const upload = require('../config/multer');
 admin_Router.get("/",adminController.loadLogin )
 admin_Router.post("/",adminController.login)
 admin_Router.get("/dashboard",adminAuth,adminController.dashboard)
+admin_Router.get("/salesReport",adminAuth,adminController.salesReport)
+
 admin_Router.get("/pageError",adminController.pageerror)
 admin_Router.get("/logout",adminController.adminLogout)
 
@@ -61,10 +63,12 @@ admin_Router.get("/editCoupon", adminAuth, couponController.getEditCoupon);
 admin_Router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
 admin_Router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
 
-// Sales Report Routes
+//  Sales Report Routes
+admin_Router.get("/sales-report/data", adminAuth, salesReportController.getSalesReport);
+admin_Router.get("/sales-report/pdf", adminAuth, salesReportController.downloadPDF);
+admin_Router.get("/sales-report/excel", adminAuth, salesReportController.downloadExcel);
 
-admin_Router.get("/sales-report/data", adminAuth, salesReportController.getSalesReport)
-admin_Router.get("/sales-report/pdf", adminAuth, salesReportController.downloadPDF)
-admin_Router.get("/sales-report/excel", adminAuth, salesReportController.downloadExcel)
+// Sales data endpoint
+admin_Router.get('/sales-data', adminAuth, adminController.getSalesData);
 
 module.exports =admin_Router

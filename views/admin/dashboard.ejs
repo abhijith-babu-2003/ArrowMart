@@ -1,344 +1,395 @@
 <%- include("../../views/partials/admin/header") %>
 
-    <div class="content-main">
-        <div class="content-header d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="content-title">Sales Report</h2>
-                <p class="text-muted">Generate and download sales reports</p>
+<section class="content-main">
+    <div class="content-header mb-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="content-title display-6 mb-4">Dashboard Analytics</h2>
             </div>
         </div>
+    </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <form id="reportForm" class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Report Type</label>
-                        <select class="form-select" id="reportType" name="reportType">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="custom">Custom Date Range</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 custom-dates" style="display: none;">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate">
-                    </div>
-
-                    <div class="col-md-3 custom-dates" style="display: none;">
-                        <label class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="endDate" name="endDate">
-                    </div>
-
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary">Generate Report</button>
-                    </div>
-                </form>
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-gradient-primary">
+                <div class="stat-icon">
+                    <i class="material-icons md-monetization_on"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Revenue</p>
+                    <h3 class="stat-value">₹<%= Math.round(salesData?.totalSalesAmount || 0).toLocaleString('en-IN') %></h3>
+                    <p class="stat-desc">All time sales revenue</p>
+                </div>
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title">Report Summary</h5>
-                    <div class="btn-group">
-                        <button class="btn btn-primary me-2" id="downloadPDF" style="display: none;">
-                            <i class="fas fa-file-pdf"></i> Download PDF
-                        </button>
-                        <button class="btn btn-success" id="downloadExcel" style="display: none;">
-                            <i class="fas fa-file-excel"></i> Download Excel
-                        </button>
-                    </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-gradient-success">
+                <div class="stat-icon">
+                    <i class="material-icons md-shopping_cart"></i>
                 </div>
-
-                <div class="row mb-4">
-                    <!-- Sales Statistics -->
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card bg-primary-light">
-                            <div class="card-body">
-                                <h6 class="text-primary">Total Orders</h6>
-                                <h3 id="totalOrders">0</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card bg-success-light">
-                            <div class="card-body">
-                                <h6 class="text-success">Total Amount</h6>
-                                <h3 id="totalAmount">Rs.0</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card bg-warning-light">
-                            <div class="card-body">
-                                <h6 class="text-warning">Total Discount</h6>
-                                <h3 id="totalDiscount">Rs.0</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="card bg-info-light">
-                            <div class="card-body">
-                                <h6 class="text-info">Total Returns</h6>
-                                <h3 id="totalReturns">0</h3>
-                                <small class="text-muted">Total returned orders</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Store Statistics -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card bg-purple-light">
-                            <div class="card-body">
-                                <h6 class="text-purple">Total Products</h6>
-                                <h3 id="totalProducts">0</h3>
-                                <small class="text-muted">Active products in store</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card bg-orange-light">
-                            <div class="card-body">
-                                <h6 class="text-orange">Total Categories</h6>
-                                <h3 id="totalCategories">0</h3>
-                                <small class="text-muted">Active categories</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card bg-teal-light">
-                            <div class="card-body">
-                                <h6 class="text-teal">Total Users</h6>
-                                <h3 id="totalUsers">0</h3>
-                                <small class="text-muted">Active registered users</small>
-                            </div>
-                        </div>
-                    </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Products</p>
+                    <h3 class="stat-value"><%= totalProducts || 0 %></h3>
+                    <p class="stat-desc">Active products</p>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Discount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTableBody">
-                            <!-- Orders will be populated here -->
-                        </tbody>
-                    </table>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-gradient-info">
+                <div class="stat-icon">
+                    <i class="material-icons md-category"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Categories</p>
+                    <h3 class="stat-value"><%= categories?.length || 0 %></h3>
+                    <p class="stat-desc">Active categories</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        .bg-purple-light {
-            background-color: #f3e5f5;
-        }
-
-        .bg-orange-light {
-            background-color: #fff3e0;
-        }
-
-        .bg-teal-light {
-            background-color: #e0f2f1;
-        }
-
-        .text-purple {
-            color: #9c27b0;
-        }
-
-        .text-orange {
-            color: #ff9800;
-        }
-
-        .text-teal {
-            color: #009688;
-        }
-
-        .card small.text-muted {
-            font-size: 0.75rem;
-        }
-    </style>
+    <!-- Sales Chart -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Revenue Analytics</h5>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-filter="daily">Daily</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-filter="weekly">Weekly</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-filter="monthly">Monthly</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-filter="yearly">Yearly</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div style="height: 380px; position: relative;">
+                <div style="height: 380px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div id="chartLoading" class="position-absolute top-50 start-50 translate-middle d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const reportForm = document.getElementById('reportForm');
-            const reportType = document.getElementById('reportType');
-            const customDates = document.querySelectorAll('.custom-dates');
-            const downloadPDF = document.getElementById('downloadPDF');
-            const downloadExcel = document.getElementById('downloadExcel');
-            let currentParams = null;
+        document.addEventListener('DOMContentLoaded', function() {
+            let salesChart = null;
+            const chartLoading = document.getElementById('chartLoading');
+            const initialData = <%- JSON.stringify(salesData) %>;
 
-            // Initialize date inputs with default values
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
-            startDateInput.value = new Date().toISOString().split('T')[0];
-            endDateInput.value = new Date().toISOString().split('T')[0];
-
-            // Show/hide custom date inputs based on report type
-            reportType.addEventListener('change', function () {
-                const isCustom = this.value === 'custom';
-                customDates.forEach(el => {
-                    el.style.display = isCustom ? 'block' : 'none';
-                });
-
-                // Auto-submit form when changing report type (except for custom)
-                if (!isCustom) {
-                    reportForm.dispatchEvent(new Event('submit'));
-                }
-            });
-
-            // Validate date range
-            function validateDateRange() {
-                const start = new Date(startDateInput.value);
-                const end = new Date(endDateInput.value);
-
-                if (end < start) {
-                    alert('End date must be after start date');
-                    return false;
-                }
-                return true;
+            function showLoading() {
+                if (chartLoading) chartLoading.classList.remove('d-none');
             }
 
-            // Generate report
-            reportForm.addEventListener('submit', async function (e) {
-                e.preventDefault();
+            function hideLoading() {
+                if (chartLoading) chartLoading.classList.add('d-none');
+            }
 
-                if (reportType.value === 'custom' && !validateDateRange()) {
-                    return;
+            function createSalesChart(chartData) {
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                
+                if (salesChart) {
+                    salesChart.destroy();
                 }
 
-                const formData = new FormData(this);
-                const params = new URLSearchParams();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 380);
+                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+                gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
-                for (const [key, value] of formData.entries()) {
-                    params.append(key, value);
-                }
-
-                try {
-                    const response = await fetch(`/admin/sales-report/data?${params.toString()}`);
-                    const data = await response.json();
-
-                    if (data.success) {
-                        updateDashboard(data.data);
-                        currentParams = params;
-                        // Show download buttons only when data is available
-                        downloadPDF.style.display = 'inline-block';
-                        downloadExcel.style.display = 'inline-block';
-                    } else {
-                        alert('Error generating report');
+                salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            label: 'Sales',
+                            data: chartData.data,
+                            borderColor: '#6366f1',
+                            backgroundColor: gradient,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#6366f1',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return '₹' + context.parsed.y.toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#f1f5f9',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    callback: value => '₹' + value.toLocaleString(),
+                                    padding: 10
+                                },
+                                border: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    padding: 10
+                                },
+                                border: {
+                                    display: false
+                                }
+                            }
+                        }
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error generating report');
-                }
-            });
-
-            // Download reports
-            downloadPDF.addEventListener('click', () => {
-                if (!currentParams) {
-                    alert('Please generate a report first');
-                    return;
-                }
-                window.location.href = `/admin/sales-report/pdf?${currentParams.toString()}`;
-            });
-
-            downloadExcel.addEventListener('click', () => {
-                if (!currentParams) {
-                    alert('Please generate a report first');
-                    return;
-                }
-                window.location.href = `/admin/sales-report/excel?${currentParams.toString()}`;
-            });
-
-            // Format currency
-            function formatCurrency(amount) {
-                return new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR'
-                }).format(amount);
-            }
-
-            // Format date
-            function formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
                 });
             }
 
-            // Format number with commas
-            function formatNumber(num) {
-                return new Intl.NumberFormat('en-IN').format(num);
-            }
+            // Handle filter clicks
+            document.querySelectorAll('[data-filter]').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const filter = this.dataset.filter;
+                    
+                    // Update button states
+                    document.querySelectorAll('[data-filter]').forEach(btn => {
+                        btn.classList.remove('btn-primary', 'active');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-primary', 'active');
 
-            // Update dashboard with report data
-            function updateDashboard(data) {
-                const { summary, orders } = data;
+                    try {
+                        showLoading();
+                        const response = await fetch(`/admin/sales-data?filter=${filter}`);
+                        if (!response.ok) throw new Error('Failed to fetch data');
+                        const newData = await response.json();
+                        createSalesChart(newData);
+                    } catch (error) {
+                        console.error('Error fetching sales data:', error);
+                        alert('Failed to load sales data. Please try again.');
+                    } finally {
+                        hideLoading();
+                    }
+                });
+            });
 
-                // Update summary cards
-                document.getElementById('totalOrders').textContent = formatNumber(summary.totalOrders);
-                document.getElementById('totalAmount').textContent = formatCurrency(summary.totalAmount);
-                document.getElementById('totalDiscount').textContent = formatCurrency(summary.totalDiscount);
-                document.getElementById('totalReturns').textContent = formatNumber(summary.totalReturns);
-                document.getElementById('totalProducts').textContent = formatNumber(summary.totalProducts);
-                document.getElementById('totalCategories').textContent = formatNumber(summary.totalCategories);
-                document.getElementById('totalUsers').textContent = formatNumber(summary.totalUsers);
-
-                // Update orders table
-                const tableBody = document.getElementById('ordersTableBody');
-                if (orders.length === 0) {
-                    tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center">No orders found for the selected period</td>
-                </tr>
-            `;
-                    return;
-                }
-
-                tableBody.innerHTML = orders.map(order => `
-            <tr>
-                <td>${order.orderId}</td>
-                <td>${formatDate(order.createdAt)}</td>
-                <td>${order.userId?.name || 'N/A'}</td>
-                <td>${formatCurrency(order.finalAmount)}</td>
-                <td>${formatCurrency(order.discountAmount || 0)}</td>
-                <td>
-                    <span class="badge badge-soft-${getStatusBadgeClass(order.status)}">
-                        ${order.status}
-                    </span>
-                </td>
-            </tr>
-        `).join('');
-            }
-
-            function getStatusBadgeClass(status) {
-                switch (status) {
-                    case 'Delivered':
-                        return 'success';
-                    case 'Returned':
-                        return 'danger';
-                    case 'Processing':
-                        return 'warning';
-                    default:
-                        return 'secondary';
-                }
-            }
-
-            // Auto-generate daily report on page load
-            reportForm.dispatchEvent(new Event('submit'));
+            // Initialize with default data
+            createSalesChart(initialData);
         });
     </script>
 
-    <%- include("../../views/partials/admin/footer") %>
+    <!-- Products and Categories -->
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Selling Products</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Price</th>
+                                    <th>Units Sold</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (products && products.length > 0) { %>
+                                    <% products.forEach(product => { %>
+                                        <tr>
+                                            <td><%= product.name || 'N/A' %></td>
+                                            <td>₹<%= (product.price || 0).toLocaleString() %></td>
+                                            <td><%= product.totalQuantitySold || 0 %></td>
+                                            <td>₹<%= (product.totalRevenue || 0).toLocaleString() %></td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center">No products data available</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Category Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <% if (categories && categories.length > 0) { %>
+                        <% categories.forEach(category => { %>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-medium"><%= category.name %></span>
+                                    <span class="text-muted"><%= category.productCount %> products</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                         style="width: <%= category.percentage %>%;" 
+                                         aria-valuenow="<%= category.percentage %>" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted"><%= category.percentage %>%</small>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-center text-muted">No category data available</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .custom-card {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.stat-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    color: white;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #6366f1, #818cf8);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(45deg, #10b981, #34d399);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(45deg, #3b82f6, #60a5fa);
+}
+
+.stat-icon {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.2;
+    font-size: 4rem;
+}
+
+.stat-content {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stat-desc {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.7;
+}
+
+.progress {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.table > :not(caption) > * > * {
+    padding: 1rem;
+}
+
+.form-select {
+    border-color: #e2e8f0;
+    padding: 0.375rem 2rem 0.375rem 0.75rem;
+}
+
+.form-select:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
+
+.btn-group .btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-group .btn:focus {
+    box-shadow: none;
+}
+
+.btn-outline-primary {
+    color: #6366f1;
+    border-color: #6366f1;
+}
+
+.btn-outline-primary:hover {
+    background-color: #6366f1;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+.btn-primary:hover {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+#chartLoading {
+    background: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<%- include("../../views/partials/admin/footer") %>

@@ -1,0 +1,344 @@
+<%- include("../../views/partials/admin/header") %>
+
+    <div class="content-main">
+        <div class="content-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="content-title">Sales Report</h2>
+                <p class="text-muted">Generate and download sales reports</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="reportForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Report Type</label>
+                        <select class="form-select" id="reportType" name="reportType">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="custom">Custom Date Range</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 custom-dates" style="display: none;">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                    </div>
+
+                    <div class="col-md-3 custom-dates" style="display: none;">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate">
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title">Report Summary</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-primary me-2" id="downloadPDF" style="display: none;">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button class="btn btn-success" id="downloadExcel" style="display: none;">
+                            <i class="fas fa-file-excel"></i> Download Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- Sales Statistics -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card bg-primary-light">
+                            <div class="card-body">
+                                <h6 class="text-primary">Total Orders</h6>
+                                <h3 id="totalOrders">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card bg-success-light">
+                            <div class="card-body">
+                                <h6 class="text-success">Total Amount</h6>
+                                <h3 id="totalAmount">Rs.0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card bg-warning-light">
+                            <div class="card-body">
+                                <h6 class="text-warning">Total Discount</h6>
+                                <h3 id="totalDiscount">Rs.0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card bg-info-light">
+                            <div class="card-body">
+                                <h6 class="text-info">Total Returns</h6>
+                                <h3 id="totalReturns">0</h3>
+                                <small class="text-muted">Total returned orders</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Store Statistics -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card bg-purple-light">
+                            <div class="card-body">
+                                <h6 class="text-purple">Total Products</h6>
+                                <h3 id="totalProducts">0</h3>
+                                <small class="text-muted">Active products in store</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card bg-orange-light">
+                            <div class="card-body">
+                                <h6 class="text-orange">Total Categories</h6>
+                                <h3 id="totalCategories">0</h3>
+                                <small class="text-muted">Active categories</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card bg-teal-light">
+                            <div class="card-body">
+                                <h6 class="text-teal">Total Users</h6>
+                                <h3 id="totalUsers">0</h3>
+                                <small class="text-muted">Active registered users</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Discount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .bg-purple-light {
+            background-color: #f3e5f5;
+        }
+
+        .bg-orange-light {
+            background-color: #fff3e0;
+        }
+
+        .bg-teal-light {
+            background-color: #e0f2f1;
+        }
+
+        .text-purple {
+            color: #9c27b0;
+        }
+
+        .text-orange {
+            color: #ff9800;
+        }
+
+        .text-teal {
+            color: #009688;
+        }
+
+        .card small.text-muted {
+            font-size: 0.75rem;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const reportForm = document.getElementById('reportForm');
+            const reportType = document.getElementById('reportType');
+            const customDates = document.querySelectorAll('.custom-dates');
+            const downloadPDF = document.getElementById('downloadPDF');
+            const downloadExcel = document.getElementById('downloadExcel');
+            let currentParams = null;
+
+            // Initialize date inputs with default values
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            startDateInput.value = new Date().toISOString().split('T')[0];
+            endDateInput.value = new Date().toISOString().split('T')[0];
+
+            // Show/hide custom date inputs based on report type
+            reportType.addEventListener('change', function () {
+                const isCustom = this.value === 'custom';
+                customDates.forEach(el => {
+                    el.style.display = isCustom ? 'block' : 'none';
+                });
+
+                // Auto-submit form when changing report type (except for custom)
+                if (!isCustom) {
+                    reportForm.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // Validate date range
+            function validateDateRange() {
+                const start = new Date(startDateInput.value);
+                const end = new Date(endDateInput.value);
+
+                if (end < start) {
+                    alert('End date must be after start date');
+                    return false;
+                }
+                return true;
+            }
+
+            // Generate report
+            reportForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (reportType.value === 'custom' && !validateDateRange()) {
+                    return;
+                }
+
+                const formData = new FormData(this);
+                const params = new URLSearchParams();
+
+                for (const [key, value] of formData.entries()) {
+                    params.append(key, value);
+                }
+
+                try {
+                    const response = await fetch(`/admin/sales-report/data?${params.toString()}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        updateDashboard(data.data);
+                        currentParams = params;
+                        // Show download buttons only when data is available
+                        downloadPDF.style.display = 'inline-block';
+                        downloadExcel.style.display = 'inline-block';
+                    } else {
+                        alert('Error generating report');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error generating report');
+                }
+            });
+
+            // Download reports
+            downloadPDF.addEventListener('click', () => {
+                if (!currentParams) {
+                    alert('Please generate a report first');
+                    return;
+                }
+                window.location.href = `/admin/sales-report/pdf?${currentParams.toString()}`;
+            });
+
+            downloadExcel.addEventListener('click', () => {
+                if (!currentParams) {
+                    alert('Please generate a report first');
+                    return;
+                }
+                window.location.href = `/admin/sales-report/excel?${currentParams.toString()}`;
+            });
+
+            // Format currency
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(amount);
+            }
+
+            // Format date
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            // Format number with commas
+            function formatNumber(num) {
+                return new Intl.NumberFormat('en-IN').format(num);
+            }
+
+            // Update dashboard with report data
+            function updateDashboard(data) {
+                const { summary, orders } = data;
+
+                // Update summary cards
+                document.getElementById('totalOrders').textContent = formatNumber(summary.totalOrders);
+                document.getElementById('totalAmount').textContent = formatCurrency(summary.totalAmount);
+                document.getElementById('totalDiscount').textContent = formatCurrency(summary.totalDiscount);
+                document.getElementById('totalReturns').textContent = formatNumber(summary.totalReturns);
+                document.getElementById('totalProducts').textContent = formatNumber(summary.totalProducts);
+                document.getElementById('totalCategories').textContent = formatNumber(summary.totalCategories);
+                document.getElementById('totalUsers').textContent = formatNumber(summary.totalUsers);
+
+                // Update orders table
+                const tableBody = document.getElementById('ordersTableBody');
+                if (orders.length === 0) {
+                    tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">No orders found for the selected period</td>
+                </tr>
+            `;
+                    return;
+                }
+
+                tableBody.innerHTML = orders.map(order => `
+            <tr>
+                <td>${order.orderId}</td>
+                <td>${formatDate(order.createdAt)}</td>
+                <td>${order.userId?.name || 'N/A'}</td>
+                <td>${formatCurrency(order.finalAmount)}</td>
+                <td>${formatCurrency(order.discountAmount || 0)}</td>
+                <td>
+                    <span class="badge badge-soft-${getStatusBadgeClass(order.status)}">
+                        ${order.status}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+            }
+
+            function getStatusBadgeClass(status) {
+                switch (status) {
+                    case 'Delivered':
+                        return 'success';
+                    case 'Returned':
+                        return 'danger';
+                    case 'Processing':
+                        return 'warning';
+                    default:
+                        return 'secondary';
+                }
+            }
+
+            // Auto-generate daily report on page load
+            reportForm.dispatchEvent(new Event('submit'));
+        });
+    </script>
+
+    <%- include("../../views/partials/admin/footer") %>
