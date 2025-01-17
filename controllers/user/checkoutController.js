@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 const Order = require("../../models/orderSchema.js");
 const Cart = require("../../models/cartSchema.js");
@@ -172,13 +173,13 @@ const placeOrder = async (req, res) => {
     const discountAmount = cart.discountAmount || 0;
     const total = subtotal + tax - discountAmount;
 
-    // Calculate final total with coupon discount
+  
     let finalTotal = total;
     if (cart.couponApplied) {
       finalTotal -= cart.couponApplied.offerPrice;
     }
 
-    // Check if COD is allowed for this order amount
+  
     if (paymentMethod === 'COD' && finalTotal > COD_LIMIT) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -603,9 +604,18 @@ const removeCoupon = async (req, res) => {
 // List available coupons
 const listAvailableCoupons = async (req, res) => {
   try {
+
+    const userId = req.session.user;
+    const usedCoupons = await Order.find({ userId })
+      .select("couponApplied")
+      .lean();
+
+    const usedCouponIds = usedCoupons.map((order) => order.couponApplied);
+
     const coupons = await Coupon.find({
       isList: true,
       expireOn: { $gt: new Date() },
+      _id: { $nin: usedCouponIds },
     }).select("name offerPrice minimumPrice");
 
     if (!coupons.length) {
