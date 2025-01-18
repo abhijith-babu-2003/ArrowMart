@@ -9,7 +9,7 @@ const checkoutController = require("../controllers/user/checkoutController");
 const wishlistController = require("../controllers/user/wishlistController");
 const walletController = require("../controllers/user/walletController");
 const orderController = require("../controllers/user/orderController");
-
+const paymentController = require("../controllers/user/paymentController");
 const passport = require("passport");
 
 //signup
@@ -120,5 +120,9 @@ user_Router.post(
   checkoutController.createRazorpayOrder
 );
 user_Router.post("/verify-payment", userAuth, checkoutController.verifyPayment);
+
+// Payment failure and retry routes
+user_Router.post('/payment/failure', userAuth, paymentController.handlePaymentFailure);
+user_Router.get('/retry-payment/:orderId', userAuth, paymentController.retryPayment);
 
 module.exports = user_Router;

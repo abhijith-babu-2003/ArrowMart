@@ -94,7 +94,7 @@ const placeOrder = async (req, res) => {
 
     const COD_LIMIT = 5000; 
     const userId = req.session.user;
-    const { addressId, paymentMethod, razorpayOrderId } = req.body;
+    const { addressId, paymentMethod, razorpayOrderId , paymentFailed} = req.body;
 
     // Find address
     const addressDoc = await Address.findOne({ userId });
@@ -207,11 +207,14 @@ const placeOrder = async (req, res) => {
         paymentMethod === "COD"
           ? "Pending"
           : paymentMethod === "RAZORPAY"
-          ? "Paid"
+          ? 
+          paymentFailed
+          ? "Failed"
+          : "Paid"
           : "Pending",
       status: "Pending",
       paymentDetails:
-        paymentMethod === "RAZORPAY"
+        paymentMethod === "RAZORPAY" && !paymentFailed
           ? {
               orderId: razorpayOrderId,
             }
@@ -238,7 +241,12 @@ const placeOrder = async (req, res) => {
         },
       }
     );
-
+    if(paymentFailed){
+      return res.status(HttpStatus.OK).json({
+        success: false,
+        message: "Payment failed",    
+      });
+    }
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Order placed successfully",
@@ -801,4 +809,5 @@ module.exports = {
   verifyPayment,
   submitReturnRequest,
   listAvailableCoupons,
-};
+}
+  

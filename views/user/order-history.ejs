@@ -1,5 +1,6 @@
 <%- include("../../views/partials/user/header") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <div class="container py-5">
     <div class="row">
         <div class="col-12">
@@ -58,9 +59,14 @@
                                                 <i class="fas fa-file-pdf"></i> Invoice
                                             </a>
                                             <% } %>
-                                            <% if (!['Delivered', 'Cancelled', 'Returned'].includes(order.status)) { %>
+                                            <% if (!['Delivered', 'Cancelled', 'Returned'].includes(order.status) && order.paymentStatus !== 'Failed'   ) { %>
                                                 <button class="btn btn-sm btn-danger cancel-order" data-order-id="<%= order.orderId %>">
                                                     <i class="fas fa-times"></i> Cancel
+                                                </button>
+                                            <% } %>
+                                            <% if (order.paymentStatus === 'Failed') { %>
+                                                <button class="btn btn-sm btn-warning retry-payment" data-order-id="<%= order.orderId %>">
+                                                    <i class="fas fa-sync"></i> Retry Payment
                                                 </button>
                                             <% } %>
                                             <% if (order.status === 'Delivered' && order.returnRequest.status === 'None') { %>
@@ -363,6 +369,101 @@ document.querySelectorAll('.submit-return').forEach(button => {
     });
 });
 
+document.querySelectorAll('.retry-payment').forEach(button => {
+    console.log('Found retry payment button:', button);
+    button.addEventListener('click', async function (e) {
+        e.preventDefault();
+        console.log('Retry payment button clicked');
+        try {
+            const orderId = this.dataset.orderId;
+            console.log('Retrying payment for order:', orderId);
+            
+            const response = await fetch(`/retry-payment/${orderId}`);
+            const data = await response.json();
+            console.log('Retry payment response:', data);
+            
+            if (data.success) {
+                const options = {
+                    key: data.key_id,
+                    amount: data.order.amount,
+                    currency: data.order.currency,
+                    name: 'ArrowMart',
+                    description: 'Retry Payment',
+                    order_id: data.order.id,
+                    handler: async function (response) {
+                        console.log('Payment successful:', response);
+                        try {
+                            // Verify payment
+                            const verifyResponse = await fetch('/verify-payment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+
+                            const verifyData = await verifyResponse.json();
+                            console.log('Verify payment response:', verifyData);
+                            
+                            if (verifyData.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful',
+                                    text: 'Your payment has been processed successfully!'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                throw new Error(verifyData.message);
+                            }
+                        } catch (error) {
+                            console.error('Payment verification error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Failed',
+                                text: error.message || 'Payment verification failed'
+                            });
+                        }
+                    },
+                    prefill: {
+                        name: '<%= user.name %>',
+                        email: '<%= user.email %>',
+                        contact: '<%= user.phone %>'
+                    },
+                    theme: {
+                        color: '#3399cc'
+                    }
+                };
+
+                console.log('Initializing Razorpay with options:', options);
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+                rzp.on('payment.failed', function (response) {
+                    console.error('Payment failed:', response);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: 'The payment process was unsuccessful. Please try again.'
+                    });
+                });
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error in retry payment:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Failed to initiate payment. Please try again.'
+            });
+        }
+    });
+});
 </script>
 
 <%- include("../../views/partials/user/footer") %>  
