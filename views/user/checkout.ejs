@@ -632,30 +632,30 @@
                         const rzp = new Razorpay(options);
                         rzp.open();
                         rzp.on('payment.failed', async function () {
-                                    const orderResponse = await fetch('/place-order', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({
-                                            addressId,
-                                            paymentMethod: 'RAZORPAY',
-                                            razorpayOrderId: response.razorpay_order_id,
-                                            paymentFailed: true
+                            const orderResponse = await fetch('/place-order', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    addressId,
+                                    paymentMethod: 'RAZORPAY',
+                                    razorpayOrderId: response.razorpay_order_id,
+                                    paymentFailed: true
 
-                                        })
-                                    });
-                                    const orderData = await orderResponse.json();
-                                    if (orderData.success === false) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Payment Failed',
-                                            text: orderData.message || 'Payment verification failed. Please contact support if amount was deducted.'
-                                        }).then(() => {
-                                            window.location.href = `/orders`
-                                        });
-                                    }
+                                })
+                            });
+                            const orderData = await orderResponse.json();
+                            if (orderData.success === false) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Payment Failed',
+                                    text: orderData.message || 'Payment verification failed. Please contact support if amount was deducted.'
+                                }).then(() => {
+                                    window.location.href = `/orders`
                                 });
+                            }
+                        });
                         // Reset button state
                         placeOrderBtn.disabled = false;
                         placeOrderBtn.innerHTML = '<i class="fas fa-shopping-bag me-2"></i>Place Order';
@@ -738,119 +738,122 @@
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const addressForm = document.getElementById("addressForm");
-            const saveAddressBtn = addressForm.querySelector('button[type="submit"]');
+    const addressForm = document.getElementById("addressForm");
+    const saveAddressBtn = addressForm.querySelector('button[type="submit"]');
 
-            if (addressForm) {
-                addressForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    console.log("Form submission triggered"); // Debug log
+    if (addressForm) {
+        addressForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            console.log("Form submission triggered"); // Debug log
 
-                    // Disable button and show loading state
-                    saveAddressBtn.disabled = true;
-                    saveAddressBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            // Disable button and show loading state
+            saveAddressBtn.disabled = true;
+            saveAddressBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
 
-                    // Get values and trim them
-                    const addressType = document.getElementById("address_type").value.trim();
-                    const name = document.getElementById("name").value.trim();
-                    const city = document.getElementById("city").value.trim();
-                    const landMark = document.getElementById("landMark").value.trim();
-                    const state = document.getElementById("state").value.trim();
-                    const pincode = document.getElementById("pincode").value.trim();
-                    const phone = document.getElementById("phone").value.trim();
-                    const altPhone = document.getElementById("altPhone").value.trim();
+            // Get values and trim them
+            const addressType = document.getElementById("address_type").value.trim();
+            const name = document.getElementById("name").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const landMark = document.getElementById("landMark").value.trim();
+            const state = document.getElementById("state").value.trim();
+            const pincode = document.getElementById("pincode").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const altPhone = document.getElementById("altPhone").value.trim();
 
-                    let isValid = true;
+            let isValid = true;
 
-                    // Clear previous error messages
-                    document.querySelectorAll(".error-message").forEach((el) => el.remove());
+            // Clear previous error messages
+            document.querySelectorAll(".error-message").forEach((el) => el.remove());
 
-                    // Helper function to show errors
-                    const showError = (fieldId, message) => {
-                        const field = document.getElementById(fieldId);
-                        const error = document.createElement("div");
-                        error.className = "text-danger error-message";
-                        error.innerText = message;
-                        field.parentElement.appendChild(error);
-                        isValid = false;
-                    };
+            // Helper function to show errors
+            const showError = (fieldId, message) => {
+                const field = document.getElementById(fieldId);
+                const error = document.createElement("div");
+                error.className = "text-danger error-message";
+                error.innerText = message;
+                field.parentElement.appendChild(error);
+                isValid = false;
+            };
 
-                    // Validation checks
-                    if (!addressType) showError("address_type", "Address Type is required.");
-                    if (!name) showError("name", "Name is required.");
-                    if (!city) showError("city", "City is required.");
-                    if (!landMark) showError("landMark", "Landmark is required.");
-                    if (!state) showError("state", "State is required.");
-                    if (!pincode || !/^\d{6}$/.test(pincode))
-                        showError("pincode", "Pincode must be a 6-digit number.");
-                    if (!phone || !/^\d{10}$/.test(phone))
-                        showError("phone", "Phone must be a 10-digit number.");
-                    if (!altPhone || !/^\d{10}$/.test(altPhone))
-                        showError("altPhone", "Alternate Phone must be a 10-digit number.");
+            // Helper function for validation patterns
+            const isValidPhone = (phone) => /^\d{10}$/.test(phone);
+            const isValidPincode = (pincode) => /^\d{6}$/.test(pincode);
 
-                    if (isValid) {
-                        const formData = {
-                            addressType,
-                            name,
-                            city,
-                            landMark,
-                            state,
-                            pincode,
-                            phone,
-                            altPhone
-                        };
+            // Validation checks
+            if (!addressType) showError("address_type", "Address Type is required.");
+            if (!name) showError("name", "Name is required.");
+            else if (!/^[A-Za-z\s]+$/.test(name)) { showError("name", "Name must contain only alphabets and spaces.");}
+            if (!city) showError("city", "City is required.");
+            if (!landMark) showError("landMark", "Landmark is required.");
+            if (!state) showError("state", "State is required.");
+            if (!pincode || !isValidPincode(pincode)) showError("pincode", "Pincode must be a 6-digit number.");
+            if (!phone || !isValidPhone(phone)) showError("phone", "Phone must be a 10-digit number.");
+            if (!altPhone || !isValidPhone(altPhone)) showError("altPhone", "Alternate Phone must be a 10-digit number.");
 
-                        try {
-                            console.log("Sending data:", formData); // Debug log
-                            const response = await fetch("/addAddress", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(formData),
-                            });
+            if (isValid) {
+                const formData = {
+                    addressType,
+                    name,
+                    city,
+                    landMark,
+                    state,
+                    pincode,
+                    phone,
+                    altPhone
+                };
 
-                            const result = await response.json();
-                            console.log("Response:", result); // Debug log
+                try {
+                    console.log("Sending data:", formData); // Debug log
+                    const response = await fetch("/addAddress", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(formData),
+                    });
 
-                            if (result.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: result.message,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: result.message || 'Something went wrong!'
-                                });
-                            }
-                        } catch (error) {
-                            console.error("Error adding address:", error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Something went wrong! Please try again.'
-                            });
-                        } finally {
-                            // Re-enable button and restore original text
-                            saveAddressBtn.disabled = false;
-                            saveAddressBtn.innerHTML = 'Save Address';
-                        }
+                    const result = await response.json();
+                    console.log("Response:", result); // Debug log
+
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: result.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
-                        // If validation failed, re-enable the button
-                        saveAddressBtn.disabled = false;
-                        saveAddressBtn.innerHTML = 'Save Address';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: result.message || 'Something went wrong!'
+                        });
                     }
-                });
+                } catch (error) {
+                    console.error("Error adding address:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again.'
+                    });
+                } finally {
+                    // Re-enable button and restore original text
+                    saveAddressBtn.disabled = false;
+                    saveAddressBtn.innerHTML = 'Save Address';
+                }
             } else {
-                console.error("Address form not found!");
+                // If validation failed, re-enable the button
+                saveAddressBtn.disabled = false;
+                saveAddressBtn.innerHTML = 'Save Address';
             }
         });
+    } else {
+        console.error("Address form not found!");
+    }
+});
+
 
         // Handle payment method selection based on order total
         const paymentMethodInputs = document.querySelectorAll('.payment-method-radio');

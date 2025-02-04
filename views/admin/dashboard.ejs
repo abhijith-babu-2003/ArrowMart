@@ -80,7 +80,7 @@
             let salesChart = null;
             let categoryChart = null;
             const chartLoading = document.getElementById('chartLoading');
-            const initialData = <%- JSON.stringify(salesData) %>;
+            const initialData = <%- JSON.stringify(salesData) %>
 
             function showLoading() {
                 if (chartLoading) chartLoading.classList.remove('d-none');
@@ -162,7 +162,7 @@
                 const ctx = document.getElementById('categoryPieChart');
                 if (!ctx) return;
 
-                const categoryData = <%- JSON.stringify(categories) %>;
+                const categoryData =<%- JSON.stringify(categories) %>;
                 if (!categoryData || !categoryData.length) return;
 
                 if (categoryChart) {

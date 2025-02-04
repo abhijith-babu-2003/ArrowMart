@@ -366,22 +366,26 @@
     isValid = false;
   }
 
-  // Validate Offer and Minimum Price
-  const offerPriceInput = document.getElementsByName("offerPrice")[0];
-  const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
-  const offerPrice = offerPriceInput.value.trim() !== "" ? parseFloat(offerPriceInput.value) : NaN;
-  const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseFloat(minimumPriceInput.value) : NaN;
+// Validate Offer and Minimum Price
+const offerPriceInput = document.getElementsByName("offerPrice")[0];
+const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
+const offerPrice = offerPriceInput.value.trim() !== "" ? parseFloat(offerPriceInput.value) : NaN;
+const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseFloat(minimumPriceInput.value) : NaN;
 
-  if (offerPriceInput.value.trim() === "" || minimumPriceInput.value.trim() === "") {
+if (offerPriceInput.value.trim() === "" || minimumPriceInput.value.trim() === "") {
     document.getElementById("error-offer-price").innerHTML = "Offer Price and Minimum Price are required";
     isValid = false;
-  } else if (isNaN(offerPrice) || isNaN(minimumPrice)) {
+} else if (isNaN(offerPrice) || isNaN(minimumPrice)) {
     document.getElementById("error-offer-price").innerHTML = "Please enter valid numeric values for Offer Price and Minimum Price";
     isValid = false;
-  } else if (offerPrice >= minimumPrice) {
+} else if (offerPrice >= minimumPrice) {
     document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price";
     isValid = false;
-  }
+} else if (offerPrice < 0 || minimumPrice < 0) {
+    document.getElementById("error-offer-price").innerHTML = "Offer Price and Minimum Price cannot be negative";
+    isValid = false;
+}
+
 
   return isValid;
 }

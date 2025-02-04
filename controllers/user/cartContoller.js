@@ -58,6 +58,21 @@ const addToCart = async (req, res) => {
       });
     }
 
+    // Validate quantity
+    if (!Number.isInteger(Number(quantity)) || quantity < 1) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Quantity must be a positive whole number.",
+      });
+    }
+
+    if (quantity > 5) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum 5 items allowed per product.",
+      });
+    }
+
     const product = await Product.findById(productId);
 
     if (!product) {
@@ -67,12 +82,14 @@ const addToCart = async (req, res) => {
       });
     }
 
-    if (product.quantity < quantity) {
+    if (!product.quantity || product.quantity <= 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Not enough stock available.",
+        message: "Product is out of stock.",
       });
     }
+
+   
 
     let cart = await Cart.findOne({ userId: user });
 
@@ -159,14 +176,22 @@ const updateQuantity = async (req, res) => {
         const userId = req.session.user;
 
        
-        if (!productId || !quantity || quantity < 1) {
+        if (!productId || !quantity) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid quantity"
+                message: "Product ID and quantity are required"
             });
         }
 
-        //  maximum quantity 
+        // Validate quantity is a positive integer
+        if (!Number.isInteger(Number(quantity)) || quantity < 1) {
+            return res.status(400).json({
+                success: false,
+                message: "Quantity must be a positive whole number"
+            });
+        }
+
+        // Maximum quantity validation
         if (quantity > 5) {
             return res.status(400).json({
                 success: false,
@@ -174,7 +199,7 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-        //fetch all products details in cart
+        // Fetch cart and product details simultaneously
         const [cart, product] = await Promise.all([
             Cart.findOne({ userId }),
             Product.findById(productId)
@@ -195,14 +220,22 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-        if (quantity > product.quantity) {
+        // Check if product is in stock
+        if (!product.quantity || product.quantity <= 0) {
             return res.status(400).json({
                 success: false,
-                message: "Not enough stock available"
+                message: "Product is out of stock"
             });
         }
 
-       
+        // Check if requested quantity is available
+        if (quantity > product.quantity) {
+            return res.status(400).json({
+                success: false,
+                message: `Only ${product.quantity} items available in stock`
+            });
+        }
+
         const cartItem = cart.items.find(item => item.productId.toString() === productId);
         if (!cartItem) {
             return res.status(404).json({
@@ -211,7 +244,6 @@ const updateQuantity = async (req, res) => {
             });
         }
 
-       
         cartItem.quantity = quantity;
         cartItem.totalPrice = quantity * product.salePrice;
 

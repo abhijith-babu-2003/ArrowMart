@@ -42,7 +42,7 @@ const loadHomePage = async (req, res) => {
       }
     ).populate('category');
 
-    // Calculate effective prices and add wishlist info
+   
     productData.forEach(product => {
       const categoryOfferAmount = (product.category.categoryOffer / 100) * product.regularPrice;
       const productOfferAmount = (product.regularPrice - product.salePrice) || 0;
@@ -54,11 +54,11 @@ const loadHomePage = async (req, res) => {
       }
       product.effectiveSalePrice = (product.regularPrice - greaterOfferAmount).toFixed(2);
       
-      // Add wishlist status
+     
       product.isInWishlist = wishlistProductIds.includes(product._id.toString());
     });
 
-    // Sort by creation date and get latest 4 products
+  
     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
     productData = productData.slice(0, 4);
 

@@ -1,5 +1,6 @@
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/ProductSchema");
+const Wallet=require("../../models/walletSchema")
 
 // List all orders
 const listOrders = async (req, res) => {
@@ -154,7 +155,6 @@ const processReturnRequest = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    //  pending return request
     if (!order.returnRequest || order.returnRequest.status !== "Pending") {
       return res
         .status(400)
@@ -165,22 +165,55 @@ const processReturnRequest = async (req, res) => {
     order.returnRequest.status = action === "approve" ? "Approved" : "Rejected";
     order.returnRequest.processedDate = new Date();
 
-    // If approved, update order status to Returned
     if (action === "approve") {
       order.status = "Returned";
+
+      // Process wallet refund
+      const wallet = await Wallet.findOne({ userId: order.userId });
+      if (!wallet) {
+        const newWallet = new Wallet({
+          userId: order.userId,
+          balance: order.finalAmount,
+          transactions: [
+            {
+              type: "credit",
+              amount: order.finalAmount,
+              description: `Refund for returned order #${order.orderId}`,
+            },
+          ],
+        });
+        await newWallet.save();
+      } else {
+        await Wallet.findOneAndUpdate(
+          { userId: order.userId },
+          {
+            $inc: { balance: order.finalAmount },
+            $push: {
+              transactions: {
+                type: "credit",
+                amount: order.finalAmount,
+                description: `Refund for returned order #${order.orderId}`,
+              },
+            },
+          }
+        );
+      }
     }
 
+    // Save the updated order
     await order.save();
 
     res.status(200).json({
       message: `Return request ${action}ed successfully`,
       order: order,
     });
+
   } catch (error) {
     console.error("Error in processReturnRequest:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 module.exports = {
   listOrders,

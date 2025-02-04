@@ -1,9 +1,7 @@
 const User=require("../../models/userSchema")
 const Product=require("../../models/ProductSchema")
 const Wishlist=require("../../models/wishlistSchema")   
-/**
- * Wishlist Controller
- */
+
 const getWishlist = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -13,7 +11,7 @@ const getWishlist = async (req, res) => {
             return res.render('wishlist', { user: null, wishlist: [] });
         }
 
-        // Fetch user wishlist
+    
         const wishlist = await Wishlist.findOne({ userId });
     
 
@@ -26,7 +24,7 @@ const getWishlist = async (req, res) => {
         const productIds = wishlist.products.map(product => product.productId);
     
 
-        // Fetch  products
+        
         const products = await Product.find({ _id: { $in: productIds } }).populate('category');
     
 
@@ -92,7 +90,7 @@ const removeFromWishlist = async (req, res) => {
             return res.status(400).json({ status: false, message: "Product ID or User ID is missing" });
         }
 
-        // Find wishlist for the user
+     
         const wishlist = await Wishlist.findOne({ userId });
 
         if (!wishlist || wishlist.products.length === 0) {

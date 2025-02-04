@@ -3,7 +3,8 @@ const Category = require("../../models/categorySchema");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
-
+const { error } = require("console");
+const HttpStatus = require("../../config/httpStatus");
 
 const getaddProducts = async (req, res) => {
   try {
@@ -18,8 +19,8 @@ const getaddProducts = async (req, res) => {
 //get all products
 const getAllProduct = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 7; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 7;
 
     const productData = await Product.find({})
       .limit(limit)
@@ -27,17 +28,15 @@ const getAllProduct = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate({
         path: "category",
-        match: { isListed: true }, 
+        match: { isListed: true },
       })
       .exec();
 
-   
     const count = await Product.countDocuments({});
 
- 
     const category = await Category.find({ isListed: true });
 
-    const totalPages = Math.ceil(count / limit); 
+    const totalPages = Math.ceil(count / limit);
 
     if (category) {
       res.render("products", {
@@ -59,7 +58,9 @@ const getAllProduct = async (req, res) => {
 const addProducts = async (req, res) => {
   try {
     if (req.fileValidationError) {
-      return res.status(400).json({ success: false, message: req.fileValidationError });
+      return res
+        .status(400)
+        .json({ success: false, message: req.fileValidationError });
     }
 
     const products = req.body;
@@ -69,21 +70,27 @@ const addProducts = async (req, res) => {
     });
 
     if (productExists) {
-      return res.status(400).json({ success: false, message: "Product already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Product already exists" });
     }
 
     // Handle image upload and resizing
     const images = [];
-    
-    
+
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
-        const resizedImageName = `resized-${Date.now()}-${req.files[i].filename}`;
-        const resizedImagePath = path.join("public", "uploads", resizedImageName);      
+        const resizedImageName = `resized-${Date.now()}-${
+          req.files[i].filename
+        }`;
+        const resizedImagePath = path.join(
+          "public",
+          "uploads",
+          resizedImageName
+        );
         const outputDir = path.dirname(resizedImagePath);
-       
-        
+
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
@@ -105,13 +112,13 @@ const addProducts = async (req, res) => {
     if (!category) {
       return res.status(400).json({ message: "Invalid category name" });
     }
-    
+
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
       category: category._id,
       regularPrice: products.regularPrice,
-      salePrice:products.salePrice,
+      salePrice: products.salePrice,
       quantity: products.quantity,
       color: products.color,
       productImage: images,
@@ -120,20 +127,29 @@ const addProducts = async (req, res) => {
 
     await newProduct.save();
 
-    return res.status(200).json({ success: true, message: "Product added successfully!", product: newProduct });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Product added successfully!",
+        product: newProduct,
+      });
   } catch (error) {
     console.error("Error in saving products", error);
-    return res.status(500).json({ success: false, message: "An error occurred while saving the product" });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "An error occurred while saving the product",
+      });
   }
 };
 
-
-
-//block and unblock 
+//block and unblock
 const blockProduct = async (req, res) => {
   try {
     let id = req.query.id;
-    await Product.updateOne({_id:id},{$set:{isBlocked:true}});
+    await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
     res.redirect("pageError");
@@ -143,14 +159,14 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
   try {
     let id = req.query.id;
-    await Product.updateOne({_id:id},{$set:{ isBlocked: false } });
+    await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
     res.redirect("/admin/products");
   } catch (error) {
     res.redirect("pageError");
   }
 };
- //view all products
- const getEditProducts = async (req, res) => {
+//view all products
+const getEditProducts = async (req, res) => {
   try {
     const id = req.query.id;
     if (!id) {
@@ -175,17 +191,16 @@ const unblockProduct = async (req, res) => {
   }
 };
 
-// edit product 
+// edit product
 const editproduct = async (req, res) => {
   try {
     const id = req.query.id;
-   
+
     const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ error: "Product not found!" });
     }
 
-   
     const updateData = {
       productName: req.body.productName || product.productName,
       description: req.body.description || product.description,
@@ -195,43 +210,55 @@ const editproduct = async (req, res) => {
       color: req.body.color || product.color,
     };
 
-  
     if (req.body.category) {
-      const category = await Category.findOne({ categoryName: req.body.category });
+      const category = await Category.findOne({
+        categoryName: req.body.category,
+      });
       if (category) {
         updateData.category = category._id;
       }
     }
 
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => file.filename);
-      updateData.productImage = [
-        ...product.productImage, 
-        ...newImages
-      ];
+      const newImages = req.files.map((file) => file.filename);
+      updateData.productImage = [...product.productImage, ...newImages];
     }
-    
 
-
+    // Check if the product name already exists
+    if (req.body.productName) {
+      const existingProduct = await Product.findOne({
+        productName: req.body.productName,
+        _id: { $ne: id },
+      });
+      if (existingProduct) {
+        return res.status(400).json({ error: "Product name already exists!" });
+      }
+    }
 
     const updatedProduct = await Product.findByIdAndUpdate(
-      id, 
-      { $set: updateData }, 
+      id,
+      { $set: updateData },
       { new: true }
     );
 
-
-
     if (!updatedProduct) {
-      return res.status(500).json({ error: "Failed to update product", product: updatedProduct });
+      return res
+        .status(500)
+        .json({ error: "Failed to update product", product: updatedProduct });
     }
 
-    res.status(200).json({success:true, message: "Product updated successfully!",    product: updatedProduct  });
-
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Product updated successfully!",
+        product: updatedProduct,
+      });
   } catch (error) {
     console.error("Full error in editproduct:", error);
-    res.status(500).json({  error: "Something went wrong!",  details: error.message 
-    });
+    res
+      .status(500)
+      .json({ error: "Something went wrong!", details: error.message });
   }
 };
 
@@ -239,9 +266,7 @@ const editproduct = async (req, res) => {
 const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameToServer, productIdToServer } = req.body;
- 
 
-    
     const product = await Product.findByIdAndUpdate(
       productIdToServer,
       {
@@ -253,7 +278,7 @@ const deleteSingleImage = async (req, res) => {
     if (!imageNameToServer || !productIdToServer) {
       return res.status(400).send({ status: false, message: "Invalid input" });
     }
-    
+
     if (!product) {
       return res
         .staus(404)
@@ -268,8 +293,6 @@ const deleteSingleImage = async (req, res) => {
       "re-image",
       imageNameToServer
     );
-   
-
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
       if (!err) {
@@ -294,7 +317,6 @@ const deleteSingleImage = async (req, res) => {
   }
 };
 
-
 module.exports = {
   addProducts,
   getAllProduct,
@@ -304,6 +326,4 @@ module.exports = {
   getEditProducts,
   editproduct,
   deleteSingleImage,
-  
-  
 };

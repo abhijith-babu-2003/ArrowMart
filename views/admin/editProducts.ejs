@@ -41,7 +41,7 @@
 
 
                     <div class="card-body">
-                        <form  id="editProductForm" enctype="multipart/form-data">>
+                        <form id="editProductForm" enctype="multipart/form-data">>
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Product Name</label>
                                 <input type="text" name="productName" value="<%= product.productName %>"
@@ -52,7 +52,7 @@
                             <div class="mb-4">
                                 <label class="form-label">Full description</label>
                                 <input name="description" value="<%= product.description %>" class="form-control border"
-                                    rows="4">
+                                    rows="4" id="descriptionid">
                                 <div id="description-error" class="error-message"></div>
                             </div>
                             <div class="row">
@@ -128,8 +128,8 @@
                                                         id="imageDatas">
                                                     <img class="rounded" style="width: 300px; height: 300px;"
                                                         src="/uploads/<%=product.productImage[i] %> ">
-                                                    
-                                                      
+
+
                                                     <i onclick="deleteSingleImage('<%=product.productImage[i]%>','<%=product._id %>')"
                                                         style="position: absolute; margin-left: .5rem; cursor: pointer; color:black;"
                                                         class="fa-thin fa-x btn-danger ">delete</i>
@@ -218,7 +218,8 @@
                             </div>
                             <div>
 
-                                <button class="btn btn-md rounded font-sm hover-up" id="updatebtn" type="button" onclick="submitForm(event)">Update</button>
+                                <button class="btn btn-md rounded font-sm hover-up" id="updatebtn" type="button"
+                                    onclick="submitForm(event)">Update</button>
 
 
 
@@ -241,62 +242,155 @@
 
 
 
-function submitForm(event) {
-  event.preventDefault();
+        function submitForm(event) {
+            event.preventDefault();
 
-  const formData = new FormData(document.getElementById("editProductForm"));
+            // Validation function
+            function validateForm() {
+                let isValid = true;
+                const errors = {};
 
-  // Add image files to FormData
-  for (let i = 1; i <= 4; i++) {
-    const fileInput = document.getElementById(`input${i}`);
-    if (fileInput && fileInput.files.length > 0) {
-      formData.append('images', fileInput.files[0]);
-    }
-  }
+                // Product Name Validation
+                const productName = document.getElementById("product_name").value.trim();
+                if (!productName) {
+                    errors.productName = "Product name is required";
+                    isValid = false;
+                } else if (!/^[A-Za-z\s]+$/.test(productName)) {
+                    errors.productName = "Product name must contain only alphabets and spaces";
+                    isValid = false;
+                } else if (productName.length < 1 || productName.length > 100) {
+                    errors.productName = "Product name must be between 3 and 100 characters";
+                    isValid = false;
+                }
 
-  const productId = new URLSearchParams(window.location.search).get("id");
+                // Description Validation
+                const description = document.getElementById("descriptionid").value.trim();
+                if (!description) {
+                    errors.description = "Description is required";
+                    isValid = false;
+                } else if (!/^[A-Za-z\s.;]+$/.test(description)) {
+                    errors.description = "Description must contain only alphabets, spaces, full stops (.), and semicolons (;)";
+                    isValid = false;
+                }
 
-  // Make the fetch call
-  fetch(`/admin/editProducts?id=${productId}`, {
-    method: 'POST',
-    body: formData,
-  })
-    .then(response => response.json()) // Parse the JSON response
-    .then(data => {
-      if (data.error) {
-        // Show error message using Swal
-        Swal.fire({
-          title: 'Error',
-          text: data.error,
-          icon: 'error',
-          confirmButtonText: 'Retry',
-          confirmButtonColor: '#d33',
-        });
-      } else {
-        // Show success message and redirect
-        Swal.fire({
-          title: 'Success!',
-          text: data.message || "Product updated successfully!",
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
-        }).then(() => {
-          window.location.href = "/admin/products";
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Show general error message using Swal
-      Swal.fire({
-        title: 'Error',
-        text: 'Something went wrong! Please try again.',
-        icon: 'error',
-        confirmButtonText: 'Close',
-        confirmButtonColor: '#d33',
-      });
-    });
-}
+
+
+                // Regular Price Validation
+                const regularPrice = Number(document.querySelector('[name="regularPrice"]').value.trim());
+                if (isNaN(regularPrice) || regularPrice <= 0) {
+                    errors.regularPrice = "Regular price must be a positive number greater than zero";
+                    isValid = false;
+                }
+
+                // Sale Price Validation
+                const salePrice = Number(document.querySelector('[name="salePrice"]').value.trim());
+                if (isNaN(salePrice) || salePrice <= 0) {
+                    errors.salePrice = "Sale price must be a positive number greater than zero";
+                    isValid = false;
+                } else if (salePrice >= regularPrice) {
+                    errors.salePrice = "Sale price must be less than the regular price";
+                    isValid = false;
+                }
+
+
+                // Quantity Validation
+                const quantity = Number(document.querySelector('[name="quantity"]').value.trim());
+                if (isNaN(quantity) || quantity <0) {
+                    errors.quantity = "Please enter a valid quantity";
+                    isValid = false;
+                } else if (!Number.isInteger(quantity)) {
+                    errors.quantity = "Quantity must be a whole number";
+                    isValid = false;
+                } else if (quantity > 10000) {
+                    errors.quantity = "Quantity cannot exceed 10,000 units";
+                    isValid = false;
+                }
+
+                // Image Validation
+                const totalSize = Array.from(document.querySelectorAll('input[type="file"]'))
+                    .reduce((size, input) => {
+                        if (input.files[0]) {
+                            size += input.files[0].size;
+                        }
+                        return size;
+                    }, 0);
+
+                if (totalSize > 5 * 1024 * 1024) { // 5MB limit
+                    errors.images = "Total image size cannot exceed 5MB";
+                    isValid = false;
+                }
+
+                return { isValid, errors };
+            }
+
+            // Perform validation
+            const { isValid, errors } = validateForm();
+
+            if (!isValid) {
+                // Show validation errors using Swal
+                Swal.fire({
+                    title: 'Validation Error',
+                    html: Object.values(errors).join('<br>'),
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33',
+                });
+                return;
+            }
+
+            const formData = new FormData(document.getElementById("editProductForm"));
+
+            // Add image files to FormData
+            for (let i = 1; i <= 4; i++) {
+                const fileInput = document.getElementById(`input${i}`);
+                if (fileInput && fileInput.files.length > 0) {
+                    formData.append('images', fileInput.files[0]);
+                }
+            }
+
+            const productId = new URLSearchParams(window.location.search).get("id");
+
+            // Make the fetch call
+            fetch(`/admin/editProducts?id=${productId}`, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json()) // Parse the JSON response
+                .then(data => {
+                    if (data.error) {
+                        // Show error message using Swal
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.error,
+                            icon: 'error',
+                            confirmButtonText: 'Retry',
+                            confirmButtonColor: '#d33',
+                        });
+                    } else {
+                        // Show success message and redirect
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message || "Product updated successfully!",
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3085d6',
+                        }).then(() => {
+                            window.location.href = "/admin/products";
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Show general error message using Swal
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong! Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#d33',
+                    });
+                });
+        }
 
 
 
@@ -411,6 +505,7 @@ function submitForm(event) {
                 })
             })
         }
+
 
 
 

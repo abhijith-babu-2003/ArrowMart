@@ -8,17 +8,16 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// Handle payment failure
+
 const handlePaymentFailure = async (req, res) => {
     try {
         const { razorpayOrderId } = req.body;
         const userId = req.session.user;
         
-        // Find order by razorpayOrderId instead of _id
         const order = await Order.findOne({ razorpayOrderId });
         
         if (!order) {
-            // Create new order with pending status
+           
             const newOrder = new Order({
                 userId,
                 razorpayOrderId,
@@ -34,7 +33,7 @@ const handlePaymentFailure = async (req, res) => {
             });
         }
         
-        // Update existing order status
+        
         order.paymentStatus = 'payment_pending';
         await order.save();
 
@@ -64,18 +63,16 @@ const retryPayment = async (req, res) => {
                 message: 'Order not found'
             });
         }
-
-        // Convert amount to paise and ensure it's an integer
         const amount = Math.round(order.finalAmount * 100);
 
-        // Create new Razorpay order
+        
         const razorpayOrder = await razorpay.orders.create({
-            amount: amount, // Amount in paise
+            amount: amount, 
             currency: 'INR',
             receipt: orderId
         });
 
-        // Update order with new Razorpay order ID
+       
         order.paymentDetails = {
             orderId: razorpayOrder.id
         };
@@ -114,7 +111,7 @@ const verifyPayment = async (req, res) => {
             });
         }
 
-        // Find and update order
+        
         const order = await Order.findOne({ "paymentDetails.orderId": razorpay_order_id });
         if (!order) {
             return res.status(404).json({
@@ -123,7 +120,7 @@ const verifyPayment = async (req, res) => {
             });
         }
 
-        // Update payment status
+    
         order.paymentStatus = "Paid";
         order.paymentDetails.paymentId = razorpay_payment_id;
         order.paymentDetails.signature = razorpay_signature;

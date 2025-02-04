@@ -63,7 +63,7 @@ const getEditCoupon = async (req, res) => {
 
 const updateCoupon = async (req, res) => {
   try {
-    couponId = req.body.couponId;  
+    const couponId = req.body.couponId;  
     const oid = new mongoose.Types.ObjectId(couponId);
     const selectedCoupon = await Coupon.findById({ _id: oid });
     if (selectedCoupon) {

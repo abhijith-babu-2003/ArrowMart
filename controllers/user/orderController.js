@@ -54,12 +54,12 @@ const downloadInvoice = async (req, res) => {
            .stroke();
         doc.moveDown(1);
 
-        // Create two-column layout with better spacing
+       
         const leftColumn = 50;
         const rightColumn = 300;
         const startY = doc.y;
         
-        // Left column - Order details with box
+       
         doc.rect(leftColumn - 10, startY - 10, 230, 100)
            .lineWidth(0.5)
            .strokeColor('#EEEEEE')
@@ -79,7 +79,7 @@ const downloadInvoice = async (req, res) => {
            .moveDown(0.3)
            .text(`Payment Method: ${order.paymentMethod}`);
 
-        // Right column - Customer details with box
+        
         doc.rect(rightColumn - 10, startY - 10, 255, 160)
            .lineWidth(0.5)
            .strokeColor('#EEEEEE')
@@ -107,18 +107,18 @@ const downloadInvoice = async (req, res) => {
            .moveDown(0.3)
            .text(`PIN: ${order.shippingAddress.pincode}`);
 
-        // Move down to clear both columns
+        
         doc.moveDown(4);
 
-        // Add items table with enhanced styling
+      
         const tableTop = doc.y + 10;
         
-        // Table header background
+
         doc.rect(50, tableTop - 5, 495, 25)
            .fillColor('#F8F9FA')
            .fill();
         
-        // Table headers
+        
         doc.fillColor('#333333')
            .font('Helvetica-Bold')
            .fontSize(10);
@@ -135,7 +135,7 @@ const downloadInvoice = async (req, res) => {
         doc.text('Price', columnPositions.price, tableTop, { width: 70, align: 'right' });
         doc.text('Total', columnPositions.total, tableTop, { width: 65, align: 'right' });
 
-        // Table content
+      
         let tableY = tableTop + 30;
         doc.font('Helvetica')
            .fontSize(10)
@@ -144,7 +144,7 @@ const downloadInvoice = async (req, res) => {
         order.orderedItems.forEach((item, i) => {
             const y = tableY + (i * 25);
             
-            // Alternate row background
+          
             if (i % 2 === 0) {
                 doc.rect(50, y - 5, 495, 25)
                    .fillColor('#FAFAFA')
@@ -158,10 +158,10 @@ const downloadInvoice = async (req, res) => {
                .text(`₹${(item.quantity * item.price).toFixed(2)}`, columnPositions.total, y, { width: 65, align: 'right' });
         });
 
-        // Summary section with box
+       
         const summaryTop = tableY + (order.orderedItems.length * 25) + 20;
         
-        // Summary box
+       
         doc.rect(300, summaryTop - 5, 245, order.discountAmount > 0 ? 125 : 95)
            .lineWidth(0.5)
            .strokeColor('#EEEEEE')

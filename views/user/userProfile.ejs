@@ -717,7 +717,7 @@
                         title: 'Success!',
                         text: 'Details updated successfully!',
                         confirmButtonText: 'OK',
-                        confirmButtonColor: '#28a745' 
+                        confirmButtonColor: '#28a745'
                     });
 
                     // Close the modal
@@ -818,7 +818,7 @@
                     location.reload();
                 }, 2000);
             } else {
-                Swal.fire(result.message, "", "error"); 
+                Swal.fire(result.message, "", "error");
             }
         } catch (error) {
             console.error("Error changing password:", error);
@@ -833,97 +833,98 @@
         const addressForm = document.getElementById("addressForm");
 
         if (addressForm) {
-            addressForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                console.log("Form submission triggered"); // Debug log
+    addressForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        console.log("Form submission triggered"); // Debug log
 
-                const addressType = document.getElementById("address_type");
-                const name = document.getElementById("name");
-                const city = document.getElementById("city");
-                const landMark = document.getElementById("landMark");
-                const state = document.getElementById("state");
-                const pincode = document.getElementById("pincode");
-                const phone = document.getElementById("phone");
-                const altPhone = document.getElementById("altPhone");
+        // Input fields
+        const addressType = document.getElementById("address_type");
+        const name = document.getElementById("name");
+        const city = document.getElementById("city");
+        const landMark = document.getElementById("landMark");
+        const state = document.getElementById("state");
+        const pincode = document.getElementById("pincode");
+        const phone = document.getElementById("phone");
+        const altPhone = document.getElementById("altPhone");
 
-                let isValid = true;
+        let isValid = true;
 
-                // Clear previous error messages
-                document.querySelectorAll(".error-message").forEach((el) => el.remove());
+        // Clear previous error messages
+        document.querySelectorAll(".error-message").forEach((el) => el.remove());
 
-                // Helper function to show errors
-                const showError = (field, message) => {
-                    const error = document.createElement("div");
-                    error.className = "text-danger error-message";
-                    error.innerText = message;
-                    field.parentElement.appendChild(error);
-                    isValid = false;
-                };
+        // Helper function to show errors
+        const showError = (field, message) => {
+            const error = document.createElement("div");
+            error.className = "text-danger error-message";
+            error.innerText = message;
+            field.parentElement.appendChild(error);
+            isValid = false;
+        };
 
-                // Validation checks
-                if (!addressType.value.trim()) showError(addressType, "Address Type is required.");
-                if (!name.value.trim()) showError(name, "Name is required.");
-                if (!city.value.trim()) showError(city, "City is required.");
-                if (!landMark.value.trim()) showError(landMark, "Landmark is required.");
-                if (!state.value.trim()) showError(state, "State is required.");
-                if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim()))
-                    showError(pincode, "Pincode must be a 6-digit number.");
-                if (!phone.value || !/^\d{10}$/.test(phone.value.trim()))
-                    showError(phone, "Phone must be a 10-digit number.");
-                if (!altPhone.value || !/^\d{10}$/.test(altPhone.value.trim()))
-                    showError(altPhone, "Alternate Phone must be a 10-digit number.");
+        // Validation rules
+        if (!addressType.value.trim()) showError(addressType, "Address Type is required.");
+        if (!name.value.trim() || name.value.trim().length < 3 || !/^[A-Za-z\s]+$/.test(name.value.trim())) {
+            showError(name, "Name must be at least 3 characters and contain only letters and spaces.");
+        }
+        if (!city.value.trim()) showError(city, "City is required.");
+        if (!landMark.value.trim()) showError(landMark, "Landmark is required.");
+        if (!state.value.trim()) showError(state, "State is required.");
+        if (!pincode.value || !/^\d{6}$/.test(pincode.value.trim())) showError(pincode, "Pincode must be a valid 6-digit number.");
+        if (!phone.value || !/^[6-9]\d{9}$/.test(phone.value.trim())) showError(phone, "Phone must be a valid 10-digit number starting with 6, 7, 8, or 9.");
+        if (!altPhone.value || !/^[6-9]\d{9}$/.test(altPhone.value.trim())) showError(altPhone, "Alternate Phone must be a valid 10-digit number starting with 6, 7, 8, or 9.");
 
-                if (isValid) {
-                    const formData = {
-                        addressType: addressType.value.trim(),
-                        name: name.value.trim(),
-                        city: city.value.trim(),
-                        landMark: landMark.value.trim(),
-                        state: state.value.trim(),
-                        pincode: pincode.value.trim(),
-                        phone: phone.value.trim(),
-                        altPhone: altPhone.value.trim()
-                    };
+        // If valid, send data to server
+        if (isValid) {
+            const formData = {
+                addressType: addressType.value.trim(),
+                name: name.value.trim(),
+                city: city.value.trim(),
+                landMark: landMark.value.trim(),
+                state: state.value.trim(),
+                pincode: pincode.value.trim(),
+                phone: phone.value.trim(),
+                altPhone: altPhone.value.trim(),
+            };
 
-                    try {
-                        console.log("Sending data:", formData); // Debug log
-                        const response = await fetch("/addAddress", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(formData),
-                        });
+            try {
+                console.log("Sending data:", formData); // Debug log
+                const response = await fetch("/addAddress", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
 
-                        const result = await response.json();
-                        console.log("Response:", result); // Debug log
+                const result = await response.json();
+                console.log("Response:", result); // Debug log
 
-                        if (result.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: result.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: result.message || 'Something went wrong!'
-                            });
-                        }
-                    } catch (error) {
-                        console.error("Error adding address:", error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Something went wrong! Please try again.'
-                        });
-                    }
+                if (result.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: result.message,
+                        showConfirmButton: false,
+                        timer: 1500,
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: result.message || "Something went wrong!",
+                    });
                 }
-            });
+            } catch (error) {
+                console.error("Error adding address:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Something went wrong! Please try again.",
+                });
+            }
+        }
+    });
         } else {
             console.error("Address form not found!");
         }
@@ -932,77 +933,160 @@
 
     //address edit management
     document.addEventListener("DOMContentLoaded", function () {
-        const editAddressForm = document.getElementById("editAddressForm");
+    const editAddressForm = document.getElementById("editAddressForm");
 
-        editAddressForm.addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
+    const showError = (field, message) => {
+        const errorElement = document.createElement("div");
+        errorElement.className = "text-danger error-message";
+        errorElement.innerText = message;
+        field.parentElement.appendChild(errorElement);
+    };
 
-            const addressId = document.getElementById('edit_address_id').value;
-            const addressType = document.getElementById('edit_address_type').value;
-            const name = document.getElementById('edit_name').value;
-            const city = document.getElementById('edit_city').value;
-            const landMark = document.getElementById('edit_landMark').value;
-            const state = document.getElementById('edit_state').value;
-            const pincode = document.getElementById('edit_pincode').value;
-            const phone = document.getElementById('edit_phone').value;
-            const altPhone = document.getElementById('edit_altPhone').value;
+    const clearErrors = () => {
+        document.querySelectorAll(".error-message").forEach((el) => el.remove());
+    };
 
+    const validateField = (field, condition, errorMessage) => {
+        if (!condition) {
+            showError(field, errorMessage);
+            return false;
+        }
+        return true;
+    };
+
+    editAddressForm.addEventListener("submit", async function (event) {
+        event.preventDefault(); // Prevent default form submission
+        clearErrors();
+
+        const addressId = document.getElementById("edit_address_id").value;
+        const addressType = document.getElementById("edit_address_type");
+        const name = document.getElementById("edit_name");
+        const city = document.getElementById("edit_city");
+        const landMark = document.getElementById("edit_landMark");
+        const state = document.getElementById("edit_state");
+        const pincode = document.getElementById("edit_pincode");
+        const phone = document.getElementById("edit_phone");
+        const altPhone = document.getElementById("edit_altPhone");
+
+        let isValid = true;
+
+        // Validation rules
+        isValid &= validateField(
+            addressType,
+            addressType.value.trim() !== "",
+            "Address Type is required."
+        );
+        isValid &= validateField(
+            name,
+            /^[A-Za-z\s]+$/.test(name.value.trim()),
+            "Name must contain only alphabets and spaces."
+        );
+        isValid &= validateField(
+            city,
+            city.value.trim() !== "",
+            "City is required."
+        );
+        isValid &= validateField(
+            landMark,
+            landMark.value.trim() !== "",
+            "Landmark is required."
+        );
+        isValid &= validateField(
+            state,
+            state.value.trim() !== "",
+            "State is required."
+        );
+        isValid &= validateField(
+            pincode,
+            /^\d{6}$/.test(pincode.value.trim()),
+            "Pincode must be a valid 6-digit number."
+        );
+        isValid &= validateField(
+            phone,
+            /^[6-9]\d{9}$/.test(phone.value.trim()),
+            "Phone must be a valid 10-digit number starting with 6, 7, 8, or 9."
+        );
+        isValid &= validateField(
+            altPhone,
+            /^[6-9]\d{9}$/.test(altPhone.value.trim()),
+            "Alternate Phone must be a valid 10-digit number starting with 6, 7, 8, or 9."
+        );
+
+        // If all fields are valid, proceed with submission
+        if (isValid) {
             try {
                 const response = await fetch(`/editAddress/${addressId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ addressType, name, city, landMark, state, pincode, phone, altPhone })
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        addressType: addressType.value.trim(),
+                        name: name.value.trim(),
+                        city: city.value.trim(),
+                        landMark: landMark.value.trim(),
+                        state: state.value.trim(),
+                        pincode: pincode.value.trim(),
+                        phone: phone.value.trim(),
+                        altPhone: altPhone.value.trim(),
+                    }),
                 });
 
                 const result = await response.json();
                 if (response.ok) {
-                    setTimeout(() => {
-                        Swal.fire(result.message).then(() => {
-
-                            location.reload();
-                        }, 2000);
+                    Swal.fire({
+                        icon: "success",
+                        title: result.message,
+                    }).then(() => {
+                        location.reload();
                     });
                 } else {
-                    Swal.fire(result.message || "Failed to update details"); // Show error message
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: result.message || "Failed to update details.",
+                    });
                 }
             } catch (error) {
-                console.error("Error", error);
-                Swal.fire("An error occurred while updating the address");
+                console.error("Error updating address:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "An error occurred while updating the address.",
+                });
             }
-        });
+        }
     });
+});
 
+document.addEventListener("DOMContentLoaded", function () {
+    const editAddressModal = document.getElementById("editAddressModal");
 
+    editAddressModal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const editAddressModal = document.getElementById("editAddressModal");
+        // Extract data from data attributes
+        const addressId = button.getAttribute("data-id");
+        const addressType = button.getAttribute("data-type");
+        const name = button.getAttribute("data-name");
+        const city = button.getAttribute("data-city");
+        const landMark = button.getAttribute("data-landmark");
+        const state = button.getAttribute("data-state");
+        const pincode = button.getAttribute("data-pincode");
+        const phone = button.getAttribute("data-phone");
+        const altPhone = button.getAttribute("data-altphone");
 
-        editAddressModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-
-            // Extract data from data attributes
-            const addressId = button.getAttribute('data-id');
-            const addressType = button.getAttribute('data-type');
-            const name = button.getAttribute('data-name');
-            const city = button.getAttribute('data-city');
-            const landMark = button.getAttribute('data-landmark');
-            const state = button.getAttribute('data-state');
-            const pincode = button.getAttribute('data-pincode');
-            const phone = button.getAttribute('data-phone');
-            const altPhone = button.getAttribute('data-altphone');
-
-            // Populate modal fields with data
-            document.getElementById('edit_address_id').value = addressId;
-            document.getElementById('edit_address_type').value = addressType;
-            document.getElementById('edit_name').value = name;
-            document.getElementById('edit_city').value = city;
-            document.getElementById('edit_landMark').value = landMark;
-            document.getElementById('edit_state').value = state;
-            document.getElementById('edit_pincode').value = pincode;
-            document.getElementById('edit_phone').value = phone;
-            document.getElementById('edit_altPhone').value = altPhone;
-        });
+        // Populate modal fields with data
+        document.getElementById("edit_address_id").value = addressId;
+        document.getElementById("edit_address_type").value = addressType;
+        document.getElementById("edit_name").value = name;
+        document.getElementById("edit_city").value = city;
+        document.getElementById("edit_landMark").value = landMark;
+        document.getElementById("edit_state").value = state;
+        document.getElementById("edit_pincode").value = pincode;
+        document.getElementById("edit_phone").value = phone;
+        document.getElementById("edit_altPhone").value = altPhone;
     });
+});
+
 
     async function deleteAddress(addressId) {
         Swal.fire({

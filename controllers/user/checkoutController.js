@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 const Order = require("../../models/orderSchema.js");
 const Cart = require("../../models/cartSchema.js");
@@ -42,8 +41,7 @@ const loadCheckout = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       req.session.warning = "Your cart is empty";
       return res.redirect("/cart");
-    }
-
+    }  
     let subtotal = 0;
     let itemCount = 0;
 
@@ -114,6 +112,7 @@ const placeOrder = async (req, res) => {
         message: "Invalid address selected",
       });
     }
+    
 
     // Get cart with coupon details
     const cart = await Cart.findOne({ userId })
@@ -134,6 +133,7 @@ const placeOrder = async (req, res) => {
     const orderItems = [];
 
     // Validate products and calculate total
+    
     for (const item of cart.items) {  
       const product = await Product.findById(item.productId._id);
 
@@ -168,6 +168,7 @@ const placeOrder = async (req, res) => {
       });
     }
 
+  
 
     const tax = subtotal * 0.05;
     const discountAmount = cart.discountAmount || 0;
@@ -666,6 +667,23 @@ const createRazorpayOrder = async (req, res) => {
         message: "Cart is empty",
       });
     }
+    for (const item of cart.items) {  
+      const product = await Product.findById(item.productId._id);
+
+      if (!product) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message:` Product not found: ${item.productId.productName}`,
+        }); 
+      }
+     
+      if (product.quantity < item.quantity) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: `Insufficient stock for ${product.productName}. Available: ${product.quantity}`,
+        });
+      }
+    }
 
     let subtotal = 0;
     cart.items.forEach((item) => {
@@ -779,7 +797,7 @@ const submitReturnRequest = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: "Return window has expired (7 days from delivery)" });
     }
 
-    // Update order with return request
+    // Update order return request
     order.returnRequest = {
       status: "Pending",
       reason: reason,

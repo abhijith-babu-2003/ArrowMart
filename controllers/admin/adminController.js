@@ -63,7 +63,7 @@ const dashboard = async (req, res) => {
 
             const totalSalesAmount = totalSalesResult[0]?.totalAmount || 0;
 
-            // Get most selling products from delivered orders
+          
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -98,10 +98,10 @@ const dashboard = async (req, res) => {
                     }
                 },
                 {
-                    $sort: { totalRevenue: -1 }
+                    $sort: { totalQuantitySold: -1 }
                 },
                 {
-                    $limit: 5
+                    $limit: 10
                 }
             ]);
 
@@ -112,7 +112,7 @@ const dashboard = async (req, res) => {
                 totalRevenue: product.totalRevenue
             }));
 
-            // Get category data with sales information
+           
             const categoryData = await Order.aggregate([
                 {
                     $match: {
@@ -172,7 +172,7 @@ const dashboard = async (req, res) => {
                 percentage: totalRevenue ? Math.round((cat.totalRevenue / totalRevenue) * 100) : 0
             }));
 
-            // Get initial sales data
+            
             const initialSalesData = await getTotalSales('daily');
             // console.log('Initial Sales Data:', initialSalesData); // Debug log
             
@@ -244,7 +244,7 @@ async function getTotalSales(filter = 'daily') {
                 };
                 break;
 
-            default: // daily
+            default: 
                 startDate = new Date(currentDate);
                 startDate.setDate(currentDate.getDate() - 29);
                 startDate.setHours(0, 0, 0, 0);
