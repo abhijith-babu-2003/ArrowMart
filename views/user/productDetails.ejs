@@ -457,7 +457,7 @@
                                     -
                                 </button>
                                 <input class="form-control text-center num-product" type="number" name="num-product"
-                                    value="1" min="1" max="<%= product.quantity %>">
+                                    value="1" min="1" max="<%= Math.min(5, product.quantity) %>">
                                 <button class="btn btn-sm btn-outline-secondary btn-num-product-up">
                                     +
                                 </button>
@@ -534,12 +534,13 @@
 
     <script>
         function addToCart(productId) {
+            const quantity = parseInt(document.querySelector('.num-product').value);
             fetch('/addCart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ productId, quantity: 1 })
+                body: JSON.stringify({ productId, quantity })
             })
                 .then(response => response.json())
                 .then(data => {
@@ -570,6 +571,56 @@
                 });
         }
 
+        function updateQuantityButtons() {
+            const quantityInput = document.querySelector('.num-product');
+            const incrementBtn = document.querySelector('.btn-num-product-up');
+            const decrementBtn = document.querySelector('.btn-num-product-down');
+            const currentValue = parseInt(quantityInput.value);
+            const maxValue = parseInt(quantityInput.max);
+
+            incrementBtn.disabled = currentValue >= maxValue;
+           
+            decrementBtn.disabled = currentValue <= 1;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.querySelector('.num-product');
+            const incrementBtn = document.querySelector('.btn-num-product-up');
+            const decrementBtn = document.querySelector('.btn-num-product-down');
+
+            // Initial button state
+            updateQuantityButtons();
+
+            // Handle increment button click
+            incrementBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                const maxValue = parseInt(quantityInput.max);
+                if (currentValue < maxValue) {
+                    quantityInput.value = currentValue + 1;
+                }
+                updateQuantityButtons();
+            });
+
+            // Handle decrement button click
+            decrementBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+                updateQuantityButtons();
+            });
+
+            // Handle direct input changes
+            quantityInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                const maxValue = parseInt(this.max);
+                if (isNaN(value) || value < 1) value = 1;
+                if (value > maxValue) value = maxValue;
+                this.value = value;
+                updateQuantityButtons();
+            });
+        });
+
         document.querySelectorAll('.zoom-container').forEach(container => {
             const img = container.querySelector('.zoom-img');
 
@@ -579,7 +630,7 @@
                 const y = e.clientY - rect.top;
 
                 img.style.transformOrigin = `${x}px ${y}px`;
-                img.style.transform = 'scale(2)'; // Adjust scale as needed
+                img.style.transform = 'scale(2)';
             });
 
             container.addEventListener('mouseleave', () => {
