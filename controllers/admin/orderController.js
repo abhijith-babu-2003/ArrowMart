@@ -15,14 +15,13 @@ const listOrders = async (req, res) => {
 
    
     const orders = await Order.find()
-      .populate("userId", "name email phone")
+      .populate("userId", "username email phone")
       .populate("orderedItems.product", "productName productImage price")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
     const totalPages = Math.ceil(totalOrders / limit);
-
     res.render("orders", {
       orders,
       currentPage: page,

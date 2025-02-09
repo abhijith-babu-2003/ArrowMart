@@ -25,7 +25,7 @@
                                 <% orders.forEach(order => { %>
                                     <tr>
                                         <td><%= order.orderId %></td>
-                                        <td><%= order.userId.name %></td>
+                                        <td><%= order.userId?.username %></td>
                                         <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
                                         <td>₹<%= order.totalPrice %></td>
                                         <td><%= order.paymentMethod %></td>
