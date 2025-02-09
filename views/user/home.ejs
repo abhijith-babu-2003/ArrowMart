@@ -309,12 +309,10 @@ function toggleWishlist(productId, button) {
             const img = button.querySelector('img');
             const isInWishlist = img.src.includes('icon-heart-02.png');
             
-            // Determine if we're adding or removing from wishlist
             const url = isInWishlist ? '/removeitem' : '/addWishlist';
             const method = isInWishlist ? 'GET' : 'POST';
             const data = isInWishlist ? { productId } : { productId };
             
-            // Disable the button temporarily to prevent double-clicks
             button.disabled = true;
             
             $.ajax({
@@ -323,7 +321,7 @@ function toggleWishlist(productId, button) {
                 data: data,
                 success: function(response) {
                     if (response.status) {
-                        // Toggle heart icon
+                    
                         img.src = isInWishlist 
                             ? '/assets/images/icons/icon-heart-01.png'
                             : '/assets/images/icons/icon-heart-02.png';
@@ -355,7 +353,7 @@ function toggleWishlist(productId, button) {
                     });
                 },
                 complete: function() {
-                    // Re-enable the button
+            
                     button.disabled = false;
                 }
             });

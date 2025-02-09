@@ -1,347 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-      }
-  
-      :root {
-          --primary-color: #2563eb;
-          --primary-hover: #1d4ed8;
-          --text-primary: #1e293b;
-          --text-secondary: #64748b;
-          --error: #ef4444;
-          --card-bg: rgba(255, 255, 255, 0.95);
-          --input-border: #e2e8f0;
-          --input-focus: #3b82f6;
-      }
-  
-      body {
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)),
-                        url('https://images.pexels.com/photos/6615669/pexels-photo-6615669.jpeg');
-            background-size: cover;
-            background-position: center;
-          padding: 1rem;
-      }
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --error: #ef4444;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --input-border: #e2e8f0;
+      --input-focus: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)),
+        url('https://images.pexels.com/photos/6615669/pexels-photo-6615669.jpeg');
+      background-size: cover;
+      background-position: center;
+      padding: 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem 3rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    #signupForm {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group:nth-child(4),
+    .form-group:nth-child(5) {
+      grid-column: span 2;
+    }
+
+    label {
+      display: block;
+      font-size: 0.813rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      background-color: white;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .error {
+      color: var(--error);
+      font-size: 0.7rem;
+      margin-top: 0.2rem;
+      display: block;
+    }
+
+    .btn {
+      grid-column: span 2;
+      padding: 0.625rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    p {
+      text-align: center;
+      margin-top: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.813rem;
+      grid-column: span 2;
+    }
+
+    p a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 0.25rem;
+    }
+
+    .social-login {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--input-border);
+    }
+
+    .social-btn {
+      width: 100%;
+      padding: 0.625rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: white;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      background-color: #f8fafc;
+    }
+
+    .social-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .social-btn.google {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
       .container {
-          width: 100%;
-          max-width: 500px;
-          background: var(--card-bg);
-          border-radius: 12px;
-          padding: 1.5rem 3rem;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        max-width: 100%;
+        padding: 1.25rem;
+        margin: 0.75rem;
       }
-  
-      h1 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: var(--text-primary);
-          margin-bottom: 1rem;
-          text-align: center;
-      }
-  
+
       #signupForm {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
+        grid-template-columns: 1fr;
       }
-  
-      .form-group {
-          margin-bottom: 0.5rem;
-      }
-  
-      .form-group:nth-child(4),
-      .form-group:nth-child(5) {
-          grid-column: span 2;
-      }
-  
-      label {
-          display: block;
-          font-size: 0.813rem;
-          font-weight: 500;
-          color: var(--text-primary);
-          margin-bottom: 0.25rem;
-      }
-  
-      input {
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          border: 1px solid var(--input-border);
-          border-radius: 6px;
-          font-size: 0.875rem;
-          color: var(--text-primary);
-          transition: all 0.2s ease;
-          background-color: white;
-      }
-  
-      input:focus {
-          outline: none;
-          border-color: var(--input-focus);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
-  
-      .error {
-          color: var(--error);
-          font-size: 0.7rem;
-          margin-top: 0.2rem;
-          display: block;
-      }
-  
+
+      .form-group,
       .btn {
-          grid-column: span 2;
-          padding: 0.625rem;
-          background-color: var(--primary-color);
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          margin-top: 0.5rem;
+        grid-column: 1;
       }
-  
-      .btn:hover {
-          background-color: var(--primary-hover);
-          transform: translateY(-1px);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem;
       }
-  
-      p {
-          text-align: center;
-          margin-top: 0.75rem;
-          color: var(--text-secondary);
-          font-size: 0.813rem;
-          grid-column: span 2;
+
+      h1 {
+        font-size: 1.25rem;
       }
-  
-      p a {
-          color: var(--primary-color);
-          text-decoration: none;
-          font-weight: 500;
-          margin-left: 0.25rem;
-      }
-  
-      .social-login {
-          margin-top: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid var(--input-border);
-      }
-  
-      .social-btn {
-          width: 100%;
-          padding: 0.625rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          background-color: white;
-          border: 1px solid var(--input-border);
-          border-radius: 6px;
-          text-decoration: none;
-          transition: all 0.2s ease;
-      }
-  
-      .social-btn:hover {
-          background-color: #f8fafc;
-      }
-  
-      .social-btn img {
-          width: 20px;
-          height: 20px;
-      }
-  
-      .social-btn.google {
-          color: var(--text-primary);
-          font-weight: 500;
-      }
-  
-      /* Responsive Design */
-      @media (max-width: 768px) {
-          .container {
-              max-width: 100%;
-              padding: 1.25rem;
-              margin: 0.75rem;
-          }
-  
-          #signupForm {
-              grid-template-columns: 1fr;
-          }
-  
-          .form-group,
-          .btn {
-              grid-column: 1;
-          }
-      }
-  
-      @media (max-width: 480px) {
-          .container {
-              padding: 1rem;
-          }
-  
-          h1 {
-              font-size: 1.25rem;
-          }
-      }
+    }
   </style>
-  
-    <body>
-      <div class="container">
-          <h1>Register</h1>
-          <form id="signupForm">
-              <div class="form-group">
-                  <label for="username">Username</label>
-                  <input type="text" id="username" placeholder="Enter your username">
-                  <span class="error" id="usernameError"></span>
-              </div>
-              <div class="form-group">
-                  <label for="phone">Phone</label>
-                  <input type="tel" id="phone" placeholder="Enter your phone number">
-                  <span class="error" id="phoneError"></span>
-              </div>
-              <div class="form-group">
-                  <label for="email">Email</label>
-                  <input type="email" id="email" placeholder="Enter your email">
-                  <span class="error" id="emailError"></span>
-              </div>
-              <div class="form-group">
-                  <label for="password">Password</label>
-                  <input type="password" id="password" placeholder="Enter your password">
-                  <span class="error" id="passwordError"></span>
-              </div>
-              <div class="form-group">
-                  <label for="confirm-password">Confirm Password</label>
-                  <input type="password" id="confirm-password" placeholder="Re-enter your password">
-                  <span class="error" id="confirmPasswordError"></span>
-              </div>
-              <button type="submit" class="btn">Sign Up</button>
-              <p>Already have an account? <a href="/login">Login here</a></p>
-          </form>
-          <div class="social-login">
-              <a href="/auth/google" class="social-btn google">
-                  <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google">
-                  Google
-              </a>
-          </div>
+
+<body>
+  <div class="container">
+    <h1>Register</h1>
+    <form id="signupForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username">
+        <span class="error" id="usernameError"></span>
       </div>
-  </body>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" placeholder="Enter your phone number">
+        <span class="error" id="phoneError"></span>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email">
+        <span class="error" id="emailError"></span>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+        <span class="error" id="passwordError"></span>
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" placeholder="Re-enter your password">
+        <span class="error" id="confirmPasswordError"></span>
+      </div>
+      <button type="submit" class="btn">Sign Up</button>
+      <p>Already have an account? <a href="/login">Login here</a></p>
+    </form>
+    <div class="social-login">
+      <a href="/auth/google" class="social-btn google">
+        <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google">
+        Google
+      </a>
+    </div>
+  </div>
+</body>
+
+
+
+
+
+
+<script>
+  // Form validation function
+  const signupForm = document.getElementById('signupForm');
+
+  signupForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    // Clear previous error messages
+    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+    // Collect form data
+    const username = document.getElementById('username').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+    let isValid = true;
+
+    // Username validation
+    const usernameRegex = /^[a-zA-Z\s]+$/;
+    if (!username || username.length < 3 || !usernameRegex.test(username)) {
+      document.getElementById('usernameError').textContent = 'Username must be at least 3 alphabetic characters with no numbers or special characters.';
+      isValid = false;
+    }
+
+    // Phone number validation (example: must be 10 digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      document.getElementById('phoneError').textContent = 'Phone number must be 10 digits.';
+      isValid = false;
+    }
+
+    // Email validation
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (email && !emailRegex.test(email)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+      isValid = false;
+    }
+
   
+    // Strong password 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      document.getElementById('passwordError').textContent =
+        'Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, a number, and a special character.';
+      isValid = false;
+    } else {
+      document.getElementById('passwordError').textContent = ''; // Clear error if valid
+    }
+
+    // Confirm Password Validation
+    if (password !== confirmPassword) {
+      document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+      isValid = false;
+    } else {
+      document.getElementById('confirmPasswordError').textContent = ''; // Clear error if passwords match
+    }
+
+    // If the form is valid, proceed with submission
+    if (isValid) {
+      const formData = { username, phone, email, password, cpassword: confirmPassword };
+
+      try {
+        const response = await fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
 
 
 
+        let result;
 
-
-  <script>
-    // Form validation function
-    const signupForm = document.getElementById('signupForm');
-
-    signupForm.addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      // Clear previous error messages
-      document.querySelectorAll('.error').forEach(error => error.textContent = '');
-
-      // Collect form data
-      const username = document.getElementById('username').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const confirmPassword = document.getElementById('confirm-password').value.trim();
-
-      let isValid = true;
-
-      // Username validation
-      const usernameRegex = /^[a-zA-Z]+$/;
-      if (!username || username.length < 3 || !usernameRegex.test(username)) {
-        document.getElementById('usernameError').textContent = 'Username must be at least 3 alphabetic characters with no numbers or special characters.';
-        isValid = false;
-      }
-
-      // Phone number validation (example: must be 10 digits)
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(phone)) {
-        document.getElementById('phoneError').textContent = 'Phone number must be 10 digits.';
-        isValid = false;
-      }
-
-      // Email validation
-      const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (email && !emailRegex.test(email)) {
-        document.getElementById('emailError').textContent = 'Please enter a valid email address.';
-        isValid = false;
-      }
-
-      // Password validation
-      const passwordRegex = /^[A-Za-z0-9]+$/;
-      if (password.length < 4) {
-        document.getElementById('passwordError').textContent = 'Password must be at least 4 characters long.';
-        isValid = false;
-      } else if (!passwordRegex.test(password)) {
-        document.getElementById('passwordError').textContent = 'Password can only contain alphabets and numbers.';
-        isValid = false;
-      } else {
-        document.getElementById('passwordError').textContent = ''; // Clear the error if the password is valid
-      }
-
-
-      if (password !== confirmPassword) {
-        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
-        isValid = false;
-      } else {
-        document.getElementById('confirmPasswordError').textContent = ''; // Clear the error if passwords match
-      }
-
-      // If the form is valid, proceed with submission
-      if (isValid) {
-        const formData = { username, phone, email, password, cpassword: confirmPassword };
-
-        try {
-          const response = await fetch('/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData),
-          });
-
-
-
-          let result;
-
-          // Safely handle different response types
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            result = await response.json(); // Parse as JSON
-          } else {
-            result = { message: await response.text() }; // Parse as plain text
-          }
-
-
-
-          console.log("result after registration", result);
-
-          if (response.ok) {
-            window.location.href = '/verifyOtp';
-          } else {
-            Swal.fire('Error', result.message || 'Something went wrong!', 'error');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          Swal.fire('Error', 'An unexpected error occurred.', 'error');
+        // Safely handle different response types
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json(); // Parse as JSON
+        } else {
+          result = { message: await response.text() }; // Parse as plain text
         }
+
+
+
+        console.log("result after registration", result);
+
+        if (response.ok) {
+          window.location.href = '/verifyOtp';
+        } else {
+          Swal.fire('Error', result.message || 'Something went wrong!', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'An unexpected error occurred.', 'error');
       }
-    });
-  </script>
+    }
+  });
+</script>
 </body>
 
 </html>

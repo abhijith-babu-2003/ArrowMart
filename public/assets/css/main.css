@@ -117,6 +117,8 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 
 /*//////////////////////////////////////////////////////////////////
 [ LOADDING ]*/
+
+
 .animsition-loading-1 {
   position: absolute;
   top: 50%;
@@ -3494,6 +3496,7 @@ input.num-product::-webkit-inner-spin-button {
 /*//////////////////////////////////////////////////////////////////
 [ MD ]*/
 @media (max-width: 767px) {
+  
   .m-0-md {
     margin: 0;
   }

@@ -184,13 +184,14 @@ async function sendVerificationEmail(email, otp) {
 
 const verifyOtp = async (req, res) => {
   try {
-    const { otp } = req.body; //---destructure
+    const { otp } = req.body; 
 
     if (!otp) {
       return res
         .status(400)
         .json({ success: false, message: "OTP is required" });
     }
+    
     
     if (otp.toString() === req.session.userOtp?.toString()) {
       const user = req.session.userData;

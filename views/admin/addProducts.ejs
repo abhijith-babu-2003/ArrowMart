@@ -287,47 +287,51 @@
             if (!description) {
                 document.getElementById("description-error").textContent = errorMessages.description;
                 isValid = false;
-            } else if (!/^[A-Za-z\s]+$/.test(description)) {
+            } else if (!/^[A-Za-z\s,\.]+$/.test(description)) {
                 document.getElementById("description-error").textContent = "Description must contain only alphabets and spaces.";
                 isValid = false;
             }
 
-            // Regular Price Validation
+            // Regular Price 
             const regularPrice = Number(document.querySelector('[name="regularPrice"]').value.trim());
             if (isNaN(regularPrice) || regularPrice <= 0) {
                 document.getElementById("regularPrice-error").textContent = errorMessages.regularPrice;
                 isValid = false;
             }
 
-            // Sale Price Validation
+            // Sale Price 
             const salePrice = Number(document.querySelector('[name="salePrice"]').value.trim());
             if (isNaN(salePrice) || salePrice <= 0) {
                 document.getElementById("salePrice-error").textContent = errorMessages.salePrice;
                 isValid = false;
             }
 
-            // Quantity Validation
+            if (salePrice >= regularPrice) {
+                document.getElementById("salePrice-error").textContent = "Sale price must be less than the regular price.";
+                isValid = false;
+            }
+            // Quantity 
             const quantity = Number(document.querySelector('[name="quantity"]').value.trim());
             if (isNaN(quantity) || quantity <= 0) {
                 document.getElementById("quantity-error").textContent = errorMessages.quantity;
                 isValid = false;
             }
 
-            // Color Validation
+            // Color 
             const color = document.querySelector('[name="color"]').value.trim();
             if (!color) {
                 document.getElementById("color-error").textContent = errorMessages.color;
                 isValid = false;
             }
 
-            // Category Validation
+            // Category
             const category = document.querySelector('[name="category"]').value.trim();
             if (!category) {
                 document.getElementById("category-error").textContent = errorMessages.category;
                 isValid = false;
             }
 
-            // Image Validation
+            // Image 
             const imageInputs = document.querySelectorAll('[name="images"]');
             let imageUploaded = false;
             imageInputs.forEach((input) => {
